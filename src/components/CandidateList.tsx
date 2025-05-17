@@ -147,7 +147,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
 
       {/* Candidate List Table */}
       {candidates.length === 0 ? (
-        <p>{searchTerm || filterStatus !== "All" ? "Tidak ada kandidat yang cocok dengan filter Anda." : "Belum ada kandidat yang ditambahkan."}</p> {/* Added filterStatus check here */}
+        <p>{searchTerm ? "Tidak ada kandidat yang cocok dengan pencarian Anda." : "Belum ada kandidat yang ditambahkan."}</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
