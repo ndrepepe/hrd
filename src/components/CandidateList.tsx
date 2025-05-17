@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Input } from "@/components/ui/input"; // Import Input component
 import { format } from "date-fns";
 
 interface Candidate {
@@ -35,17 +36,28 @@ interface CandidateListProps {
 const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search input
 
   useEffect(() => {
     fetchCandidates();
-  }, [refreshTrigger]); // Depend on refreshTrigger
+  }, [refreshTrigger, searchTerm]); // Depend on refreshTrigger and searchTerm
 
   const fetchCandidates = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from("candidates")
-      .select("*, positions(title)") // Select candidate data and join with positions to get title
+      .select("*, positions(title)")
       .order("created_at", { ascending: false });
+
+    // Add search filter if searchTerm is not empty
+    if (searchTerm) {
+      const searchPattern = `%${searchTerm}%`;
+      query = query.or(
+        `name.ilike.${searchPattern},positions.title.ilike.${searchPattern},place_of_birth.ilike.${searchPattern},phone.ilike.${searchPattern},last_education.ilike.${searchPattern},skills.ilike.${searchPattern}`
+      );
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Error fetching candidates:", error);
@@ -63,8 +75,20 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
   return (
     <div className="w-full max-w-4xl mx-auto">
       <h3 className="text-xl font-semibold mb-4">Daftar Kandidat</h3>
+
+      {/* Search Input */}
+      <div className="mb-4">
+        <Input
+          placeholder="Cari kandidat..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full"
+        />
+      </div>
+
+      {/* Candidate List Table */}
       {candidates.length === 0 ? (
-        <p>Belum ada kandidat yang ditambahkan.</p>
+        <p>{searchTerm ? "Tidak ada kandidat yang cocok dengan pencarian Anda." : "Belum ada kandidat yang ditambahkan."}</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
