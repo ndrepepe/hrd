@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,8 +15,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-}
-from "@/components/ui/form";
+} from "@/components/ui/form"; // Fixed import formatting
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -185,9 +182,9 @@ const CandidateManager = () => {
                     </FormControl>
                     <SelectContent>
                       {loadingPositions ? (
-                        <SelectItem disabled>Memuat posisi...</SelectItem> {/* Removed value="" */}
+                        <SelectItem disabled>Memuat posisi...</SelectItem>
                       ) : positions.length === 0 ? (
-                         <SelectItem disabled>Belum ada posisi</SelectItem> {/* Removed value="" */}
+                         <SelectItem disabled>Belum ada posisi</SelectItem>
                       ) : (
                         positions.map((position) => (
                           <SelectItem key={position.id} value={position.id}>
