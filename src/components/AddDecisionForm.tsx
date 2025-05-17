@@ -47,6 +47,8 @@ interface Candidate {
   id: string;
   name: string;
   position_id: string | null; // Add position_id to Candidate interface
+  // Add decisions to check if the candidate already has a decision
+  decisions?: { id: string }[] | null;
 }
 
 interface AddDecisionFormProps {
@@ -74,17 +76,23 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
 
   const fetchCandidates = async () => {
     setLoadingCandidates(true);
-    // Select position_id as well
+    // Select candidates and left join decisions (only need the id to check existence)
     const { data, error } = await supabase
       .from("candidates")
-      .select("id, name, position_id")
+      .select("id, name, position_id, decisions!left(id)") // Select position_id and left join decisions
       .order("name", { ascending: true });
 
     if (error) {
       console.error("Error fetching candidates:", error);
       showError("Gagal memuat daftar kandidat: " + error.message);
+      setCandidates([]); // Clear candidates on error
     } else {
-      setCandidates(data || []);
+      // Filter candidates who do NOT have any decisions
+      const candidatesWithoutDecisions = data?.filter(candidate =>
+        !candidate.decisions || candidate.decisions.length === 0
+      );
+      console.log("Fetched candidates for decision form (filtered):", candidatesWithoutDecisions);
+      setCandidates(candidatesWithoutDecisions || []);
     }
     setLoadingCandidates(false);
   };
@@ -140,6 +148,9 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
 
     form.reset();
     onDecisionAdded(); // Call callback to refresh lists (Decisions and potentially Positions/Candidates)
+    // Re-fetch candidates for the dropdown after adding a decision
+    // This is important because the candidate who just received a decision should no longer appear
+    fetchCandidates();
   }
 
   return (
@@ -163,7 +174,7 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                     {loadingCandidates ? (
                       <SelectItem disabled>Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled>Belum ada kandidat</SelectItem>
+                       <SelectItem disabled>Tidak ada kandidat yang tersedia untuk keputusan</SelectItem> {/* Updated message */}
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
