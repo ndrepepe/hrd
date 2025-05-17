@@ -19,7 +19,7 @@ interface DailyReport {
   report_date: string;
   reporter_name: string;
   activity: string;
-  hours_worked: number | null;
+  // Removed hours_worked field
   notes: string | null;
 }
 
@@ -39,7 +39,7 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("daily_reports")
-      .select("*")
+      .select("*") // Select all columns, hours_worked will still be fetched but not displayed
       .order("report_date", { ascending: false })
       .order("created_at", { ascending: false }); // Order by creation time for reports on the same day
 
@@ -69,7 +69,7 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                 <TableHead>Tanggal</TableHead>
                 <TableHead>Pelapor</TableHead>
                 <TableHead>Aktivitas</TableHead>
-                <TableHead>Jam Kerja</TableHead>
+                {/* Removed TableHead for Jam Kerja */}
                 <TableHead>Catatan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
               </TableRow>
@@ -80,7 +80,7 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                   <TableCell>{format(new Date(report.report_date), "dd-MM-yyyy")}</TableCell>
                   <TableCell>{report.reporter_name}</TableCell>
                   <TableCell>{report.activity}</TableCell>
-                  <TableCell>{report.hours_worked !== null ? report.hours_worked : "-"}</TableCell>
+                  {/* Removed TableCell for hours_worked */}
                   <TableCell>{report.notes || "-"}</TableCell>
                   <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
                 </TableRow>

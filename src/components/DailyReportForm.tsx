@@ -34,12 +34,7 @@ const formSchema = z.object({
   activity: z.string().min(10, {
     message: "Deskripsi aktivitas harus minimal 10 karakter.",
   }),
-  hours_worked: z.preprocess(
-    (val) => Number(val),
-    z.number().positive({
-      message: "Jam kerja harus angka positif.",
-    }).optional()
-  ),
+  // Removed hours_worked field
   notes: z.string().optional(),
 });
 
@@ -54,7 +49,7 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
       report_date: undefined,
       reporter_name: "",
       activity: "",
-      hours_worked: undefined,
+      // Removed hours_worked default value
       notes: "",
     },
   });
@@ -69,7 +64,7 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
           report_date: format(values.report_date, "yyyy-MM-dd"),
           reporter_name: values.reporter_name,
           activity: values.activity,
-          hours_worked: values.hours_worked,
+          // Removed hours_worked from insert data
           notes: values.notes,
         },
       ])
@@ -155,19 +150,7 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
               </FormItem>
             )}
           />
-           <FormField
-            control={form.control}
-            name="hours_worked"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jam Kerja (Opsional)</FormLabel>
-                <FormControl>
-                  <Input type="number" step="0.5" placeholder="Contoh: 8" {...field} onChange={e => field.onChange(e.target.value === "" ? undefined : e.target.value)} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+           {/* Removed FormField for hours_worked */}
            <FormField
             control={form.control}
             name="notes"
