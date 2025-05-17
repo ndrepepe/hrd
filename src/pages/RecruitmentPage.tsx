@@ -43,75 +43,68 @@ const RecruitmentPage = () => {
     setRefreshInterviews(prev => prev + 1); // Trigger refresh for AddInterviewForm (to update candidate dropdown)
   };
 
-  // Estimate the height of the fixed header (title, description, tabs list, padding)
-  // This is an approximation, adjust mt- value below if needed
-  const fixedHeaderHeightEstimate = 'mt-64'; // Adjusted height estimate for more tabs
-
   return (
     <div className="container mx-auto p-4 pt-16"> {/* Main page container, pt-16 for main nav */}
-      {/* Tabs component wraps everything */}
+      <h1 className="text-3xl font-bold mb-2 text-center">Modul Rekrutmen Karyawan</h1>
+      <p className="text-center text-gray-600 mb-8">
+        Kelola posisi yang dibutuhkan, data kandidat, proses wawancara, dan keputusan rekrutmen di sini.
+      </p>
+
+      {/* Tabs component wraps the sidebar and content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* Fixed container for Title, Description, and TabsList */}
-        <div className="fixed top-16 left-0 right-0 z-50 w-full bg-white shadow-md">
-           <div className="container mx-auto p-4"> {/* Inner container */}
-              <h1 className="text-3xl font-bold mb-2 text-center">Modul Rekrutmen Karyawan</h1>
-              <p className="text-center text-gray-600 mb-4">
-                Kelola posisi yang dibutuhkan, data kandidat, proses wawancara, dan keputusan rekrutmen di sini.
-              </p>
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8"> {/* Adjusted grid for 8 tabs */}
-                <TabsTrigger value="add-position">Tambah Posisi</TabsTrigger>
-                <TabsTrigger value="list-positions">Daftar Posisi</TabsTrigger>
-                <TabsTrigger value="add-candidate">Tambah Kandidat</TabsTrigger>
-                <TabsTrigger value="list-candidates">Daftar Kandidat</TabsTrigger>
-                <TabsTrigger value="add-interview">Tambah Wawancara</TabsTrigger>
-                <TabsTrigger value="list-interviews">Riwayat Wawancara</TabsTrigger>
-                <TabsTrigger value="add-decision">Tambah Keputusan</TabsTrigger>
-                <TabsTrigger value="list-decisions">Daftar Keputusan</TabsTrigger>
-                <TabsTrigger value="briefing-list">Pembekalan</TabsTrigger> {/* New Tab Trigger */}
-              </TabsList>
-           </div>
-        </div>
+        {/* Flex container for sidebar (TabsList) and main content (TabsContent) */}
+        <div className="flex flex-col md:flex-row gap-6"> {/* Use flex-col on small screens, flex-row on medium+ */}
+          {/* Vertical TabsList (Sidebar) */}
+          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0"> {/* Vertical layout, fixed width on md+, background, padding, rounded corners, prevent shrinking */}
+            <TabsTrigger value="add-position" className="justify-start">Tambah Posisi</TabsTrigger> {/* Align text left */}
+            <TabsTrigger value="list-positions" className="justify-start">Daftar Posisi</TabsTrigger>
+            <TabsTrigger value="add-candidate" className="justify-start">Tambah Kandidat</TabsTrigger>
+            <TabsTrigger value="list-candidates" className="justify-start">Daftar Kandidat</TabsTrigger>
+            <TabsTrigger value="add-interview" className="justify-start">Tambah Wawancara</TabsTrigger>
+            <TabsTrigger value="list-interviews" className="justify-start">Riwayat Wawancara</TabsTrigger>
+            <TabsTrigger value="add-decision" className="justify-start">Tambah Keputusan</TabsTrigger>
+            <TabsTrigger value="list-decisions" className="justify-start">Daftar Keputusan</TabsTrigger>
+            <TabsTrigger value="briefing-list" className="justify-start">Pembekalan</TabsTrigger>
+          </TabsList>
 
-        {/* Scrolling content area */}
-        {/* Add top margin to push content down below the fixed header */}
-        <div className={`${fixedHeaderHeightEstimate}`}>
-          <TabsContent value="add-position" className="mt-0">
-            <AddPositionForm onPositionAdded={handlePositionAdded} />
-          </TabsContent>
+          {/* Main content area */}
+          <div className="flex-grow"> {/* Takes remaining horizontal space */}
+            <TabsContent value="add-position" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
+              <AddPositionForm onPositionAdded={handlePositionAdded} />
+            </TabsContent>
 
-          <TabsContent value="list-positions" className="mt-0">
-            <PositionList refreshTrigger={refreshPositions} />
-          </TabsContent>
+            <TabsContent value="list-positions" className="mt-0">
+              <PositionList refreshTrigger={refreshPositions} />
+            </TabsContent>
 
-          <TabsContent value="add-candidate" className="mt-0">
-            <AddCandidateForm onCandidateAdded={handleCandidateAdded} refreshPositionsTrigger={refreshPositions} /> {/* Pass refresh trigger for positions */}
-          </TabsContent>
+            <TabsContent value="add-candidate" className="mt-0">
+              <AddCandidateForm onCandidateAdded={handleCandidateAdded} refreshPositionsTrigger={refreshPositions} />
+            </TabsContent>
 
-          <TabsContent value="list-candidates" className="mt-0">
-            {/* Pass both refresh triggers to CandidateList */}
-            <CandidateList refreshTrigger={refreshCandidates} refreshDecisionsTrigger={refreshDecisions} />
-          </TabsContent>
+            <TabsContent value="list-candidates" className="mt-0">
+              <CandidateList refreshTrigger={refreshCandidates} refreshDecisionsTrigger={refreshDecisions} />
+            </TabsContent>
 
-          <TabsContent value="add-interview" className="mt-0">
-            <AddInterviewForm onInterviewAdded={handleInterviewAdded} refreshCandidatesTrigger={refreshCandidates} /> {/* Pass refresh trigger for candidates */}
-          </TabsContent>
+            <TabsContent value="add-interview" className="mt-0">
+              <AddInterviewForm onInterviewAdded={handleInterviewAdded} refreshCandidatesTrigger={refreshCandidates} />
+            </TabsContent>
 
-          <TabsContent value="list-interviews" className="mt-0">
-            <InterviewList refreshTrigger={refreshInterviews} />
-          </TabsContent>
+            <TabsContent value="list-interviews" className="mt-0">
+              <InterviewList refreshTrigger={refreshInterviews} />
+            </TabsContent>
 
-          <TabsContent value="add-decision" className="mt-0">
-            <AddDecisionForm onDecisionAdded={handleDecisionAdded} refreshCandidatesTrigger={refreshCandidates} /> {/* Pass refresh trigger for candidates */}
-          </TabsContent>
+            <TabsContent value="add-decision" className="mt-0">
+              <AddDecisionForm onDecisionAdded={handleDecisionAdded} refreshCandidatesTrigger={refreshCandidates} />
+            </TabsContent>
 
-          <TabsContent value="list-decisions" className="mt-0">
-            <DecisionList refreshTrigger={refreshDecisions} />
-          </TabsContent>
+            <TabsContent value="list-decisions" className="mt-0">
+              <DecisionList refreshTrigger={refreshDecisions} />
+            </TabsContent>
 
-          {/* New Tab Content for Briefing List */}
-          <TabsContent value="briefing-list" className="mt-0">
-             <BriefingList refreshTrigger={refreshDecisions} /> {/* Use refreshDecisionsTrigger */}
-          </TabsContent>
+            <TabsContent value="briefing-list" className="mt-0">
+               <BriefingList refreshTrigger={refreshDecisions} />
+            </TabsContent>
+          </div>
         </div>
       </Tabs>
     </div>
