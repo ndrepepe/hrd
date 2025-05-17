@@ -27,7 +27,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea"; // Keep Textarea import just in case, though not used for briefing_result anymore
+import {
+  Select, // Import Select components
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "@/components/ui/calendar";
@@ -35,14 +42,14 @@ import { Calendar } from "@/components/ui/calendar";
 // Define the schema for the form fields
 const formSchema = z.object({
   end_date: z.date().optional().nullable(), // Optional and can be null
-  briefing_result: z.string().optional().nullable(), // Optional and can be null
+  briefing_result: z.enum(['dikontrak', 'dihentikan', 'mengundurkan diri']).optional().nullable(), // Changed to enum with specific values, optional and nullable
 });
 
 // Define the type for the data passed to the dialog
 interface BriefingDecisionData {
   id: string;
   end_date: string | null;
-  briefing_result: string | null;
+  briefing_result: 'dikontrak' | 'dihentikan' | 'mengundurkan diri' | null; // Update type to match enum
 }
 
 interface EditBriefingDialogProps {
@@ -57,7 +64,7 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
     resolver: zodResolver(formSchema),
     defaultValues: {
       end_date: undefined,
-      briefing_result: "",
+      briefing_result: undefined, // Default for optional enum is undefined
     },
   });
 
@@ -67,14 +74,14 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
       form.reset({
         // Convert date string to Date object for the date picker
         end_date: decision.end_date ? parseISO(decision.end_date) : undefined,
-        // Ensure optional fields are handled correctly if null
-        briefing_result: decision.briefing_result || "",
+        // Set the value for the select dropdown, use undefined for null
+        briefing_result: decision.briefing_result || undefined,
       });
     } else {
       // Reset form when dialog is closed or decision is null
       form.reset({
         end_date: undefined,
-        briefing_result: "",
+        briefing_result: undefined,
       });
     }
   }, [decision, form]); // Depend on 'decision' and 'form'
@@ -84,10 +91,10 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
 
     console.log("Submitting edit briefing form:", values, "Decision ID:", decision.id);
 
-    // Prepare update data, converting empty strings to null for optional text fields
+    // Prepare update data, converting undefined/empty string from select to null
     const updateData = {
       end_date: values.end_date ? format(values.end_date, "yyyy-MM-dd") : null,
-      briefing_result: values.briefing_result && values.briefing_result.trim() !== '' ? values.briefing_result.trim() : null,
+      briefing_result: values.briefing_result || null, // Save undefined/empty string as null
     };
 
     const { data, error } = await supabase
@@ -164,16 +171,27 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
               )}
             />
 
-            {/* Hasil Pembekalan Field */}
+            {/* Hasil Pembekalan Field (Select Dropdown) */}
             <FormField
               control={form.control}
               name="briefing_result"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hasil Pembekalan (Opsional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Masukkan hasil pembekalan..." {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value || ""}> {/* Use value and handle null/undefined */}
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih hasil" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {/* Add an empty option for clearing the value */}
+                      <SelectItem value="">- Pilih Hasil -</SelectItem>
+                      <SelectItem value="dikontrak">Dikontrak</SelectItem>
+                      <SelectItem value="dihentikan">Dihentikan</SelectItem>
+                      <SelectItem value="mengundurkan diri">Mengundurkan Diri</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
