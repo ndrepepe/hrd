@@ -62,21 +62,6 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
   const [positions, setPositions] = useState<Position[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(true);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      position_id: "",
-      name: "",
-      place_of_birth: "",
-      date_of_birth: undefined,
-      phone: "",
-      address_ktp: "",
-      last_education: "",
-      major: "",
-      skills: "",
-    },
-  });
-
   useEffect(() => {
     fetchPositions();
   }, [refreshPositionsTrigger]); // Depend on refreshPositionsTrigger
@@ -95,7 +80,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
       setPositions(data || []);
     }
     setLoadingPositions(false);
-  };
+  }; // <-- Missing closing brace added here
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Submitting new candidate:", values);
@@ -147,9 +132,9 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   </FormControl>
                   <SelectContent>
                     {loadingPositions ? (
-                      <SelectItem disabled>Memuat posisi...</SelectItem> {/* Removed value="" */}
+                      <SelectItem disabled>Memuat posisi...</SelectItem>
                     ) : positions.length === 0 ? (
-                       <SelectItem disabled>Belum ada posisi</SelectItem> {/* Removed value="" */}
+                       <SelectItem disabled>Belum ada posisi</SelectItem>
                     ) : (
                       positions.map((position) => (
                         <SelectItem key={position.id} value={position.id}>

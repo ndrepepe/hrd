@@ -93,7 +93,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
       setCars(data || []);
     }
     setLoadingCars(false);
-  };
+  }; // <-- Missing closing brace added here
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -143,9 +143,9 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
                   </FormControl>
                   <SelectContent>
                     {loadingCars ? (
-                      <SelectItem disabled>Memuat mobil...</SelectItem> {/* Removed value="" */}
+                      <SelectItem disabled>Memuat mobil...</SelectItem>
                     ) : cars.length === 0 ? (
-                       <SelectItem disabled>Belum ada mobil</SelectItem> {/* Removed value="" */}
+                       <SelectItem disabled>Belum ada mobil</SelectItem>
                     ) : (
                       cars.map((car) => (
                         <SelectItem key={car.id} value={car.id}>

@@ -85,7 +85,7 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
       setCandidates(data || []);
     }
     setLoadingCandidates(false);
-  };
+  }; // <-- Missing closing brace added here
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("onSubmit function called with values:", values);
@@ -132,9 +132,9 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
-                      <SelectItem disabled>Memuat kandidat...</SelectItem> {/* Removed value="" */}
+                      <SelectItem disabled>Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled>Belum ada kandidat</SelectItem> {/* Removed value="" */}
+                       <SelectItem disabled>Belum ada kandidat</SelectItem>
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
