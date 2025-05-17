@@ -46,6 +46,7 @@ const formSchema = z.object({
 interface Candidate {
   id: string;
   name: string;
+  position_id: string | null; // Add position_id to Candidate interface
 }
 
 interface AddDecisionFormProps {
@@ -73,9 +74,10 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
 
   const fetchCandidates = async () => {
     setLoadingCandidates(true);
+    // Select position_id as well
     const { data, error } = await supabase
       .from("candidates")
-      .select("id, name")
+      .select("id, name, position_id")
       .order("name", { ascending: true });
 
     if (error) {
@@ -90,7 +92,8 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("onSubmit function called with values:", values);
 
-    const { data, error } = await supabase
+    // Insert the decision first
+    const { data: decisionData, error: decisionError } = await supabase
       .from("decisions")
       .insert([
         {
@@ -102,15 +105,41 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
       ])
       .select();
 
-    if (error) {
-      console.error("Error inserting decision:", error);
-      showError("Gagal menyimpan data keputusan: " + error.message);
-    } else {
-      console.log("Decision inserted successfully:", data);
-      showSuccess("Data keputusan berhasil disimpan!");
-      form.reset();
-      onDecisionAdded(); // Call callback
+    if (decisionError) {
+      console.error("Error inserting decision:", decisionError);
+      showError("Gagal menyimpan data keputusan: " + decisionError.message);
+      return; // Stop if decision insertion fails
     }
+
+    console.log("Decision inserted successfully:", decisionData);
+    showSuccess("Data keputusan berhasil disimpan!");
+
+    // If the status is 'Accepted', find the candidate's position and update it
+    if (values.status === 'Accepted') {
+        const selectedCandidate = candidates.find(c => c.id === values.candidate_id);
+        if (selectedCandidate?.position_id) {
+            console.log(`Candidate ${selectedCandidate.name} accepted, updating position ${selectedCandidate.position_id} status to 'Filled'`);
+            const { error: positionUpdateError } = await supabase
+                .from("positions")
+                .update({ status: 'Filled' })
+                .eq("id", selectedCandidate.position_id);
+
+            if (positionUpdateError) {
+                console.error("Error updating position status:", positionUpdateError);
+                showError("Gagal memperbarui status posisi: " + positionUpdateError.message);
+            } else {
+                console.log("Position status updated successfully.");
+                // Optionally show a success toast for position update
+                // showSuccess("Status posisi berhasil diperbarui!");
+            }
+        } else {
+            console.warn("Accepted candidate has no position_id or position not found in state.");
+        }
+    }
+
+
+    form.reset();
+    onDecisionAdded(); // Call callback to refresh lists (Decisions and potentially Positions/Candidates)
   }
 
   return (

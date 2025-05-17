@@ -16,6 +16,7 @@ interface Position {
   id: string;
   created_at: string;
   title: string;
+  status: string; // Add status to Position interface
 }
 
 interface PositionListProps {
@@ -34,7 +35,7 @@ const PositionList = ({ refreshTrigger }: PositionListProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("positions")
-      .select("*")
+      .select("*") // Select all columns, including status
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -61,6 +62,7 @@ const PositionList = ({ refreshTrigger }: PositionListProps) => {
             <TableHeader>
               <TableRow>
                 <TableHead>Nama Posisi</TableHead>
+                <TableHead>Status</TableHead> {/* Add Status column header */}
                 <TableHead>Dibuat Pada</TableHead>
               </TableRow>
             </TableHeader>
@@ -68,6 +70,7 @@ const PositionList = ({ refreshTrigger }: PositionListProps) => {
               {positions.map((position) => (
                 <TableRow key={position.id}>
                   <TableCell>{position.title}</TableCell>
+                  <TableCell>{position.status}</TableCell> {/* Display status */}
                   <TableCell>{new Date(position.created_at).toLocaleString()}</TableCell>
                 </TableRow>
               ))}

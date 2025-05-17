@@ -63,6 +63,7 @@ const formSchema = z.object({
 interface Position {
   id: string;
   title: string;
+  status: string; // Add status to Position interface
 }
 
 interface AddCandidateFormProps {
@@ -112,7 +113,8 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
     setLoadingPositions(true);
     const { data, error } = await supabase
       .from("positions")
-      .select("id, title")
+      .select("id, title, status") // Select status
+      .eq("status", "Open") // Filter by status 'Open'
       .order("title", { ascending: true });
 
     if (error) {
@@ -182,7 +184,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                     {loadingPositions ? (
                       <SelectItem disabled>Memuat posisi...</SelectItem>
                     ) : positions.length === 0 ? (
-                       <SelectItem disabled>Belum ada posisi</SelectItem>
+                       <SelectItem disabled>Belum ada posisi yang terbuka</SelectItem> // Updated message
                     ) : (
                       positions.map((position) => (
                         <SelectItem key={position.id} value={position.id}>
