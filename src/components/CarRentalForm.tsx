@@ -120,6 +120,9 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
             rent_date: data.rent_date ? parseISO(data.rent_date) : undefined,
             // Ensure optional fields are handled correctly if null
             driver_name: data.driver_name || "",
+            // Format time strings to HH:MM for input type="time"
+            start_time: data.start_time ? data.start_time.slice(0, 5) : "",
+            end_time: data.end_time ? data.end_time.slice(0, 5) : "",
           });
         } else {
            // Handle case where ID is not found
