@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
+import { format, differenceInYears } from "date-fns"; // Import differenceInYears
 import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -88,6 +88,21 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
       skills: "",
     },
   });
+
+  // Watch the date_of_birth field to react to changes
+  const dateOfBirth = form.watch('date_of_birth');
+
+  // Function to calculate age
+  const calculateAge = (dob: Date | undefined): number | null => {
+    if (!dob || isNaN(dob.getTime())) { // Check if dob is a valid Date object
+      return null;
+    }
+    const today = new Date();
+    return differenceInYears(today, dob);
+  };
+
+  const calculatedAge = calculateAge(dateOfBirth);
+
 
   useEffect(() => {
     fetchPositions();
@@ -200,7 +215,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   name="place_of_birth"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Tempat Lahir</FormLabel> {/* Removed (Opsional) */}
+                      <FormLabel>Tempat Lahir</FormLabel>
                       <FormControl>
                       <Input placeholder="Kota" {...field} />
                       </FormControl>
@@ -213,7 +228,13 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   name="date_of_birth"
                   render={({ field }) => (
                   <FormItem className="flex flex-col">
-                      <FormLabel>Tanggal Lahir</FormLabel> {/* Removed (Opsional) */}
+                      <FormLabel>
+                          Tanggal Lahir
+                          {/* Display calculated age */}
+                          {calculatedAge !== null && (
+                              <span className="ml-2 text-sm text-gray-600">({calculatedAge} tahun)</span>
+                          )}
+                      </FormLabel>
                       <Popover>
                       <PopoverTrigger asChild>
                           <FormControl>
@@ -255,7 +276,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nomor HP</FormLabel> {/* Removed (Opsional) */}
+                <FormLabel>Nomor HP</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: 0812..." {...field} />
                 </FormControl>
@@ -268,7 +289,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             name="address_ktp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Alamat KTP</FormLabel> {/* Removed (Opsional) */}
+                <FormLabel>Alamat KTP</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Alamat sesuai KTP" {...field} />
                 </FormControl>
@@ -282,7 +303,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   name="last_education"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Pendidikan Terakhir</FormLabel> {/* Removed (Opsional) */}
+                      <FormLabel>Pendidikan Terakhir</FormLabel>
                       <FormControl>
                       <Input placeholder="Contoh: S1 Teknik Informatika" {...field} />
                       </FormControl>
@@ -295,7 +316,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   name="major"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Jurusan</FormLabel> {/* Removed (Opsional) */}
+                      <FormLabel>Jurusan</FormLabel>
                       <FormControl>
                       <Input placeholder="Contoh: Teknik Informatika" {...field} />
                       </FormControl>
@@ -309,7 +330,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             name="skills"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kemampuan Tambahan (Opsional)</FormLabel> {/* Kept (Opsional) */}
+                <FormLabel>Kemampuan Tambahan (Opsional)</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Contoh: React, Node.js, SQL" {...field} />
                 </FormControl>
