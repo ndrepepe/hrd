@@ -3,13 +3,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import { SessionContextProvider } from '@supabase/auth-ui-react'; // Removed import
 import { supabase } from "@/integrations/supabase/client";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CarRentalPage from "./pages/CarRentalPage";
 import RecruitmentPage from "./pages/RecruitmentPage";
+import DailyReportPage from "./pages/DailyReportPage"; // Import the new page
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -20,7 +20,6 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      {/* Removed SessionContextProvider wrapper */}
       <BrowserRouter>
         <Routes>
           {/* Public route for Login */}
@@ -30,6 +29,7 @@ const App = () => (
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/car-rental" element={<ProtectedRoute><CarRentalPage /></ProtectedRoute>} />
           <Route path="/recruitment" element={<ProtectedRoute><RecruitmentPage /></ProtectedRoute>} />
+          <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} /> {/* Add the new route */}
 
           {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
@@ -37,7 +37,6 @@ const App = () => (
           <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
-      {/* Removed closing tag for SessionContextProvider */}
     </TooltipProvider>
   </QueryClientProvider>
 );
