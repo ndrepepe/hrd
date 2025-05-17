@@ -23,7 +23,28 @@ const RecruitmentPage = () => {
   // Callbacks to trigger list refreshes
   const handlePositionAdded = () => {
     setRefreshPositions(prev => prev + 1);
+    // Also refresh candidate forms as new positions are available
+    setRefreshCandidates(prev => prev + 1); // This will trigger fetchCandidates in AddCandidateForm
   };
+
+  // New callback for position deletion
+  const handlePositionDeleted = () => {
+    setRefreshPositions(prev => prev + 1);
+    // Refresh all lists that might be affected by position changes
+    setRefreshCandidates(prev => prev + 1);
+    setRefreshInterviews(prev => prev + 1);
+    setRefreshDecisions(prev => prev + 1);
+  };
+
+  // New callback for position update (e.g., name change or status change)
+  const handlePositionUpdated = () => {
+    setRefreshPositions(prev => prev + 1);
+     // Refresh all lists that might be affected by position changes
+    setRefreshCandidates(prev => prev + 1);
+    setRefreshInterviews(prev => prev + 1);
+    setRefreshDecisions(prev => prev + 1);
+  };
+
 
   const handleCandidateAdded = () => {
     setRefreshCandidates(prev => prev + 1);
@@ -41,6 +62,8 @@ const RecruitmentPage = () => {
     // Also refresh candidate lists in Interview and Decision forms, as a candidate might now have a decision
     setRefreshCandidates(prev => prev + 1); // Trigger refresh for CandidateList and forms that depend on it
     setRefreshInterviews(prev => prev + 1); // Trigger refresh for AddInterviewForm (to update candidate dropdown)
+    // Also refresh position list, as an 'Accepted' decision changes position status
+    setRefreshPositions(prev => prev + 1);
   };
 
   return (
@@ -73,7 +96,11 @@ const RecruitmentPage = () => {
           </TabsContent>
 
           <TabsContent value="list-positions" className="mt-0">
-            <PositionList refreshTrigger={refreshPositions} />
+            <PositionList
+              refreshTrigger={refreshPositions}
+              onPositionDeleted={handlePositionDeleted} // Pass the new callback
+              onPositionUpdated={handlePositionUpdated} // Pass the new callback
+            />
           </TabsContent>
 
           <TabsContent value="add-candidate" className="mt-0">
