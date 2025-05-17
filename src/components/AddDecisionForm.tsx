@@ -37,6 +37,8 @@ const formSchema = z.object({
   }),
   status: z.string({
     required_error: "Status keputusan wajib dipilih.",
+  }).min(1, { // Added min(1) validation
+    message: "Status keputusan wajib dipilih.",
   }),
   start_date: z.date().optional(),
   rejection_reason: z.string().optional(),
@@ -60,7 +62,7 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
     resolver: zodResolver(formSchema),
     defaultValues: {
       candidate_id: "",
-      status: "",
+      status: "", // Default status is empty string
       start_date: undefined,
       rejection_reason: "",
     },
