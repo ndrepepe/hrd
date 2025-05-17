@@ -68,8 +68,8 @@ const BriefingList = ({ refreshTrigger }: BriefingListProps) => {
         status,
         start_date,
         rejection_reason,
-        end_date,         // Select new field
-        briefing_result,  // Select new field
+        end_date,
+        briefing_result,
         candidates (
           id,
           name,
@@ -79,7 +79,7 @@ const BriefingList = ({ refreshTrigger }: BriefingListProps) => {
           major,
           skills
         )
-      `)
+      `) // Removed the comments from the select string
       .eq("status", "Accepted") // Filter by Accepted status
       .order("created_at", { ascending: false }); // Order by decision creation date
 
