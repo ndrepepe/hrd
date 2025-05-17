@@ -128,6 +128,12 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
     }
   }
 
+  // Calculate year range for date picker
+  const currentYear = new Date().getFullYear();
+  const fromYear = currentYear - 100; // Allow selecting years up to 100 years ago
+  const toYear = currentYear; // Allow selecting up to the current year
+
+
   return (
     <div className="w-full max-w-lg mx-auto">
       <h3 className="text-xl font-semibold mb-4">Tambah Kandidat Baru</h3>
@@ -221,7 +227,9 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
-                          captionLayout="dropdown" // Added dropdown layout for year/month selection
+                          captionLayout="dropdown"
+                          fromYear={fromYear} // Set the start year for the dropdown
+                          toYear={toYear} // Set the end year for the dropdown
                           />
                       </PopoverContent>
                       </Popover>
