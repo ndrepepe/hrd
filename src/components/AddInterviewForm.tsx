@@ -51,6 +51,8 @@ const formSchema = z.object({
 interface Candidate {
   id: string;
   name: string;
+  // Add decisions to check if the candidate already has a decision
+  decisions?: { id: string }[] | null;
 }
 
 interface AddInterviewFormProps {
@@ -79,16 +81,23 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
 
   const fetchCandidates = async () => {
     setLoadingCandidates(true);
+    // Select candidates and left join decisions (only need the id to check existence)
     const { data, error } = await supabase
       .from("candidates")
-      .select("id, name")
+      .select("id, name, decisions!left(id)")
       .order("name", { ascending: true });
 
     if (error) {
       console.error("Error fetching candidates:", error);
       showError("Gagal memuat daftar kandidat: " + error.message);
+      setCandidates([]); // Clear candidates on error
     } else {
-      setCandidates(data || []);
+      // Filter candidates who do NOT have any decisions
+      const candidatesWithoutDecisions = data?.filter(candidate =>
+        !candidate.decisions || candidate.decisions.length === 0
+      );
+      console.log("Fetched candidates for interview form (filtered):", candidatesWithoutDecisions);
+      setCandidates(candidatesWithoutDecisions || []);
     }
     setLoadingCandidates(false);
   };
@@ -116,7 +125,10 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
       console.log("Interview inserted successfully:", data);
       showSuccess("Data wawancara berhasil disimpan!");
       form.reset();
-      onInterviewAdded(); // Call callback
+      onInterviewAdded(); // Call callback to refresh lists
+      // Re-fetch candidates for the dropdown after adding an interview
+      // This is important in case adding an interview somehow affects the list logic (though it shouldn't based on current filtering)
+      fetchCandidates();
     }
   }
 
@@ -141,7 +153,7 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
                     {loadingCandidates ? (
                       <SelectItem disabled>Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled>Belum ada kandidat</SelectItem>
+                       <SelectItem disabled>Tidak ada kandidat yang tersedia untuk wawancara</SelectItem> // Updated message
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
