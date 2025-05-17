@@ -46,9 +46,10 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
     setLoading(true);
     console.log("Fetching candidates with search term:", searchTerm); // Log search term
 
+    // Changed select syntax to explicitly use !left join
     let query = supabase
       .from("candidates")
-      .select("*, positions(title)")
+      .select("*, positions!left(title)")
       .order("created_at", { ascending: false });
 
     // Add search filter if searchTerm is not empty
