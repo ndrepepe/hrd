@@ -163,6 +163,20 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
               </FormItem>
             )}
           />
+          {/* Added the name field back */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nama Lengkap</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nama kandidat" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                   control={form.control}
