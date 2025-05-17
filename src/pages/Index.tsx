@@ -13,8 +13,10 @@ const Index = () => {
           <Link to="/car-rental">
             <Button className="w-64">Modul Peminjaman Mobil</Button>
           </Link>
+          <Link to="/recruitment"> {/* Link to Recruitment Page */}
+            <Button className="w-64">Modul Rekrutmen Karyawan</Button>
+          </Link>
           {/* Placeholder for other modules */}
-          <Button className="w-64" disabled>Modul Rekrutmen Karyawan (Segera Hadir)</Button>
           <Button className="w-64" disabled>Modul Laporan Harian (Segera Hadir)</Button>
         </div>
       </div>
