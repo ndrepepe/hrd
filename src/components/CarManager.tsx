@@ -91,10 +91,35 @@ const CarManager = ({ onCarAdded }: CarManagerProps) => {
       console.log("Car inserted successfully:", data);
       showSuccess("Mobil berhasil disimpan!");
       form.reset(); // Reset form after successful submission
-      fetchCars(); // Refresh the list
-      onCarAdded(); // Notify parent
+      fetchCars(); // Refresh the list in this component
+      onCarAdded(); // Notify parent (CarRentalPage) to refresh the form's car list
     }
   }
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus mobil ini? Rekap peminjaman yang terkait tidak akan terhapus, namun nama mobil akan hilang dari rekap tersebut.")) {
+      const { error } = await supabase
+        .from("cars")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error deleting car:", error);
+        showError("Gagal menghapus mobil: " + error.message);
+      } else {
+        showSuccess("Mobil berhasil dihapus!");
+        fetchCars(); // Refresh the list after deletion
+        onCarAdded(); // Notify parent (CarRentalPage) to refresh the form's car list
+      }
+    }
+  };
+
+  const handleEdit = (car: Car) => {
+    console.log("Edit button clicked for car ID:", car.id);
+    // TODO: Implement edit functionality (e.g., populate form)
+    showError("Fitur edit mobil belum diimplementasikan."); // Placeholder message
+  };
+
 
   return (
     <div className="space-y-6">
@@ -133,6 +158,7 @@ const CarManager = ({ onCarAdded }: CarManagerProps) => {
                 <TableRow>
                   <TableHead>Nama Mobil</TableHead>
                   <TableHead>Dibuat Pada</TableHead>
+                  <TableHead>Aksi</TableHead> {/* New column header */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -140,6 +166,10 @@ const CarManager = ({ onCarAdded }: CarManagerProps) => {
                   <TableRow key={car.id}>
                     <TableCell>{car.name}</TableCell>
                     <TableCell>{new Date(car.created_at).toLocaleString()}</TableCell>
+                    <TableCell className="flex space-x-2"> {/* New column for buttons */}
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(car)}>Edit</Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(car.id)}>Hapus</Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
