@@ -44,6 +44,8 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
 
   const fetchCandidates = async () => {
     setLoading(true);
+    console.log("Fetching candidates with search term:", searchTerm); // Log search term
+
     let query = supabase
       .from("candidates")
       .select("*, positions(title)")
@@ -52,17 +54,18 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
     // Add search filter if searchTerm is not empty
     if (searchTerm) {
       const searchPattern = `%${searchTerm}%`;
-      query = query.or(
-        `name.ilike.${searchPattern},positions.title.ilike.${searchPattern},place_of_birth.ilike.${searchPattern},phone.ilike.${searchPattern},last_education.ilike.${searchPattern},skills.ilike.${searchPattern}`
-      );
+      const filterString = `name.ilike.${searchPattern},positions.title.ilike.${searchPattern},place_of_birth.ilike.${searchPattern},phone.ilike.${searchPattern},last_education.ilike.${searchPattern},skills.ilike.${searchPattern}`;
+      console.log("Applying search filter:", filterString); // Log the filter string
+      query = query.or(filterString);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching candidates:", error);
+      console.error("Error fetching candidates:", error); // Keep existing error log
       showError("Gagal memuat data kandidat: " + error.message);
     } else {
+      console.log("Fetched candidates:", data); // Log fetched data
       setCandidates(data || []);
     }
     setLoading(false);
