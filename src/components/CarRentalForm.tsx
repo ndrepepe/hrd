@@ -109,7 +109,8 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
           start_time: values.start_time,
           end_time: values.end_time,
         },
-      ]);
+      ])
+      .select(); // Use select() to get the inserted data
 
     if (error) {
       console.error("Error inserting rental data:", error);
@@ -127,9 +128,10 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
       <h3 className="text-xl font-semibold mb-4">Input Peminjaman Mobil</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Nama Mobil (Top) */}
           <FormField
             control={form.control}
-            name="car_id" // Use car_id
+            name="car_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nama Mobil</FormLabel>
@@ -157,32 +159,38 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="borrower_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Peminjam</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: Budi Santoso" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="driver_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Sopir (Opsional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: Agus" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+          {/* Nama Peminjam (Left) and Nama Sopir (Right) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="borrower_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Peminjam</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Contoh: Budi Santoso" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="driver_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Sopir (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Contoh: Agus" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Tanggal Pinjam (Below names) */}
           <FormField
             control={form.control}
             name="rent_date"
@@ -195,7 +203,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-[240px] pl-3 text-left font-normal",
+                          "w-full pl-3 text-left font-normal", // Changed width to full
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -221,32 +229,37 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
               </FormItem>
             )}
           />
-           <FormField
-            control={form.control}
-            name="start_time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jam Pinjam (HH:MM)</FormLabel>
-                <FormControl>
-                  <Input type="time" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="end_time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jam Kembali (HH:MM)</FormLabel>
-                <FormControl>
-                  <Input type="time" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+          {/* Jam Pinjam (Left) and Jam Kembali (Right) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="start_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Jam Pinjam (HH:MM)</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="end_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Jam Kembali (HH:MM)</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <Button type="submit">Simpan Peminjaman</Button>
         </form>
       </Form>
