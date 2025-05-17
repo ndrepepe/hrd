@@ -54,8 +54,9 @@ const RecruitmentPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Flex container for sidebar (TabsList) and main content (TabsContent) */}
         <div className="flex flex-col md:flex-row gap-6"> {/* Use flex-col on small screens, flex-row on medium+ */}
-          {/* Vertical TabsList (Sidebar) */}
-          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0"> {/* Vertical layout, fixed width on md+, background, padding, rounded corners, prevent shrinking */}
+          {/* Vertical TabsList (Sidebar) - Fixed on medium screens and up */}
+          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0
+                              md:fixed md:top-16 md:bottom-0 md:left-0 md:overflow-y-auto md:z-40"> {/* Added fixed positioning classes */}
             <TabsTrigger value="add-position" className="justify-start">Tambah Posisi</TabsTrigger> {/* Align text left */}
             <TabsTrigger value="list-positions" className="justify-start">Daftar Posisi</TabsTrigger>
             <TabsTrigger value="add-candidate" className="justify-start">Tambah Kandidat</TabsTrigger>
@@ -67,8 +68,8 @@ const RecruitmentPage = () => {
             <TabsTrigger value="briefing-list" className="justify-start">Pembekalan</TabsTrigger>
           </TabsList>
 
-          {/* Main content area */}
-          <div className="flex-grow"> {/* Takes remaining horizontal space */}
+          {/* Main content area - Add left margin on medium screens and up */}
+          <div className="flex-grow md:ml-64"> {/* Takes remaining horizontal space, added md:ml-64 */}
             <TabsContent value="add-position" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
               <AddPositionForm onPositionAdded={handlePositionAdded} />
             </TabsContent>
@@ -82,6 +83,7 @@ const RecruitmentPage = () => {
             </TabsContent>
 
             <TabsContent value="list-candidates" className="mt-0">
+              {/* Pass both refresh triggers to CandidateList */}
               <CandidateList refreshTrigger={refreshCandidates} refreshDecisionsTrigger={refreshDecisions} />
             </TabsContent>
 

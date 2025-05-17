@@ -48,16 +48,17 @@ const CarRentalPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Flex container for sidebar (TabsList) and main content (TabsContent) */}
         <div className="flex flex-col md:flex-row gap-6"> {/* Use flex-col on small screens, flex-row on medium+ */}
-          {/* Vertical TabsList (Sidebar) */}
-          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0"> {/* Vertical layout, fixed width on md+, background, padding, rounded corners, prevent shrinking */}
+          {/* Vertical TabsList (Sidebar) - Fixed on medium screens and up */}
+          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0
+                              md:fixed md:top-16 md:bottom-0 md:left-0 md:overflow-y-auto md:z-40"> {/* Added fixed positioning classes */}
             <TabsTrigger value="add-car" className="justify-start">Tambah Nama Mobil</TabsTrigger> {/* Align text left */}
             <TabsTrigger value="list-cars" className="justify-start">Daftar Nama Mobil</TabsTrigger>
             <TabsTrigger value="add-rental" className="justify-start">Input Peminjaman Mobil</TabsTrigger>
             <TabsTrigger value="list-rentals" className="justify-start">Rekap Peminjaman Mobil</TabsTrigger>
           </TabsList>
 
-          {/* Main content area */}
-          <div className="flex-grow"> {/* Takes remaining horizontal space */}
+          {/* Main content area - Add left margin on medium screens and up */}
+          <div className="flex-grow md:ml-64"> {/* Takes remaining horizontal space, added md:ml-64 */}
             <TabsContent value="add-car" className="mt-0">
               <CarForm onCarAdded={handleCarAddedOrDeleted} />
             </TabsContent>
