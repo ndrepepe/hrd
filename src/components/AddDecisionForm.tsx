@@ -35,7 +35,6 @@ const formSchema = z.object({
   candidate_id: z.string({
     required_error: "Kandidat wajib dipilih.",
   }),
-  // Updated schema to match database constraint values
   status: z.enum(['Accepted', 'Rejected'], {
     required_error: "Status keputusan wajib dipilih.",
     invalid_type_error: "Status keputusan tidak valid.",
@@ -133,9 +132,9 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
-                      <SelectItem disabled value="">Memuat kandidat...</SelectItem>
+                      <SelectItem disabled>Memuat kandidat...</SelectItem> {/* Removed value="" */}
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled value="">Belum ada kandidat</SelectItem>
+                       <SelectItem disabled>Belum ada kandidat</SelectItem> {/* Removed value="" */}
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
@@ -155,24 +154,21 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status Keputusan</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}> {/* Use value prop for controlled component */}
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih status" />
                     </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {/* Updated values to match database constraint */}
                       <SelectItem value="Accepted">Diterima</SelectItem>
                       <SelectItem value="Rejected">Ditolak</SelectItem>
-                      {/* Removed 'Ditawarkan' and 'Arsip' as they are not in the constraint */}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {/* Updated conditional logic to check against 'Accepted' */}
             {form.watch("status") === "Accepted" ? (
                 <FormField
                 control={form.control}
@@ -214,7 +210,6 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                 />
             ) : null}
 
-            {/* Updated conditional logic to check against 'Rejected' */}
             {form.watch("status") === "Rejected" ? (
                 <FormField
                 control={form.control}

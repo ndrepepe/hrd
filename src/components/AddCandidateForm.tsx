@@ -147,9 +147,9 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   </FormControl>
                   <SelectContent>
                     {loadingPositions ? (
-                      <SelectItem disabled>Memuat posisi...</SelectItem>
+                      <SelectItem disabled>Memuat posisi...</SelectItem> {/* Removed value="" */}
                     ) : positions.length === 0 ? (
-                       <SelectItem disabled>Belum ada posisi</SelectItem>
+                       <SelectItem disabled>Belum ada posisi</SelectItem> {/* Removed value="" */}
                     ) : (
                       positions.map((position) => (
                         <SelectItem key={position.id} value={position.id}>
@@ -163,7 +163,6 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
               </FormItem>
             )}
           />
-          {/* Added the name field back */}
           <FormField
             control={form.control}
             name="name"

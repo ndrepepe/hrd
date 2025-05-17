@@ -143,9 +143,9 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
                   </FormControl>
                   <SelectContent>
                     {loadingCars ? (
-                      <SelectItem disabled>Memuat mobil...</SelectItem>
+                      <SelectItem disabled>Memuat mobil...</SelectItem> {/* Removed value="" */}
                     ) : cars.length === 0 ? (
-                       <SelectItem disabled>Belum ada mobil</SelectItem>
+                       <SelectItem disabled>Belum ada mobil</SelectItem> {/* Removed value="" */}
                     ) : (
                       cars.map((car) => (
                         <SelectItem key={car.id} value={car.id}>
