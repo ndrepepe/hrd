@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns"; // Import parseISO
 import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -56,10 +56,12 @@ interface Car {
 
 interface CarRentalFormProps {
   refreshCarsTrigger: number; // Prop to trigger refresh of car list
-  onRentalSubmitted: () => void; // New callback prop
+  onRentalSubmitted: () => void; // Callback after submission (add or edit)
+  editingRentalId: string | null; // ID of the rental being edited, or null for adding
+  setEditingRentalId: (id: string | null) => void; // Function to clear editing state
 }
 
-const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormProps) => {
+const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId, setEditingRentalId }: CarRentalFormProps) => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loadingCars, setLoadingCars] = useState(true);
 
@@ -75,6 +77,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
     },
   });
 
+  // Effect to fetch cars for the select dropdown
   useEffect(() => {
     fetchCars();
   }, [refreshCarsTrigger]); // Depend on refreshCarsTrigger
@@ -93,39 +96,109 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
       setCars(data || []);
     }
     setLoadingCars(false);
-  }; // <-- Missing closing brace added here
+  };
 
+  // Effect to load rental data when editingRentalId changes
+  useEffect(() => {
+    if (editingRentalId) {
+      const fetchRental = async () => {
+        const { data, error } = await supabase
+          .from("rentals")
+          .select("*") // Fetch all fields needed for the form
+          .eq("id", editingRentalId)
+          .single();
+
+        if (error) {
+          console.error("Error fetching rental for edit:", error);
+          showError("Gagal memuat data peminjaman untuk diedit: " + error.message);
+          setEditingRentalId(null); // Clear editing state on error
+        } else if (data) {
+          // Populate the form with fetched data
+          form.reset({
+            ...data,
+            // Convert date string to Date object for the date picker
+            rent_date: data.rent_date ? parseISO(data.rent_date) : undefined,
+            // Ensure optional fields are handled correctly if null
+            driver_name: data.driver_name || "",
+          });
+        } else {
+           // Handle case where ID is not found
+           showError("Data peminjaman tidak ditemukan.");
+           setEditingRentalId(null); // Clear editing state
+        }
+      };
+      fetchRental();
+    } else {
+      // Reset form when not editing (e.g., switching back to add mode or after submission)
+      form.reset({
+        car_id: "",
+        borrower_name: "",
+        driver_name: "",
+        rent_date: undefined,
+        start_time: "",
+        end_time: "",
+      });
+    }
+  }, [editingRentalId, form, setEditingRentalId]); // Depend on editingRentalId and form/setEditingRentalId
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Form submitted with values:", values);
-    const { data, error } = await supabase
-      .from("rentals")
-      .insert([
-        {
-          car_id: values.car_id, // Use car_id instead of car_name
-          borrower_name: values.borrower_name,
-          driver_name: values.driver_name,
-          rent_date: format(values.rent_date, "yyyy-MM-dd"),
-          start_time: values.start_time,
-          end_time: values.end_time,
-        },
-      ])
-      .select(); // Use select() to get the inserted data
+    console.log("Form submitted with values:", values, "Editing ID:", editingRentalId);
+
+    const rentalData = {
+      car_id: values.car_id,
+      borrower_name: values.borrower_name,
+      driver_name: values.driver_name || null, // Save empty string as null
+      rent_date: format(values.rent_date, "yyyy-MM-dd"),
+      start_time: values.start_time,
+      end_time: values.end_time,
+    };
+
+    let result;
+    if (editingRentalId) {
+      // Update existing rental
+      result = await supabase
+        .from("rentals")
+        .update(rentalData)
+        .eq("id", editingRentalId)
+        .select();
+    } else {
+      // Add new rental
+      result = await supabase
+        .from("rentals")
+        .insert([rentalData])
+        .select();
+    }
+
+    const { data, error } = result;
 
     if (error) {
-      console.error("Error inserting rental data:", error);
-      showError("Gagal menyimpan data peminjaman: " + error.message);
+      console.error(`Error ${editingRentalId ? 'updating' : 'inserting'} rental data:`, error);
+      showError(`Gagal ${editingRentalId ? 'memperbarui' : 'menyimpan'} data peminjaman: ` + error.message);
     } else {
-      console.log("Rental data inserted successfully:", data);
-      showSuccess("Data peminjaman berhasil disimpan!");
+      console.log(`Rental data ${editingRentalId ? 'updated' : 'inserted'} successfully:`, data);
+      showSuccess(`Data peminjaman berhasil di${editingRentalId ? 'perbarui' : 'simpan'}!`);
       form.reset(); // Reset form after successful submission
+      setEditingRentalId(null); // Clear editing state
       onRentalSubmitted(); // Call the callback here
     }
   }
 
+  const handleCancelEdit = () => {
+    setEditingRentalId(null); // Clear editing state
+    form.reset({ // Reset form to default empty values
+      car_id: "",
+      borrower_name: "",
+      driver_name: "",
+      rent_date: undefined,
+      start_time: "",
+      end_time: "",
+    });
+  };
+
+
   return (
     <div className="w-full max-w-lg mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Input Peminjaman Mobil</h3>
+      <h3 className="text-xl font-semibold mb-4">{editingRentalId ? "Edit Data Peminjaman Mobil" : "Input Peminjaman Mobil"}</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Nama Mobil (Top) */}
@@ -135,7 +208,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nama Mobil</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}> {/* Use value prop */}
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih nama mobil" />
@@ -260,7 +333,14 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormP
             />
           </div>
 
-          <Button type="submit">Simpan Peminjaman</Button>
+          <div className="flex space-x-2">
+            <Button type="submit">{editingRentalId ? "Simpan Perubahan" : "Simpan Peminjaman"}</Button>
+            {editingRentalId && (
+              <Button type="button" variant="outline" onClick={handleCancelEdit}>
+                Batal Edit
+              </Button>
+            )}
+          </div>
         </form>
       </Form>
     </div>

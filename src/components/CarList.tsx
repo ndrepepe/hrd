@@ -22,9 +22,10 @@ interface Car {
 interface CarListProps {
   refreshTrigger: number; // Prop to trigger refresh
   onCarDeleted: () => void; // Callback to notify parent when a car is deleted
+  onEditClick: (carId: string) => void; // New callback for edit button click
 }
 
-const CarList = ({ refreshTrigger, onCarDeleted }: CarListProps) => {
+const CarList = ({ refreshTrigger, onCarDeleted, onEditClick }: CarListProps) => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,15 +62,14 @@ const CarList = ({ refreshTrigger, onCarDeleted }: CarListProps) => {
       } else {
         showSuccess("Mobil berhasil dihapus!");
         fetchCars(); // Refresh the list in this component
-        onCarDeleted(); // Notify parent (CarRentalPage) to refresh the form's car list
+        onCarDeleted(); // Notify parent (CarRentalPage) to refresh the form's car list and clear editing state
       }
     }
   };
 
   const handleEdit = (car: Car) => {
     console.log("Edit button clicked for car ID:", car.id);
-    // TODO: Implement edit functionality (e.g., populate form)
-    showError("Fitur edit mobil belum diimplementasikan."); // Placeholder message
+    onEditClick(car.id); // Call the parent's edit handler
   };
 
   if (loading) {
@@ -97,6 +97,7 @@ const CarList = ({ refreshTrigger, onCarDeleted }: CarListProps) => {
                   <TableCell>{car.name}</TableCell>
                   <TableCell>{new Date(car.created_at).toLocaleString()}</TableCell>
                   <TableCell className="flex space-x-2">
+                    {/* Use car.id for editing */}
                     <Button variant="outline" size="sm" onClick={() => handleEdit(car)}>Edit</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(car.id)}>Hapus</Button>
                   </TableCell>

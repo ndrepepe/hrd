@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import CarRentalForm from "@/components/CarRentalForm";
 import CarRentalList from "@/components/CarRentalList";
-import AddCarForm from "@/components/AddCarForm";
+import CarForm from "@/components/CarForm"; // Renamed import
 import CarList from "@/components/CarList";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,12 +13,32 @@ const CarRentalPage = () => {
   const [refreshRentals, setRefreshRentals] = useState(0);
   const [activeTab, setActiveTab] = useState("add-rental"); // State to manage active tab
 
+  // State for editing
+  const [editingCarId, setEditingCarId] = useState<string | null>(null);
+  const [editingRentalId, setEditingRentalId] = useState<string | null>(null);
+
   const handleCarAddedOrDeleted = () => {
     setRefreshCars(prev => prev + 1);
+    // Clear editing state if a car was added/deleted while editing
+    setEditingCarId(null);
   };
 
   const handleRentalSubmitted = () => {
     setRefreshRentals(prev => prev + 1);
+    // Clear editing state after submission (add or edit)
+    setEditingRentalId(null);
+    // Optionally switch back to list view after adding/editing
+    // setActiveTab("list-rentals");
+  };
+
+  const handleCarEditClick = (carId: string) => {
+    setEditingCarId(carId);
+    setActiveTab("add-car"); // Switch to the form tab
+  };
+
+  const handleRentalEditClick = (rentalId: string) => {
+    setEditingRentalId(rentalId);
+    setActiveTab("add-rental"); // Switch to the form tab
   };
 
   // Estimate the height of the fixed header (title, description, tabs list, padding)
@@ -49,19 +69,39 @@ const CarRentalPage = () => {
         {/* Add top margin to push content down below the fixed header */}
         <div className={`${contentAreaMarginTop}`}>
           <TabsContent value="add-car" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
-            <AddCarForm onCarAdded={handleCarAddedOrDeleted} />
+            {/* Pass editing state and setter to CarForm */}
+            <CarForm
+              onCarAdded={handleCarAddedOrDeleted}
+              editingCarId={editingCarId}
+              setEditingCarId={setEditingCarId}
+            />
           </TabsContent>
 
           <TabsContent value="list-cars" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
-            <CarList refreshTrigger={refreshCars} onCarDeleted={handleCarAddedOrDeleted} />
+            {/* Pass edit click handler to CarList */}
+            <CarList
+              refreshTrigger={refreshCars}
+              onCarDeleted={handleCarAddedOrDeleted}
+              onEditClick={handleCarEditClick}
+            />
           </TabsContent>
 
           <TabsContent value="add-rental" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
-            <CarRentalForm refreshCarsTrigger={refreshCars} onRentalSubmitted={handleRentalSubmitted} />
+            {/* Pass editing state and setter to CarRentalForm */}
+            <CarRentalForm
+              refreshCarsTrigger={refreshCars}
+              onRentalSubmitted={handleRentalSubmitted}
+              editingRentalId={editingRentalId}
+              setEditingRentalId={setEditingRentalId}
+            />
           </TabsContent>
 
           <TabsContent value="list-rentals" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
-            <CarRentalList refreshTrigger={refreshRentals} />
+            {/* Pass edit click handler to CarRentalList */}
+            <CarRentalList
+              refreshTrigger={refreshRentals}
+              onEditClick={handleRentalEditClick}
+            />
           </TabsContent>
         </div>
       </Tabs>

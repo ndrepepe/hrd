@@ -24,20 +24,21 @@ interface Rental {
   id: string;
   created_at: string;
   car_id: string | null;
-  car_name: string | null;
+  car_name: string | null; // Keep this for backward compatibility if needed, but prefer cars.name
   borrower_name: string;
   driver_name: string | null;
   rent_date: string;
   start_time: string;
   end_time: string;
-  cars?: { name: string } | null;
+  cars?: { name: string } | null; // To fetch car name
 }
 
 interface CarRentalListProps {
   refreshTrigger: number;
+  onEditClick: (rentalId: string) => void; // New callback for edit button click
 }
 
-const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
+const CarRentalList = ({ refreshTrigger, onEditClick }: CarRentalListProps) => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -53,7 +54,7 @@ const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
       .from("rentals")
       .select("*, cars(name)")
       .order("rent_date", { ascending: false })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }); // Order by creation time for reports on the same day
 
     if (dateRange?.from) {
       if (dateRange.to) {
@@ -87,14 +88,14 @@ const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
         showError("Gagal menghapus data peminjaman: " + error.message);
       } else {
         showSuccess("Data peminjaman berhasil dihapus!");
-        fetchRentals();
+        fetchRentals(); // Refresh the list
       }
     }
   };
 
   const handleEdit = (rental: Rental) => {
     console.log("Edit button clicked for rental ID:", rental.id);
-    showError("Fitur edit belum diimplementasikan.");
+    onEditClick(rental.id); // Call the parent's edit handler
   };
 
   const handleClearFilter = () => {
@@ -187,6 +188,7 @@ const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
                   <TableCell>{rental.borrower_name}</TableCell>
                   <TableCell>{rental.driver_name || "-"}</TableCell>
                   <TableCell className="flex space-x-2">
+                    {/* Use rental.id for editing */}
                     <Button variant="outline" size="sm" onClick={() => handleEdit(rental)}>Edit</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(rental.id)}>Hapus</Button>
                   </TableCell>
