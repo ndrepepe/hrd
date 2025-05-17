@@ -44,47 +44,45 @@ const CarRentalPage = () => {
         Kelola daftar mobil dan catat peminjamannya di sini.
       </p>
 
-      {/* Tabs component wraps the sidebar and content */}
+      {/* Tabs component wraps the TabsList and TabsContent */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* Flex container for sidebar (TabsList) and main content (TabsContent) */}
-        <div className="flex flex-col md:flex-row gap-6"> {/* Use flex-col on small screens, flex-row on medium+ */}
-          {/* Vertical TabsList (Sidebar) */}
-          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0"> {/* Vertical layout, fixed width on md+, background, padding, rounded corners, prevent shrinking */}
-            <TabsTrigger value="add-car" className="justify-start">Tambah Nama Mobil</TabsTrigger> {/* Align text left */}
-            <TabsTrigger value="list-cars" className="justify-start">Daftar Nama Mobil</TabsTrigger>
-            <TabsTrigger value="add-rental" className="justify-start">Input Peminjaman Mobil</TabsTrigger>
-            <TabsTrigger value="list-rentals" className="justify-start">Rekap Peminjaman Mobil</TabsTrigger>
-          </TabsList>
+        {/* TabsList (Horizontal Tabs) */}
+        {/* Use grid for responsive horizontal layout */}
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6"> {/* Added mb-6 for spacing below tabs */}
+          <TabsTrigger value="add-car">Tambah Nama Mobil</TabsTrigger>
+          <TabsTrigger value="list-cars">Daftar Nama Mobil</TabsTrigger>
+          <TabsTrigger value="add-rental">Input Peminjaman Mobil</TabsTrigger>
+          <TabsTrigger value="list-rentals">Rekap Peminjaman Mobil</TabsTrigger>
+        </TabsList>
 
-          {/* Main content area */}
-          <div className="flex-grow"> {/* Takes remaining horizontal space */}
-            <TabsContent value="add-car" className="mt-0">
-              <CarForm onCarAdded={handleCarAddedOrDeleted} />
-            </TabsContent>
+        {/* TabsContent area */}
+        <div> {/* Simple div wrapper for content */}
+          <TabsContent value="add-car" className="mt-0">
+            <CarForm onCarAdded={handleCarAddedOrDeleted} />
+          </TabsContent>
 
-            <TabsContent value="list-cars" className="mt-0">
-              <CarList
-                refreshTrigger={refreshCars}
-                onCarDeleted={handleCarAddedOrDeleted}
-              />
-            </TabsContent>
+          <TabsContent value="list-cars" className="mt-0">
+            <CarList
+              refreshTrigger={refreshCars}
+              onCarDeleted={handleCarAddedOrDeleted}
+            />
+          </TabsContent>
 
-            <TabsContent value="add-rental" className="mt-0">
-              <CarRentalForm
-                refreshCarsTrigger={refreshCars}
-                onRentalSubmitted={handleRentalSubmitted}
-                editingRentalId={editingRentalId}
-                setEditingRentalId={setEditingRentalId}
-              />
-            </TabsContent>
+          <TabsContent value="add-rental" className="mt-0">
+            <CarRentalForm
+              refreshCarsTrigger={refreshCars}
+              onRentalSubmitted={handleRentalSubmitted}
+              editingRentalId={editingRentalId}
+              setEditingRentalId={setEditingRentalId}
+            />
+          </TabsContent>
 
-            <TabsContent value="list-rentals" className="mt-0">
-              <CarRentalList
-                refreshTrigger={refreshRentals}
-                onEditClick={handleRentalEditClick}
-              />
-            </TabsContent>
-          </div>
+          <TabsContent value="list-rentals" className="mt-0">
+            <CarRentalList
+              refreshTrigger={refreshRentals}
+              onEditClick={handleRentalEditClick}
+            />
+          </TabsContent>
         </div>
       </Tabs>
     </div>
