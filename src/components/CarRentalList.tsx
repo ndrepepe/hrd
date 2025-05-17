@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast"; // Import showSuccess
 import {
   Table,
   TableBody,
@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button"; // Import Button
 import { format } from "date-fns";
 
 interface Rental {
@@ -52,6 +53,30 @@ const CarRentalList = () => {
     setLoading(false);
   };
 
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus data peminjaman ini?")) {
+      const { error } = await supabase
+        .from("rentals")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error deleting rental:", error);
+        showError("Gagal menghapus data peminjaman: " + error.message);
+      } else {
+        showSuccess("Data peminjaman berhasil dihapus!");
+        fetchRentals(); // Refresh the list after deletion
+      }
+    }
+  };
+
+  const handleEdit = (rental: Rental) => {
+    console.log("Edit button clicked for rental ID:", rental.id);
+    // TODO: Implement edit functionality (e.g., populate form)
+    showError("Fitur edit belum diimplementasikan."); // Placeholder message
+  };
+
+
   if (loading) {
     return <div className="container mx-auto p-4">Memuat rekap peminjaman...</div>;
   }
@@ -71,6 +96,7 @@ const CarRentalList = () => {
                 <TableHead>Nama Mobil</TableHead> {/* Display name from joined table */}
                 <TableHead>Peminjam</TableHead>
                 <TableHead>Sopir</TableHead>
+                <TableHead>Aksi</TableHead> {/* New column header */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -81,6 +107,10 @@ const CarRentalList = () => {
                   <TableCell>{rental.cars?.name || rental.car_name || "-"}</TableCell> {/* Use cars.name, fallback to car_name if exists */}
                   <TableCell>{rental.borrower_name}</TableCell>
                   <TableCell>{rental.driver_name || "-"}</TableCell>
+                  <TableCell className="flex space-x-2"> {/* New column for buttons */}
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(rental)}>Edit</Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(rental.id)}>Hapus</Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
