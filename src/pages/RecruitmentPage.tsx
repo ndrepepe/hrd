@@ -54,8 +54,8 @@ const RecruitmentPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Flex container for sidebar (TabsList) and main content (TabsContent) */}
         <div className="flex flex-col md:flex-row gap-6"> {/* Use flex-col on small screens, flex-row on medium+ */}
-          {/* Vertical TabsList (Sidebar) */}
-          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0"> {/* Vertical layout, fixed width on md+, background, padding, rounded corners, prevent shrinking */}
+          {/* Vertical TabsList (Sidebar) - Made Sticky */}
+          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0 md:sticky md:top-20 md:max-h-[calc(100vh-80px)] md:overflow-y-auto"> {/* Vertical layout, fixed width on md+, background, padding, rounded corners, prevent shrinking, added sticky, top, max-height, and overflow for medium+ screens */}
             <TabsTrigger value="add-position" className="justify-start">Tambah Posisi</TabsTrigger> {/* Align text left */}
             <TabsTrigger value="list-positions" className="justify-start">Daftar Posisi</TabsTrigger>
             <TabsTrigger value="add-candidate" className="justify-start">Tambah Kandidat</TabsTrigger>
