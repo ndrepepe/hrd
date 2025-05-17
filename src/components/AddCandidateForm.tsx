@@ -146,9 +146,9 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   </FormControl>
                   <SelectContent>
                     {loadingPositions ? (
-                      <SelectItem disabled value="">Memuat posisi...</SelectItem>
+                      <SelectItem disabled>Memuat posisi...</SelectItem> {/* Removed value="" */}
                     ) : positions.length === 0 ? (
-                       <SelectItem disabled value="">Belum ada posisi</SelectItem>
+                       <SelectItem disabled>Belum ada posisi</SelectItem> {/* Removed value="" */}
                     ) : (
                       positions.map((position) => (
                         <SelectItem key={position.id} value={position.id}>
@@ -158,19 +158,6 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                     )}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Lengkap</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nama kandidat" {...field} />
-                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

@@ -138,9 +138,9 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
-                      <SelectItem disabled value="">Memuat kandidat...</SelectItem>
+                      <SelectItem disabled>Memuat kandidat...</SelectItem> {/* Removed value="" */}
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled value="">Belum ada kandidat</SelectItem>
+                       <SelectItem disabled>Belum ada kandidat</SelectItem> {/* Removed value="" */}
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>

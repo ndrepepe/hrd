@@ -131,9 +131,9 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
-                      <SelectItem disabled value="">Memuat kandidat...</SelectItem>
+                      <SelectItem disabled>Memuat kandidat...</SelectItem> {/* Removed value="" */}
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled value="">Belum ada kandidat</SelectItem>
+                       <SelectItem disabled>Belum ada kandidat</SelectItem> {/* Removed value="" */}
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
@@ -157,7 +157,7 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih status" />
-                      </SelectTrigger>
+                    </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="Diterima">Diterima</SelectItem>
