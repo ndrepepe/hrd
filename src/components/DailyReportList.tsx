@@ -17,10 +17,11 @@ interface DailyReport {
   id: string;
   created_at: string;
   report_date: string;
-  reporter_name: string;
+  // Removed reporter_name field
+  employee_id: string | null; // Add employee_id
   activity: string;
-  // Removed hours_worked field
   notes: string | null;
+  employees?: { name: string } | null; // Add joined employees data
 }
 
 interface DailyReportListProps {
@@ -39,14 +40,16 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("daily_reports")
-      .select("*") // Select all columns, hours_worked will still be fetched but not displayed
+      .select("*, employees(name)") // Select all columns and join with employees to get name
       .order("report_date", { ascending: false })
       .order("created_at", { ascending: false }); // Order by creation time for reports on the same day
 
     if (error) {
       console.error("Error fetching daily reports:", error);
       showError("Gagal memuat data laporan harian: " + error.message);
+      setReports([]); // Clear reports on error
     } else {
+      console.log("Fetched daily reports data:", data);
       setReports(data || []);
     }
     setLoading(false);
@@ -67,9 +70,8 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
             <TableHeader>
               <TableRow>
                 <TableHead>Tanggal</TableHead>
-                <TableHead>Pelapor</TableHead>
+                <TableHead>Pelapor</TableHead> {/* Keep header label */}
                 <TableHead>Aktivitas</TableHead>
-                {/* Removed TableHead for Jam Kerja */}
                 <TableHead>Catatan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
               </TableRow>
@@ -78,9 +80,8 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
               {reports.map((report) => (
                 <TableRow key={report.id}>
                   <TableCell>{format(new Date(report.report_date), "dd-MM-yyyy")}</TableCell>
-                  <TableCell>{report.reporter_name}</TableCell>
+                  <TableCell>{report.employees?.name || report.reporter_name || "-"}</TableCell> {/* Display employee name from join, fallback to old reporter_name if exists */}
                   <TableCell>{report.activity}</TableCell>
-                  {/* Removed TableCell for hours_worked */}
                   <TableCell>{report.notes || "-"}</TableCell>
                   <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
                 </TableRow>

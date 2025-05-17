@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -21,38 +21,74 @@ import {
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select, // Import Select components
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 
+// Updated formSchema to use employee_id instead of reporter_name
 const formSchema = z.object({
   report_date: z.date({
     required_error: "Tanggal laporan wajib diisi.",
   }),
-  reporter_name: z.string().min(2, {
-    message: "Nama pelapor harus minimal 2 karakter.",
+  employee_id: z.string({ // Use employee_id, make it required
+    required_error: "Nama pelapor wajib dipilih.",
   }),
   activity: z.string().min(10, {
     message: "Deskripsi aktivitas harus minimal 10 karakter.",
   }),
-  // Removed hours_worked field
   notes: z.string().optional(),
 });
+
+interface Employee {
+  id: string;
+  name: string;
+}
 
 interface DailyReportFormProps {
   onReportSubmitted: () => void; // Callback to refresh list after submission
 }
 
 const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(true);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       report_date: undefined,
-      reporter_name: "",
+      employee_id: "", // Default value for select
       activity: "",
-      // Removed hours_worked default value
       notes: "",
     },
   });
+
+  // Fetch employees for the dropdown
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    setLoadingEmployees(true);
+    const { data, error } = await supabase
+      .from("employees")
+      .select("id, name")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching employees:", error);
+      showError("Gagal memuat daftar karyawan: " + error.message);
+    } else {
+      setEmployees(data || []);
+    }
+    setLoadingEmployees(false);
+  };
+
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Submitting daily report:", values);
@@ -62,9 +98,8 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
       .insert([
         {
           report_date: format(values.report_date, "yyyy-MM-dd"),
-          reporter_name: values.reporter_name,
+          employee_id: values.employee_id, // Insert employee_id
           activity: values.activity,
-          // Removed hours_worked from insert data
           notes: values.notes,
         },
       ])
@@ -76,7 +111,12 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
     } else {
       console.log("Daily report inserted successfully:", data);
       showSuccess("Laporan harian berhasil disimpan!");
-      form.reset(); // Reset form after successful submission
+      form.reset({ // Reset form to initial default values
+        report_date: undefined,
+        employee_id: "",
+        activity: "",
+        notes: "",
+      });
       onReportSubmitted(); // Call callback to refresh list
     }
   }
@@ -86,6 +126,7 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
       <h3 className="text-xl font-semibold mb-4">Input Laporan Harian</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Tanggal Laporan Field */}
           <FormField
             control={form.control}
             name="report_date"
@@ -124,19 +165,38 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
               </FormItem>
             )}
           />
+          {/* Nama Pelapor Field (Dropdown) */}
           <FormField
             control={form.control}
-            name="reporter_name"
+            name="employee_id" // Use employee_id
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nama Pelapor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nama Anda" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih nama karyawan" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {loadingEmployees ? (
+                      <SelectItem disabled value="">Memuat karyawan...</SelectItem>
+                    ) : employees.length === 0 ? (
+                       <SelectItem disabled value="">Belum ada data karyawan</SelectItem>
+                    ) : (
+                      employees.map((employee) => (
+                        <SelectItem key={employee.id} value={employee.id}>
+                          {employee.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {/* Aktivitas Harian Field */}
           <FormField
             control={form.control}
             name="activity"
@@ -150,7 +210,7 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
               </FormItem>
             )}
           />
-           {/* Removed FormField for hours_worked */}
+           {/* Catatan Field */}
            <FormField
             control={form.control}
             name="notes"
