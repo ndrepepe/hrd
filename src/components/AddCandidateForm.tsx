@@ -221,6 +221,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
+                          captionLayout="dropdown" // Added dropdown layout for year/month selection
                           />
                       </PopoverContent>
                       </Popover>
