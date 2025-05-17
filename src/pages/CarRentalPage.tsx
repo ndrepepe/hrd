@@ -7,10 +7,16 @@ import CarManager from "@/components/CarManager"; // Import CarManager
 
 const CarRentalPage = () => {
   const [refreshCars, setRefreshCars] = useState(0); // State to trigger car list refresh
+  const [refreshRentals, setRefreshRentals] = useState(0); // New state to trigger rental list refresh
 
   const handleCarAdded = () => {
     // Increment state to trigger refresh in CarRentalForm
     setRefreshCars(prev => prev + 1);
+  };
+
+  const handleRentalSubmitted = () => {
+    // Increment state to trigger refresh in CarRentalList
+    setRefreshRentals(prev => prev + 1);
   };
 
   return (
@@ -25,11 +31,12 @@ const CarRentalPage = () => {
         <CarManager onCarAdded={handleCarAdded} />
       </div>
 
-      {/* Pass refreshCarsTrigger to CarRentalForm */}
-      <CarRentalForm refreshCarsTrigger={refreshCars} />
+      {/* Pass refreshCarsTrigger and onRentalSubmitted to CarRentalForm */}
+      <CarRentalForm refreshCarsTrigger={refreshCars} onRentalSubmitted={handleRentalSubmitted} />
 
       <div className="mt-8">
-        <CarRentalList />
+        {/* Pass refreshRentals as refreshTrigger to CarRentalList */}
+        <CarRentalList refreshTrigger={refreshRentals} />
       </div>
     </div>
   );

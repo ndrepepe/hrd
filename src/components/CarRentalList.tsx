@@ -27,13 +27,17 @@ interface Rental {
   cars?: { name: string } | null; // To fetch car name from the 'cars' table
 }
 
-const CarRentalList = () => {
+interface CarRentalListProps {
+  refreshTrigger: number; // New prop to trigger refresh
+}
+
+const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchRentals();
-  }, []);
+  }, [refreshTrigger]); // Depend on refreshTrigger
 
   const fetchRentals = async () => {
     setLoading(true);

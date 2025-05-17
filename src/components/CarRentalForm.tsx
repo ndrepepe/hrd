@@ -56,9 +56,10 @@ interface Car {
 
 interface CarRentalFormProps {
   refreshCarsTrigger: number; // Prop to trigger refresh of car list
+  onRentalSubmitted: () => void; // New callback prop
 }
 
-const CarRentalForm = ({ refreshCarsTrigger }: CarRentalFormProps) => {
+const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted }: CarRentalFormProps) => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loadingCars, setLoadingCars] = useState(true);
 
@@ -117,11 +118,10 @@ const CarRentalForm = ({ refreshCarsTrigger }: CarRentalFormProps) => {
       console.log("Rental data inserted successfully:", data);
       showSuccess("Data peminjaman berhasil disimpan!");
       form.reset(); // Reset form after successful submission
-      // No return statement here, just side effects
+      onRentalSubmitted(); // Call the callback here
     }
   }
 
-  // The component's main return statement is here
   return (
     <div className="w-full max-w-lg mx-auto">
       <h3 className="text-xl font-semibold mb-4">Input Peminjaman Mobil</h3>
