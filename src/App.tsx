@@ -3,10 +3,15 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SessionContextProvider } from '@supabase/auth-ui-react';
+import { supabase } from "@/integrations/supabase/client";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CarRentalPage from "./pages/CarRentalPage";
-import RecruitmentPage from "./pages/RecruitmentPage"; // Import the new page
+import RecruitmentPage from "./pages/RecruitmentPage";
+import Login from "./pages/Login"; // Import the Login page
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 
 const queryClient = new QueryClient();
 
@@ -15,15 +20,24 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/car-rental" element={<CarRentalPage />} />
-          <Route path="/recruitment" element={<RecruitmentPage />} /> {/* Add the new route */}
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <SessionContextProvider supabaseClient={supabase}> {/* Wrap with SessionContextProvider */}
+        <BrowserRouter>
+          <Routes>
+            {/* Public route for Login */}
+            <Route path="/login" element={<Login />} />
+
+            {/* Protected routes */}
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/car-rental" element={<ProtectedRoute><CarRentalPage /></ProtectedRoute>} />
+            <Route path="/recruitment" element={<ProtectedRoute><RecruitmentPage /></ProtectedRoute>} />
+
+            {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+            {/* Catch-all route for 404 - also protected */}
+            <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+          </Routes>
+        </BrowserRouter>
+      </SessionContextProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
