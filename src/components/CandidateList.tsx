@@ -101,11 +101,13 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
     setLoading(false);
   };
 
-  // Function to find the latest decision status (kept for potential future use or debugging, but not displayed)
+  // Function to find the latest decision status
   const getLatestDecisionStatus = (decisions: Candidate['decisions']): string => {
+    // Check if decisions is an array and is not empty
     if (!Array.isArray(decisions) || decisions.length === 0) {
-      return "Proses";
+      return "Proses"; // Default status if no decisions
     }
+    // Sort decisions by created_at descending to find the latest
     const sortedDecisions = [...decisions].sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
@@ -159,27 +161,43 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
-                {/* Removed Status Keputusan TableHead */}
+                <TableHead>Status Keputusan</TableHead> {/* Added Status Keputusan TableHead back */}
                 <TableHead>Dibuat Pada</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {candidates.map((candidate) => (
-                <TableRow key={candidate.id}>
-                  <TableCell>{candidate.name}</TableCell>
-                  <TableCell>{candidate.positions?.title || "-"}</TableCell>
-                  <TableCell>
-                      {candidate.place_of_birth || "-"}
-                      {candidate.place_of_birth && candidate.date_of_birth ? ", " : ""}
-                      {candidate.date_of_birth ? format(new Date(candidate.date_of_birth), "dd-MM-yyyy") : "-"}
-                  </TableCell>
-                  <TableCell>{candidate.phone || "-"}</TableCell>
-                  <TableCell>{candidate.last_education || "-"}</TableCell>
-                  <TableCell>{candidate.skills || "-"}</TableCell>
-                  {/* Removed Status Keputusan TableCell */}
-                  <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
-                </TableRow>
-              ))}
+              {candidates.map((candidate) => {
+                const latestStatus = getLatestDecisionStatus(candidate.decisions);
+                let textColorClass = '';
+                if (latestStatus === 'Accepted') {
+                  textColorClass = 'text-green-600 font-medium'; // Tailwind green
+                } else if (latestStatus === 'Rejected') {
+                  textColorClass = 'text-red-600 font-medium'; // Tailwind red
+                }
+
+                return (
+                  <TableRow key={candidate.id}>
+                    <TableCell>
+                      {/* Apply the color class to the name */}
+                      <span className={textColorClass}>{candidate.name}</span>
+                    </TableCell>
+                    <TableCell>{candidate.positions?.title || "-"}</TableCell>
+                    <TableCell>
+                        {candidate.place_of_birth || "-"}
+                        {candidate.place_of_birth && candidate.date_of_birth ? ", " : ""}
+                        {candidate.date_of_birth ? format(new Date(candidate.date_of_birth), "dd-MM-yyyy") : "-"}
+                    </TableCell>
+                    <TableCell>{candidate.phone || "-"}</TableCell>
+                    <TableCell>{candidate.last_education || "-"}</TableCell>
+                    <TableCell>{candidate.skills || "-"}</TableCell>
+                    {/* Display the latest decision status */}
+                    <TableCell>
+                      {latestStatus} {/* Display the status text */}
+                    </TableCell>
+                    <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
