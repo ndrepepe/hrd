@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { UserContextProvider } from "@/context/UserContext"; // Import UserContextProvider
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -21,26 +22,29 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        {/* Render NavigationBar outside of Routes */}
-        <NavigationBar /> 
-        <Routes>
-          {/* Public route for Login */}
-          <Route path="/login" element={<Login />} />
+      {/* Wrap BrowserRouter with UserContextProvider */}
+      <UserContextProvider>
+        <BrowserRouter>
+          {/* Render NavigationBar outside of Routes */}
+          <NavigationBar />
+          <Routes>
+            {/* Public route for Login */}
+            <Route path="/login" element={<Login />} />
 
-          {/* Protected routes */}
-          {/* Wrap protected content with ProtectedRoute */}
-          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-          <Route path="/car-rental" element={<ProtectedRoute><CarRentalPage /></ProtectedRoute>} />
-          <Route path="/recruitment" element={<ProtectedRoute><RecruitmentPage /></ProtectedRoute>} />
-          <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
+            {/* Protected routes */}
+            {/* Wrap protected content with ProtectedRoute */}
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/car-rental" element={<ProtectedRoute><CarRentalPage /></ProtectedRoute>} />
+            <Route path="/recruitment" element={<ProtectedRoute><RecruitmentPage /></ProtectedRoute>} />
+            <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
 
-          {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
-          {/* Catch-all route for 404 - also protected */}
-          <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
-        </Routes>
-      </BrowserRouter>
+            {/* Catch-all route for 404 - also protected */}
+            <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+          </Routes>
+        </BrowserRouter>
+      </UserContextProvider> {/* Close UserContextProvider */}
     </TooltipProvider>
   </QueryClientProvider>
 );
