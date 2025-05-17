@@ -12,6 +12,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input"; // Import Input component
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Import Select components
+import { Label } from "@/components/ui/label"; // Import Label component
 import { format } from "date-fns";
 
 interface Candidate {
@@ -33,40 +41,56 @@ interface CandidateListProps {
   refreshTrigger: number; // Prop to trigger refresh
 }
 
+// Define searchable fields with their labels and database column names
+const searchableFields = [
+  { label: "Nama", value: "name" },
+  { label: "Posisi Dilamar", value: "positions.title" }, // Special value for joined column
+  { label: "Tempat Lahir", value: "place_of_birth" },
+  { label: "No HP", value: "phone" },
+  { label: "Pendidikan Terakhir", value: "last_education" },
+  { label: "Skill", value: "skills" },
+];
+
 const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(""); // State for search input
+  const [searchField, setSearchField] = useState(searchableFields[0].value); // State for selected search field, default to 'Nama'
 
   useEffect(() => {
     fetchCandidates();
-  }, [refreshTrigger, searchTerm]); // Depend on refreshTrigger and searchTerm
+  }, [refreshTrigger, searchTerm, searchField]); // Depend on refreshTrigger, searchTerm, AND searchField
 
   const fetchCandidates = async () => {
     setLoading(true);
-    console.log("Fetching candidates with search term:", searchTerm); // Log search term
+    console.log("Fetching candidates with search term:", searchTerm, "in field:", searchField);
 
-    // Changed select syntax to explicitly use !left join
     let query = supabase
       .from("candidates")
-      .select("*, positions!left(title)")
+      .select("*, positions!left(title)") // Keep the join for displaying the position title
       .order("created_at", { ascending: false });
 
-    // Add search filter if searchTerm is not empty
-    if (searchTerm) {
+    // Apply filter based on selected field and search term
+    if (searchTerm && searchField) {
       const searchPattern = `%${searchTerm}%`;
-      const filterString = `name.ilike.${searchPattern},positions.title.ilike.${searchPattern},place_of_birth.ilike.${searchPattern},phone.ilike.${searchPattern},last_education.ilike.${searchPattern},skills.ilike.${searchPattern}`;
-      console.log("Applying search filter:", filterString); // Log the filter string
-      query = query.or(filterString);
+      if (searchField === 'positions.title') {
+         // Filter on the joined table's column using the filter method
+         console.log(`Applying filter: positions.title ilike ${searchPattern}`);
+         query = query.filter('positions.title', 'ilike', searchPattern);
+      } else {
+         // Filter on a direct column in the candidates table
+         console.log(`Applying filter: ${searchField} ilike ${searchPattern}`);
+         query = query.ilike(searchField, searchPattern);
+      }
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching candidates:", error); // Keep existing error log
+      console.error("Error fetching candidates:", error);
       showError("Gagal memuat data kandidat: " + error.message);
     } else {
-      console.log("Fetched candidates:", data); // Log fetched data
+      console.log("Fetched candidates:", data);
       setCandidates(data || []);
     }
     setLoading(false);
@@ -80,10 +104,23 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
     <div className="w-full max-w-4xl mx-auto">
       <h3 className="text-xl font-semibold mb-4">Daftar Kandidat</h3>
 
-      {/* Search Input */}
-      <div className="mb-4">
+      {/* Search Filter Section */}
+      <div className="mb-4 flex flex-col md:flex-row items-center gap-4">
+        <Label htmlFor="search-field" className="shrink-0">Cari Berdasarkan:</Label>
+        <Select value={searchField} onValueChange={setSearchField}>
+          <SelectTrigger id="search-field" className="w-full md:w-[200px]">
+            <SelectValue placeholder="Pilih field" />
+          </SelectTrigger>
+          <SelectContent>
+            {searchableFields.map((field) => (
+              <SelectItem key={field.value} value={field.value}>
+                {field.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Input
-          placeholder="Cari kandidat..."
+          placeholder={`Cari ${searchableFields.find(f => f.value === searchField)?.label || 'kandidat'}...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full"
