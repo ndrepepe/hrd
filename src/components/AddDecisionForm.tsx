@@ -85,7 +85,7 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
       setCandidates(data || []);
     }
     setLoadingCandidates(false);
-  }; // <-- Missing closing brace added here
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("onSubmit function called with values:", values);
@@ -124,7 +124,7 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Kandidat</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}> {/* Changed defaultValue to value */}
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih kandidat" />

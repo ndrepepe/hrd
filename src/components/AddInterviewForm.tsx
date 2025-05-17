@@ -17,7 +17,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+}
+from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -130,7 +131,7 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Kandidat</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}> {/* Changed defaultValue to value */}
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih kandidat" />
@@ -199,7 +200,7 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
                       onSelect={field.onChange}
                       initialFocus
                     />
-                  </PopoverContent>
+                    </PopoverContent>
                 </Popover>
                 <FormMessage />
               </FormItem>
@@ -211,7 +212,7 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Hasil Wawancara</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}> {/* Changed defaultValue to value */}
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih hasil" />

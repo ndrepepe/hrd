@@ -62,6 +62,21 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
   const [positions, setPositions] = useState<Position[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(true);
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      position_id: "",
+      name: "",
+      place_of_birth: "",
+      date_of_birth: undefined,
+      phone: "",
+      address_ktp: "",
+      last_education: "",
+      major: "",
+      skills: "",
+    },
+  });
+
   useEffect(() => {
     fetchPositions();
   }, [refreshPositionsTrigger]); // Depend on refreshPositionsTrigger
@@ -80,7 +95,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
       setPositions(data || []);
     }
     setLoadingPositions(false);
-  }; // <-- Missing closing brace added here
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Submitting new candidate:", values);
@@ -124,7 +139,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Melamar Posisi</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}> {/* Changed defaultValue to value */}
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih posisi" />
