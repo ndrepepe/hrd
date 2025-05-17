@@ -101,13 +101,11 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
     setLoading(false);
   };
 
-  // Function to find the latest decision status
+  // Function to find the latest decision status (kept for potential future use or debugging, but not displayed)
   const getLatestDecisionStatus = (decisions: Candidate['decisions']): string => {
-    // Check if decisions is an array and is not empty
     if (!Array.isArray(decisions) || decisions.length === 0) {
-      return "Proses"; // Default status if no decisions
+      return "Proses";
     }
-    // Sort decisions by created_at descending to find the latest
     const sortedDecisions = [...decisions].sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
@@ -161,7 +159,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
-                <TableHead>Status Keputusan</TableHead> {/* Added Status Keputusan TableHead back */}
+                {/* Removed Status Keputusan TableHead */}
                 <TableHead>Dibuat Pada</TableHead>
               </TableRow>
             </TableHeader>
@@ -178,10 +176,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                   <TableCell>{candidate.phone || "-"}</TableCell>
                   <TableCell>{candidate.last_education || "-"}</TableCell>
                   <TableCell>{candidate.skills || "-"}</TableCell>
-                  {/* Display the latest decision status */}
-                  <TableCell>
-                    {getLatestDecisionStatus(candidate.decisions)}
-                  </TableCell> {/* Added Status Keputusan TableCell back */}
+                  {/* Removed Status Keputusan TableCell */}
                   <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                 </TableRow>
               ))}
