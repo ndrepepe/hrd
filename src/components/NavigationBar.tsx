@@ -20,6 +20,10 @@ const NavigationBar = () => {
           <Link to="/daily-report">
             <Button variant="ghost" className="text-white hover:bg-gray-700">Laporan Harian</Button>
           </Link>
+          {/* New link for Employee Data */}
+          <Link to="/employees">
+            <Button variant="ghost" className="text-white hover:bg-gray-700">Data Karyawan</Button>
+          </Link>
         </div>
       </div>
     </nav>
