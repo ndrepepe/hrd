@@ -37,54 +37,63 @@ const CarRentalPage = () => {
     setActiveTab("add-rental"); // Switch to the form tab
   };
 
+  // Estimate the height of the fixed header (title, description, tabs list, padding)
+  // This is an approximation, adjust mt- value below if needed
+  const contentAreaMarginTop = 'mt-56'; // Roughly 14rem or 224px
+
   return (
     <div className="container mx-auto p-4 pt-16"> {/* Main page container, pt-16 for main nav */}
-      <h1 className="text-3xl font-bold mb-2 text-center">Modul Peminjaman Mobil</h1>
-      <p className="text-center text-gray-600 mb-8">
-        Kelola daftar mobil dan catat peminjamannya di sini.
-      </p>
-
-      {/* Tabs component wraps the sidebar and content */}
+      {/* Tabs component wraps everything */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* Flex container for sidebar (TabsList) and main content (TabsContent) */}
-        <div className="flex flex-col md:flex-row gap-6"> {/* Use flex-col on small screens, flex-row on medium+ */}
-          {/* Vertical TabsList (Sidebar) - Made Sticky */}
-          <TabsList className="flex flex-col w-full md:w-64 space-y-1 bg-gray-100 p-2 rounded-md flex-shrink-0 md:sticky md:top-20 md:max-h-[calc(100vh-80px)] md:overflow-y-auto"> {/* Vertical layout, fixed width on md+, background, padding, rounded corners, prevent shrinking, added sticky, top, max-height, and overflow for medium+ screens */}
-            <TabsTrigger value="add-car" className="justify-start">Tambah Nama Mobil</TabsTrigger> {/* Align text left */}
-            <TabsTrigger value="list-cars" className="justify-start">Daftar Nama Mobil</TabsTrigger>
-            <TabsTrigger value="add-rental" className="justify-start">Input Peminjaman Mobil</TabsTrigger>
-            <TabsTrigger value="list-rentals" className="justify-start">Rekap Peminjaman Mobil</TabsTrigger>
-          </TabsList>
+        {/* Fixed container for Title, Description, and TabsList */}
+        <div className="fixed top-16 left-0 right-0 z-50 w-full bg-white shadow-md">
+           <div className="container mx-auto p-4"> {/* Inner container */}
+              <h1 className="text-3xl font-bold mb-2 text-center">Modul Peminjaman Mobil</h1>
+              <p className="text-center text-gray-600 mb-4">
+                Kelola daftar mobil dan catat peminjamannya di sini.
+              </p>
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+                <TabsTrigger value="add-car">Tambah Nama Mobil</TabsTrigger>
+                <TabsTrigger value="list-cars">Daftar Nama Mobil</TabsTrigger>
+                <TabsTrigger value="add-rental">Input Peminjaman Mobil</TabsTrigger>
+                <TabsTrigger value="list-rentals">Rekap Peminjaman Mobil</TabsTrigger>
+              </TabsList>
+           </div>
+        </div>
 
-          {/* Main content area */}
-          <div className="flex-grow"> {/* Takes remaining horizontal space */}
-            <TabsContent value="add-car" className="mt-0">
-              <CarForm onCarAdded={handleCarAddedOrDeleted} />
-            </TabsContent>
+        {/* Scrolling content area */}
+        {/* Add top margin to push content down below the fixed header */}
+        <div className={`${contentAreaMarginTop}`}>
+          <TabsContent value="add-car" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
+            {/* CarForm now only handles adding */}
+            <CarForm onCarAdded={handleCarAddedOrDeleted} />
+          </TabsContent>
 
-            <TabsContent value="list-cars" className="mt-0">
-              <CarList
-                refreshTrigger={refreshCars}
-                onCarDeleted={handleCarAddedOrDeleted}
-              />
-            </TabsContent>
+          <TabsContent value="list-cars" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
+            {/* CarList now handles its own edit dialog */}
+            <CarList
+              refreshTrigger={refreshCars}
+              onCarDeleted={handleCarAddedOrDeleted} // Still needed to refresh form's car list after delete/edit
+            />
+          </TabsContent>
 
-            <TabsContent value="add-rental" className="mt-0">
-              <CarRentalForm
-                refreshCarsTrigger={refreshCars}
-                onRentalSubmitted={handleRentalSubmitted}
-                editingRentalId={editingRentalId}
-                setEditingRentalId={setEditingRentalId}
-              />
-            </TabsContent>
+          <TabsContent value="add-rental" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
+            {/* Pass editing state and setter to CarRentalForm */}
+            <CarRentalForm
+              refreshCarsTrigger={refreshCars}
+              onRentalSubmitted={handleRentalSubmitted}
+              editingRentalId={editingRentalId}
+              setEditingRentalId={setEditingRentalId}
+            />
+          </TabsContent>
 
-            <TabsContent value="list-rentals" className="mt-0">
-              <CarRentalList
-                refreshTrigger={refreshRentals}
-                onEditClick={handleRentalEditClick}
-              />
-            </TabsContent>
-          </div>
+          <TabsContent value="list-rentals" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
+            {/* Pass edit click handler to CarRentalList */}
+            <CarRentalList
+              refreshTrigger={refreshRentals}
+              onEditClick={handleRentalEditClick}
+            />
+          </TabsContent>
         </div>
       </Tabs>
     </div>
