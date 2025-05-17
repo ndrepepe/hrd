@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,12 +20,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
-  car_name: z.string().min(2, {
-    message: "Nama mobil harus minimal 2 karakter.",
+  car_id: z.string({
+    required_error: "Nama mobil wajib dipilih.",
   }),
   borrower_name: z.string().min(2, {
     message: "Nama peminjam harus minimal 2 karakter.",
@@ -42,11 +49,23 @@ const formSchema = z.object({
   }),
 });
 
-const CarRentalForm = () => {
+interface Car {
+  id: string;
+  name: string;
+}
+
+interface CarRentalFormProps {
+  refreshCarsTrigger: number; // Prop to trigger refresh of car list
+}
+
+const CarRentalForm = ({ refreshCarsTrigger }: CarRentalFormProps) => {
+  const [cars, setCars] = useState<Car[]>([]);
+  const [loadingCars, setLoadingCars] = useState(true);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      car_name: "",
+      car_id: "",
       borrower_name: "",
       driver_name: "",
       rent_date: undefined,
@@ -55,13 +74,34 @@ const CarRentalForm = () => {
     },
   });
 
+  useEffect(() => {
+    fetchCars();
+  }, [refreshCarsTrigger]); // Depend on refreshCarsTrigger
+
+  const fetchCars = async () => {
+    setLoadingCars(true);
+    const { data, error } = await supabase
+      .from("cars")
+      .select("id, name")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching cars:", error);
+      showError("Gagal memuat daftar mobil: " + error.message);
+    } else {
+      setCars(data || []);
+    }
+    setLoadingCars(false);
+  };
+
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Form submitted with values:", values);
     const { data, error } = await supabase
       .from("rentals")
       .insert([
         {
-          car_name: values.car_name,
+          car_id: values.car_id, // Use car_id instead of car_name
           borrower_name: values.borrower_name,
           driver_name: values.driver_name,
           rent_date: format(values.rent_date, "yyyy-MM-dd"),
@@ -87,13 +127,30 @@ const CarRentalForm = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="car_name"
+            name="car_id" // Use car_id
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nama Mobil</FormLabel>
-                <FormControl>
-                  <Input placeholder="Contoh: Toyota Avanza" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih nama mobil" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {loadingCars ? (
+                      <SelectItem disabled value="">Memuat mobil...</SelectItem>
+                    ) : cars.length === 0 ? (
+                       <SelectItem disabled value="">Belum ada mobil</SelectItem>
+                    ) : (
+                      cars.map((car) => (
+                        <SelectItem key={car.id} value={car.id}>
+                          {car.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
