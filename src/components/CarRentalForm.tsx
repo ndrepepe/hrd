@@ -117,12 +117,14 @@ const CarRentalForm = ({ refreshCarsTrigger }: CarRentalFormProps) => {
       console.log("Rental data inserted successfully:", data);
       showSuccess("Data peminjaman berhasil disimpan!");
       form.reset(); // Reset form after successful submission
+      // No return statement here, just side effects
     }
   }
 
+  // The component's main return statement is here
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Input Peminjaman Mobil</h2>
+    <div className="w-full max-w-lg mx-auto">
+      <h3 className="text-xl font-semibold mb-4">Input Peminjaman Mobil</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -139,10 +141,8 @@ const CarRentalForm = ({ refreshCarsTrigger }: CarRentalFormProps) => {
                   </FormControl>
                   <SelectContent>
                     {loadingCars ? (
-                      // Removed value="" from disabled item
                       <SelectItem disabled>Memuat mobil...</SelectItem>
                     ) : cars.length === 0 ? (
-                       // Removed value="" from disabled item
                        <SelectItem disabled>Belum ada mobil</SelectItem>
                     ) : (
                       cars.map((car) => (
