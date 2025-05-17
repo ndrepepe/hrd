@@ -83,13 +83,6 @@ const BriefingList = ({ refreshTrigger }: BriefingListProps) => {
       .eq("status", "Accepted") // Filter by Accepted status
       .order("created_at", { ascending: false }); // Order by decision creation date
 
-    // --- START: Added Logging ---
-    console.log("Supabase fetch result for accepted candidates:");
-    console.log("Data:", data);
-    console.log("Error:", error);
-    // --- END: Added Logging ---
-
-
     if (error) {
       console.error("Error fetching accepted candidates:", error);
       showError("Gagal memuat data kandidat diterima: " + error.message);
@@ -98,7 +91,6 @@ const BriefingList = ({ refreshTrigger }: BriefingListProps) => {
       console.log("Fetched accepted candidates data:", data);
       // Filter out any entries where candidate data might be null (shouldn't happen with foreign key)
       const validData = data?.filter(item => item.candidates !== null) as DecisionWithCandidate[] || [];
-      console.log("Filtered valid data:", validData); // <-- Add console log here
       setAcceptedCandidates(validData);
     }
     setLoading(false);
