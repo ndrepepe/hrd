@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
+// Removed unused import: format
 
 interface Employee {
   id: string;
@@ -28,17 +28,7 @@ interface Employee {
   employee_id: string;
   name: string;
   position: string;
-  hire_date: string;
-  status: string;
-  phone: string | null;
-  email: string | null;
-  address: string | null;
-  date_of_birth: string | null;
-  place_of_birth: string | null;
-  last_education: string | null;
-  major: string | null;
-  skills: string | null;
-  notes: string | null;
+  // Removed hire_date, status, phone, email, address, date_of_birth, place_of_birth, last_education, major, skills, notes
 }
 
 interface EmployeeListProps {
@@ -50,8 +40,7 @@ const searchableFields = [
   { label: "Nama", value: "name" },
   { label: "ID Karyawan", value: "employee_id" },
   { label: "Posisi", value: "position" },
-  { label: "Nomor HP", value: "phone" },
-  { label: "Email", value: "email" },
+  // Removed No HP and Email from searchable fields
 ];
 
 const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
@@ -59,21 +48,20 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(""); // State for search input
   const [searchField, setSearchField] = useState(searchableFields[0].value); // State for selected search field, default to 'Nama'
-  const [filterStatus, setFilterStatus] = useState("All"); // State for status filter, default to 'All'
+  // Removed filterStatus state
 
   useEffect(() => {
     fetchEmployees();
-  }, [refreshTrigger, searchTerm, searchField, filterStatus]); // Depend on ALL relevant triggers and filters
+  }, [refreshTrigger, searchTerm, searchField]); // Depend on relevant triggers and filters
 
   const fetchEmployees = async () => {
     setLoading(true);
-    console.log("Fetching employees with search term:", searchTerm, "in field:", searchField, "and status filter:", filterStatus);
+    console.log("Fetching employees with search term:", searchTerm, "in field:", searchField);
 
     let query = supabase
       .from("employees")
-      .select("*")
-      .order("hire_date", { ascending: false }) // Order by hire date
-      .order("created_at", { ascending: false }); // Secondary order
+      .select("id, created_at, employee_id, name, position") // Select only the fields needed
+      .order("created_at", { ascending: false }); // Order by creation date
 
     // Apply search filter if searchTerm is not empty
     if (searchTerm && searchField) {
@@ -82,12 +70,7 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
       query = query.ilike(searchField, searchPattern);
     }
 
-    // Apply status filter if filterStatus is not 'All'
-    if (filterStatus !== "All") {
-      console.log(`Applying status filter: status eq ${filterStatus}`);
-      query = query.eq("status", filterStatus);
-    }
-
+    // Removed status filter logic
 
     const { data, error } = await query;
 
@@ -107,26 +90,12 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto"> {/* Increased max-width */}
+    <div className="w-full max-w-4xl mx-auto"> {/* Adjusted max-width */}
       <h3 className="text-xl font-semibold mb-4">Daftar Karyawan</h3>
 
       {/* Filter Section */}
       <div className="mb-4 flex flex-col md:flex-row items-center gap-4">
-         {/* Status Filter */}
-         <div className="flex items-center gap-2">
-           <Label htmlFor="status-filter" className="shrink-0">Status:</Label>
-           <Select value={filterStatus} onValueChange={setFilterStatus}>
-             <SelectTrigger id="status-filter" className="w-full md:w-[150px]">
-               <SelectValue placeholder="Pilih status" />
-             </SelectTrigger>
-             <SelectContent>
-               <SelectItem value="All">Semua</SelectItem>
-               <SelectItem value="Active">Active</SelectItem>
-               <SelectItem value="Inactive">Inactive</SelectItem>
-               <SelectItem value="On Leave">On Leave</SelectItem>
-             </SelectContent>
-           </Select>
-        </div>
+         {/* Removed Status Filter */}
         {/* Search Field Select */}
         <div className="flex items-center gap-2">
            <Label htmlFor="search-field" className="shrink-0">Cari Berdasarkan:</Label>
@@ -157,7 +126,7 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
 
       {/* Employee List Table */}
       {employees.length === 0 ? (
-        <p>{(searchTerm || filterStatus !== "All") ? "Tidak ada karyawan yang cocok dengan filter Anda." : "Belum ada data karyawan yang ditambahkan."}</p>
+        <p>{searchTerm ? "Tidak ada karyawan yang cocok dengan pencarian Anda." : "Belum ada data karyawan yang ditambahkan."}</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
@@ -166,10 +135,7 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
                 <TableHead>ID Karyawan</TableHead>
                 <TableHead>Nama</TableHead>
                 <TableHead>Posisi</TableHead>
-                <TableHead>Tanggal Masuk</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>No HP</TableHead>
-                <TableHead>Email</TableHead>
+                {/* Removed TableHead for Tanggal Masuk, Status, No HP, Email */}
                 <TableHead>Dibuat Pada</TableHead>
                 {/* Add more columns as needed */}
               </TableRow>
@@ -180,10 +146,7 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
                   <TableCell>{employee.employee_id}</TableCell>
                   <TableCell>{employee.name}</TableCell>
                   <TableCell>{employee.position}</TableCell>
-                  <TableCell>{format(new Date(employee.hire_date), "dd-MM-yyyy")}</TableCell>
-                  <TableCell>{employee.status}</TableCell>
-                  <TableCell>{employee.phone || "-"}</TableCell>
-                  <TableCell>{employee.email || "-"}</TableCell>
+                  {/* Removed TableCell for hire_date, status, phone, email */}
                   <TableCell>{new Date(employee.created_at).toLocaleString()}</TableCell>
                   {/* Add more cells for other fields */}
                 </TableRow>
