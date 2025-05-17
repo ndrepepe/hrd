@@ -185,9 +185,9 @@ const CandidateManager = () => {
                     </FormControl>
                     <SelectContent>
                       {loadingPositions ? (
-                        <SelectItem value="" disabled>Memuat posisi...</SelectItem>
+                        <SelectItem disabled>Memuat posisi...</SelectItem> {/* Removed value="" */}
                       ) : positions.length === 0 ? (
-                         <SelectItem value="" disabled>Belum ada posisi</SelectItem>
+                         <SelectItem disabled>Belum ada posisi</SelectItem> {/* Removed value="" */}
                       ) : (
                         positions.map((position) => (
                           <SelectItem key={position.id} value={position.id}>
