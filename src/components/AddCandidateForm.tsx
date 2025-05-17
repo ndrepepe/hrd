@@ -39,13 +39,25 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: "Nama kandidat harus minimal 2 karakter.",
   }),
-  place_of_birth: z.string().optional(),
-  date_of_birth: z.date().optional(),
-  phone: z.string().optional(),
-  address_ktp: z.string().optional(),
-  last_education: z.string().optional(),
-  major: z.string().optional(),
-  skills: z.string().optional(),
+  place_of_birth: z.string().min(1, { // Made required
+    message: "Tempat lahir wajib diisi.",
+  }),
+  date_of_birth: z.date({ // Made required
+    required_error: "Tanggal lahir wajib diisi.",
+  }),
+  phone: z.string().min(1, { // Made required
+    message: "Nomor HP wajib diisi.",
+  }),
+  address_ktp: z.string().min(1, { // Made required
+    message: "Alamat KTP wajib diisi.",
+  }),
+  last_education: z.string().min(1, { // Made required
+    message: "Pendidikan terakhir wajib diisi.",
+  }),
+  major: z.string().min(1, { // Made required
+    message: "Jurusan wajib diisi.",
+  }),
+  skills: z.string().optional(), // Kept optional
 });
 
 interface Position {
@@ -145,7 +157,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Melamar Posisi</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}> {/* Changed defaultValue to value */}
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih posisi" />
@@ -188,7 +200,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   name="place_of_birth"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Tempat Lahir (Opsional)</FormLabel>
+                      <FormLabel>Tempat Lahir</FormLabel> {/* Removed (Opsional) */}
                       <FormControl>
                       <Input placeholder="Kota" {...field} />
                       </FormControl>
@@ -201,7 +213,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   name="date_of_birth"
                   render={({ field }) => (
                   <FormItem className="flex flex-col">
-                      <FormLabel>Tanggal Lahir (Opsional)</FormLabel>
+                      <FormLabel>Tanggal Lahir</FormLabel> {/* Removed (Opsional) */}
                       <Popover>
                       <PopoverTrigger asChild>
                           <FormControl>
@@ -243,7 +255,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nomor HP (Opsional)</FormLabel>
+                <FormLabel>Nomor HP</FormLabel> {/* Removed (Opsional) */}
                 <FormControl>
                   <Input placeholder="Contoh: 0812..." {...field} />
                 </FormControl>
@@ -256,7 +268,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             name="address_ktp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Alamat KTP (Opsional)</FormLabel>
+                <FormLabel>Alamat KTP</FormLabel> {/* Removed (Opsional) */}
                 <FormControl>
                   <Textarea placeholder="Alamat sesuai KTP" {...field} />
                 </FormControl>
@@ -270,7 +282,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   name="last_education"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Pendidikan Terakhir (Opsional)</FormLabel>
+                      <FormLabel>Pendidikan Terakhir</FormLabel> {/* Removed (Opsional) */}
                       <FormControl>
                       <Input placeholder="Contoh: S1 Teknik Informatika" {...field} />
                       </FormControl>
@@ -283,7 +295,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   name="major"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Jurusan (Opsional)</FormLabel>
+                      <FormLabel>Jurusan</FormLabel> {/* Removed (Opsional) */}
                       <FormControl>
                       <Input placeholder="Contoh: Teknik Informatika" {...field} />
                       </FormControl>
@@ -297,7 +309,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             name="skills"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kemampuan Tambahan (Opsional)</FormLabel>
+                <FormLabel>Kemampuan Tambahan (Opsional)</FormLabel> {/* Kept (Opsional) */}
                 <FormControl>
                   <Textarea placeholder="Contoh: React, Node.js, SQL" {...field} />
                 </FormControl>
