@@ -9,6 +9,7 @@ import AddInterviewForm from '@/components/AddInterviewForm';
 import InterviewList from '@/components/InterviewList';
 import AddDecisionForm from '@/components/AddDecisionForm';
 import DecisionList from '@/components/DecisionList';
+import BriefingList from '@/components/BriefingList'; // Import the new component
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -28,7 +29,7 @@ const RecruitmentPage = () => {
     setRefreshCandidates(prev => prev + 1);
     // Also refresh candidate lists in Interview and Decision forms
     setRefreshInterviews(prev => prev + 1); // This will trigger fetchCandidates in AddInterviewForm
-    setRefreshDecisions(prev => prev + 1); // This will trigger fetchCandidates in AddDecisionForm - Corrected: This should trigger CandidateList refresh, not AddDecisionForm refresh
+    setRefreshDecisions(prev => prev + 1); // This will trigger fetchCandidates in AddDecisionForm
   };
 
   const handleInterviewAdded = () => {
@@ -36,7 +37,7 @@ const RecruitmentPage = () => {
   };
 
   const handleDecisionAdded = () => {
-    setRefreshDecisions(prev => prev + 1); // Trigger refresh for DecisionList AND CandidateList
+    setRefreshDecisions(prev => prev + 1); // Trigger refresh for DecisionList AND CandidateList AND BriefingList
     // Also refresh candidate lists in Interview and Decision forms, as a candidate might now have a decision
     setRefreshCandidates(prev => prev + 1); // Trigger refresh for CandidateList and forms that depend on it
     setRefreshInterviews(prev => prev + 1); // Trigger refresh for AddInterviewForm (to update candidate dropdown)
@@ -66,6 +67,7 @@ const RecruitmentPage = () => {
                 <TabsTrigger value="list-interviews">Riwayat Wawancara</TabsTrigger>
                 <TabsTrigger value="add-decision">Tambah Keputusan</TabsTrigger>
                 <TabsTrigger value="list-decisions">Daftar Keputusan</TabsTrigger>
+                <TabsTrigger value="briefing-list">Pembekalan</TabsTrigger> {/* New Tab Trigger */}
               </TabsList>
            </div>
         </div>
@@ -104,6 +106,11 @@ const RecruitmentPage = () => {
 
           <TabsContent value="list-decisions" className="mt-0">
             <DecisionList refreshTrigger={refreshDecisions} />
+          </TabsContent>
+
+          {/* New Tab Content for Briefing List */}
+          <TabsContent value="briefing-list" className="mt-0">
+             <BriefingList refreshTrigger={refreshDecisions} /> {/* Use refreshDecisionsTrigger */}
           </TabsContent>
         </div>
       </Tabs>
