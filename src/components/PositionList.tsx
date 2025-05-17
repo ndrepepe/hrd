@@ -91,6 +91,28 @@ const PositionList = ({ refreshTrigger, onPositionDeleted, onPositionUpdated }: 
   };
 
   const handleDelete = async (id: string) => {
+    // --- Start Validation Check ---
+    console.log("Checking for candidates linked to position ID:", id);
+    const { data: candidatesData, error: candidatesError } = await supabase
+      .from("candidates")
+      .select("id") // We only need to know if any exist
+      .eq("position_id", id)
+      .limit(1); // Stop after finding the first one
+
+    if (candidatesError) {
+      console.error("Error checking for linked candidates:", candidatesError);
+      showError("Gagal memeriksa kandidat terkait: " + candidatesError.message);
+      return; // Stop the delete process
+    }
+
+    if (candidatesData && candidatesData.length > 0) {
+      console.log("Found linked candidates, preventing deletion.");
+      showError("Posisi ini tidak dapat dihapus karena sudah ada kandidat terkait.");
+      return; // Stop the delete process
+    }
+    // --- End Validation Check ---
+
+
     if (window.confirm("Apakah Anda yakin ingin menghapus posisi ini? Ini tidak akan menghapus kandidat yang terkait, tetapi posisi ini tidak akan lagi muncul di dropdown posisi.")) {
       const { error } = await supabase
         .from("positions")
