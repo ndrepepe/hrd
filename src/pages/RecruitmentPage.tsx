@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import PositionManager from '@/components/PositionManager'; // Import the new component
+import PositionManager from '@/components/PositionManager';
+import CandidateManager from '@/components/CandidateManager'; // Import the new component
 
 const RecruitmentPage = () => {
   return (
@@ -10,10 +11,14 @@ const RecruitmentPage = () => {
       <p className="text-center text-gray-600 mb-8">
         Kelola posisi yang dibutuhkan dan data kandidat di sini.
       </p>
-      
-      <PositionManager /> {/* Add the PositionManager component */}
 
-      {/* TODO: Tambahkan komponen untuk mengelola Kandidat, Wawancara, dan Keputusan */}
+      <PositionManager />
+
+      <div className="mt-10"> {/* Add some margin between sections */}
+        <CandidateManager /> {/* Add the CandidateManager component */}
+      </div>
+
+      {/* TODO: Tambahkan komponen untuk mengelola Wawancara dan Keputusan */}
     </div>
   );
 };
