@@ -35,8 +35,8 @@ interface Candidate {
   major: string | null;
   skills: string | null;
   positions?: { title: string } | null; // To fetch position title
-  // Update decisions type to include created_at
-  decisions?: { status: string, created_at: string }[] | null; // Add decisions to fetch related decisions
+  // Keep decisions type as it's still fetched in the query
+  decisions?: { status: string, created_at: string }[] | null;
 }
 
 interface CandidateListProps {
@@ -95,23 +95,21 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
       showError("Gagal memuat data kandidat: " + error.message);
       setCandidates([]); // Clear candidates on error
     } else {
-      console.log("Fetched candidates data:", data); // <-- ADDED LOGGING HERE
+      console.log("Fetched candidates data:", data);
       setCandidates(data || []);
     }
     setLoading(false);
   };
 
-  // Function to find the latest decision status
+  // Function to find the latest decision status (kept for potential future use or debugging, but not displayed)
   const getLatestDecisionStatus = (decisions: Candidate['decisions']): string => {
-    // Check if decisions is an array and is not empty
     if (!Array.isArray(decisions) || decisions.length === 0) {
       return "Proses";
     }
-    // Sort decisions by created_at descending to find the latest
     const sortedDecisions = [...decisions].sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-    console.log("Decisions for candidate:", sortedDecisions); // <-- ADDED LOGGING HERE
+    console.log("Decisions for candidate:", sortedDecisions);
     return sortedDecisions[0].status;
   };
 
@@ -161,7 +159,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
-                <TableHead>Status Keputusan</TableHead> {/* New column header */}
+                {/* Removed Status Keputusan TableHead */}
                 <TableHead>Dibuat Pada</TableHead>
               </TableRow>
             </TableHeader>
@@ -178,10 +176,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                   <TableCell>{candidate.phone || "-"}</TableCell>
                   <TableCell>{candidate.last_education || "-"}</TableCell>
                   <TableCell>{candidate.skills || "-"}</TableCell>
-                  {/* Display the latest decision status */}
-                  <TableCell>
-                    {getLatestDecisionStatus(candidate.decisions)}
-                  </TableCell>
+                  {/* Removed Status Keputusan TableCell */}
                   <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                 </TableRow>
               ))}
