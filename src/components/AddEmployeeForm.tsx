@@ -3,9 +3,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-// Removed unused imports: format, CalendarIcon, cn, Calendar, Popover, PopoverContent, PopoverTrigger, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+import { format } from "date-fns"; // Import format
+import { CalendarIcon } from "lucide-react"; // Import CalendarIcon
 
+import { cn } from "@/lib/utils"; // Import cn
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar"; // Import Calendar
 import {
   Form,
   FormControl,
@@ -15,10 +18,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Import Popover components
+// Removed unused imports: Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Updated formSchema to only include required fields
+// Updated formSchema to include required hire_date
 const formSchema = z.object({
   employee_id: z.string().min(1, {
     message: "ID Karyawan wajib diisi.",
@@ -28,6 +33,9 @@ const formSchema = z.object({
   }),
   position: z.string().min(2, {
     message: "Posisi wajib diisi minimal 2 karakter.",
+  }),
+  hire_date: z.date({ // Added hire_date back and made it required
+    required_error: "Tanggal masuk wajib diisi.",
   }),
   // Removed other fields from schema
 });
@@ -39,11 +47,12 @@ interface AddEmployeeFormProps {
 const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // Updated defaultValues to only include required fields
+    // Updated defaultValues to include hire_date
     defaultValues: {
       employee_id: "",
       name: "",
       position: "",
+      hire_date: undefined, // Default value for date picker
       // Removed other default values
     },
   });
@@ -58,6 +67,7 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
           employee_id: values.employee_id,
           name: values.name,
           position: values.position,
+          hire_date: format(values.hire_date, "yyyy-MM-dd"), // Include hire_date in insert data
           // Only include the required fields in the insert data
           // Other columns in the database will use their default values or be null
         },
@@ -74,6 +84,7 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
          employee_id: "",
          name: "",
          position: "",
+         hire_date: undefined, // Reset date field
       });
       onEmployeeAdded(); // Call callback
     }
@@ -124,6 +135,45 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
                 <FormControl>
                   <Input placeholder="Contoh: Staff Admin" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           {/* Hire Date Field (Added back) */}
+          <FormField
+            control={form.control}
+            name="hire_date"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Tanggal Masuk</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pilih tanggal</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
