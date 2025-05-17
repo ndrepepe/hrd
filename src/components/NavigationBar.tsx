@@ -7,12 +7,10 @@ import { useUser } from "@/context/UserContext"; // Import useUser hook
 const NavigationBar = () => {
   const { role, loading } = useUser(); // Get user role and loading state
 
-  // Don't render navigation until loading is complete
-  if (loading) {
-    return null; // Or a loading indicator if preferred
-  }
-
   // Define which roles can see which links
+  // These will be evaluated once the role is loaded.
+  // While loading, role is null, so only links visible to null role will show initially,
+  // then update once role is fetched.
   const canViewRecruitment = role === 'admin' || role === 'hr';
   const canViewCarRental = role === 'admin' || role === 'hr' || role === 'employee'; // Example: all roles can see car rental
   const canViewDailyReport = role === 'admin' || role === 'hr' || role === 'employee'; // Example: all roles can see daily report
@@ -24,6 +22,7 @@ const NavigationBar = () => {
           HRD ANDI OFFSET
         </Link>
         <div className="flex flex-wrap space-x-4">
+          {/* Render links based on role once loaded */}
           {canViewCarRental && (
             <Link to="/car-rental">
               <Button variant="ghost" className="text-white hover:bg-gray-700">Peminjaman Mobil</Button>
