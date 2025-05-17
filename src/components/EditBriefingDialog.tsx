@@ -27,9 +27,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea"; // Keep Textarea import just in case, though not used for briefing_result anymore
+import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, // Import Select components
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -178,15 +178,15 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hasil Pembekalan (Opsional)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}> {/* Use value and handle null/undefined */}
+                  <Select onValueChange={field.onChange} value={field.value || undefined}> {/* Use value and handle null/undefined with undefined */}
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih hasil" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {/* Add an empty option for clearing the value */}
-                      <SelectItem value="">- Pilih Hasil -</SelectItem>
+                      {/* Use value={undefined} for clearing the value */}
+                      <SelectItem value={undefined}>- Pilih Hasil -</SelectItem>
                       <SelectItem value="dikontrak">Dikontrak</SelectItem>
                       <SelectItem value="dihentikan">Dihentikan</SelectItem>
                       <SelectItem value="mengundurkan diri">Mengundurkan Diri</SelectItem>
