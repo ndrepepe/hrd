@@ -13,11 +13,12 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { CalendarIcon, XCircle } from "lucide-react"; // Import XCircle icon
-import { Calendar } from "@/components/ui/calendar"; // Import Calendar
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Import Popover
-import { cn } from "@/lib/utils"; // Import cn utility
-import { DateRange } from "react-day-picker"; // Import DateRange type
+import { CalendarIcon, XCircle } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
+import { Label } from "@/components/ui/label"; // Import Label component
 
 interface Rental {
   id: string;
@@ -39,12 +40,12 @@ interface CarRentalListProps {
 const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined); // State for date range
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false); // State to control popover
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   useEffect(() => {
     fetchRentals();
-  }, [refreshTrigger, dateRange]); // Depend on refreshTrigger AND dateRange
+  }, [refreshTrigger, dateRange]);
 
   const fetchRentals = async () => {
     setLoading(true);
@@ -54,14 +55,11 @@ const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
       .order("rent_date", { ascending: false })
       .order("created_at", { ascending: false });
 
-    // Apply date filter if dateRange is set
     if (dateRange?.from) {
       if (dateRange.to) {
-        // Filter for a date range
         query = query.gte("rent_date", format(dateRange.from, "yyyy-MM-dd"))
                      .lte("rent_date", format(dateRange.to, "yyyy-MM-dd"));
       } else {
-        // Filter for a single date
         query = query.eq("rent_date", format(dateRange.from, "yyyy-MM-dd"));
       }
     }
@@ -89,20 +87,19 @@ const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
         showError("Gagal menghapus data peminjaman: " + error.message);
       } else {
         showSuccess("Data peminjaman berhasil dihapus!");
-        fetchRentals(); // Refresh the list after deletion
+        fetchRentals();
       }
     }
   };
 
   const handleEdit = (rental: Rental) => {
     console.log("Edit button clicked for rental ID:", rental.id);
-    // TODO: Implement edit functionality (e.g., populate form)
-    showError("Fitur edit belum diimplementasikan."); // Placeholder message
+    showError("Fitur edit belum diimplementasikan.");
   };
 
   const handleClearFilter = () => {
-    setDateRange(undefined); // Clear the date range state
-    setIsCalendarOpen(false); // Close the popover
+    setDateRange(undefined);
+    setIsCalendarOpen(false);
   };
 
   if (loading) {
@@ -115,7 +112,7 @@ const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
 
       {/* Date Filter Section */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Label className="mr-2">Filter Tanggal:</Label> {/* Add a label */}
+        <Label className="mr-2">Filter Tanggal:</Label>
         <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -144,21 +141,20 @@ const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               initialFocus
-              mode="range" // Enable range selection
+              mode="range"
               defaultMonth={dateRange?.from}
               selected={dateRange}
               onSelect={(range) => {
                  setDateRange(range);
-                 // Optionally close popover if range is complete
                  if (range?.from && range?.to) {
                     setIsCalendarOpen(false);
                  }
               }}
-              numberOfMonths={2} // Show two months for range selection
+              numberOfMonths={2}
             />
           </PopoverContent>
         </Popover>
-        {dateRange?.from && ( // Show clear button only if a date is selected
+        {dateRange?.from && (
           <Button variant="ghost" size="icon" onClick={handleClearFilter}>
             <XCircle className="h-5 w-5 text-gray-500" />
             <span className="sr-only">Clear date filter</span>
@@ -166,10 +162,9 @@ const CarRentalList = ({ refreshTrigger }: CarRentalListProps) => {
         )}
       </div>
 
-
       {/* Rental List Table */}
       {rentals.length === 0 ? (
-        <p>Belum ada data peminjaman untuk tanggal yang dipilih.</p> {/* Updated message */}
+        <p>Belum ada data peminjaman untuk tanggal yang dipilih.</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
