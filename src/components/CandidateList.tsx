@@ -35,7 +35,8 @@ interface Candidate {
   major: string | null;
   skills: string | null;
   positions?: { title: string } | null; // To fetch position title
-  decisions?: { status: string }[] | null; // Add decisions to fetch related decisions
+  // Update decisions type to include created_at
+  decisions?: { status: string, created_at: string }[] | null; // Add decisions to fetch related decisions
 }
 
 interface CandidateListProps {
@@ -68,8 +69,8 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
 
     let query = supabase
       .from("candidates")
-      // Select candidate data, left join positions for title, and left join decisions for status
-      .select("*, positions!left(title), decisions!left(status)")
+      // Select candidate data, left join positions for title, and left join decisions for status and created_at
+      .select("*, positions!left(title), decisions!left(status, created_at)")
       .order("created_at", { ascending: false });
 
     // Apply filter based on selected field and search term
@@ -97,6 +98,19 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
     }
     setLoading(false);
   };
+
+  // Function to find the latest decision status
+  const getLatestDecisionStatus = (decisions: Candidate['decisions']): string => {
+    if (!decisions || decisions.length === 0) {
+      return "Proses";
+    }
+    // Sort decisions by created_at descending to find the latest
+    const sortedDecisions = [...decisions].sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    return sortedDecisions[0].status;
+  };
+
 
   if (loading) {
     return <p>Memuat daftar kandidat...</p>;
@@ -160,11 +174,9 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
                   <TableCell>{candidate.phone || "-"}</TableCell>
                   <TableCell>{candidate.last_education || "-"}</TableCell>
                   <TableCell>{candidate.skills || "-"}</TableCell>
-                  {/* Display decision status */}
+                  {/* Display the latest decision status */}
                   <TableCell>
-                    {candidate.decisions && candidate.decisions.length > 0
-                      ? candidate.decisions[0].status // Display status of the first decision found
-                      : "Proses"} {/* Display "Proses" if no decisions */}
+                    {getLatestDecisionStatus(candidate.decisions)}
                   </TableCell>
                   <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                 </TableRow>
