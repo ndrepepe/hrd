@@ -17,7 +17,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+}
+from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -146,9 +147,9 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                   </FormControl>
                   <SelectContent>
                     {loadingPositions ? (
-                      <SelectItem disabled>Memuat posisi...</SelectItem>
+                      <SelectItem disabled value="">Memuat posisi...</SelectItem>
                     ) : positions.length === 0 ? (
-                       <SelectItem disabled>Belum ada posisi</SelectItem>
+                       <SelectItem disabled value="">Belum ada posisi</SelectItem>
                     ) : (
                       positions.map((position) => (
                         <SelectItem key={position.id} value={position.id}>
