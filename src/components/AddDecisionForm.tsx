@@ -35,10 +35,10 @@ const formSchema = z.object({
   candidate_id: z.string({
     required_error: "Kandidat wajib dipilih.",
   }),
-  status: z.string({
+  // Updated schema to match database constraint values
+  status: z.enum(['Accepted', 'Rejected'], {
     required_error: "Status keputusan wajib dipilih.",
-  }).min(1, { // Added min(1) validation
-    message: "Status keputusan wajib dipilih.",
+    invalid_type_error: "Status keputusan tidak valid.",
   }),
   start_date: z.date().optional(),
   rejection_reason: z.string().optional(),
@@ -62,7 +62,7 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
     resolver: zodResolver(formSchema),
     defaultValues: {
       candidate_id: "",
-      status: "", // Default status is empty string
+      status: undefined, // Default status is undefined for enum
       start_date: undefined,
       rejection_reason: "",
     },
@@ -89,14 +89,14 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("onSubmit function called with values:", values); // Log to check if function is reached
+    console.log("onSubmit function called with values:", values);
 
     const { data, error } = await supabase
       .from("decisions")
       .insert([
         {
           candidate_id: values.candidate_id,
-          status: values.status,
+          status: values.status, // This will be 'Accepted' or 'Rejected'
           start_date: values.start_date ? format(values.start_date, "yyyy-MM-dd") : null,
           rejection_reason: values.rejection_reason,
         },
@@ -133,9 +133,9 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
-                      <SelectItem disabled>Memuat kandidat...</SelectItem>
+                      <SelectItem disabled value="">Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled>Belum ada kandidat</SelectItem>
+                       <SelectItem disabled value="">Belum ada kandidat</SelectItem>
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
@@ -155,24 +155,25 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status Keputusan</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}> {/* Use value prop for controlled component */}
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Pilih status" />
                     </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Diterima">Diterima</SelectItem>
-                      <SelectItem value="Ditolak">Ditolak</SelectItem>
-                      <SelectItem value="Ditawarkan">Ditawarkan</SelectItem>
-                      <SelectItem value="Arsip">Arsip</SelectItem>
+                      {/* Updated values to match database constraint */}
+                      <SelectItem value="Accepted">Diterima</SelectItem>
+                      <SelectItem value="Rejected">Ditolak</SelectItem>
+                      {/* Removed 'Ditawarkan' and 'Arsip' as they are not in the constraint */}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {form.watch("status") === "Diterima" || form.watch("status") === "Ditawarkan" ? (
+            {/* Updated conditional logic to check against 'Accepted' */}
+            {form.watch("status") === "Accepted" ? (
                 <FormField
                 control={form.control}
                 name="start_date"
@@ -213,7 +214,8 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                 />
             ) : null}
 
-            {form.watch("status") === "Ditolak" ? (
+            {/* Updated conditional logic to check against 'Rejected' */}
+            {form.watch("status") === "Rejected" ? (
                 <FormField
                 control={form.control}
                 name="rejection_reason"
