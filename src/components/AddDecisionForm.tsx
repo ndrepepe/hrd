@@ -107,8 +107,8 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
         {
           candidate_id: values.candidate_id,
           status: values.status, // This will be 'Accepted' or 'Rejected'
-          start_date: values.start_date ? format(values.start_date, "yyyy-MM-dd") : null,
-          rejection_reason: values.rejection_reason,
+          start_date: values.status === 'Accepted' && values.start_date ? format(values.start_date, "yyyy-MM-dd") : null, // Only save start_date if status is Accepted
+          rejection_reason: values.status === 'Rejected' ? values.rejection_reason : null, // Only save rejection_reason if status is Rejected
         },
       ])
       .select();
@@ -158,13 +158,14 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
       <h3 className="text-xl font-semibold mb-4">Tambah Data Keputusan</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Candidate Field */}
           <FormField
             control={form.control}
             name="candidate_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Kandidat</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}> {/* Changed defaultValue to value */}
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih kandidat" />
@@ -174,7 +175,7 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                     {loadingCandidates ? (
                       <SelectItem disabled>Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled>Tidak ada kandidat yang tersedia untuk keputusan</SelectItem> {/* Updated message */}
+                       <SelectItem disabled>Tidak ada kandidat yang tersedia untuk keputusan</SelectItem>
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
@@ -188,83 +189,88 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
               </FormItem>
             )}
           />
+
+          {/* Status Field */}
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status Keputusan</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Accepted">Diterima</SelectItem>
+                    <SelectItem value="Rejected">Ditolak</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Conditional Start Date Field */}
+          {form.watch("status") === "Accepted" && (
             <FormField
               control={form.control}
-              name="status"
+              name="start_date"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status Keputusan</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih status" />
-                    </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Accepted">Diterima</SelectItem>
-                      <SelectItem value="Rejected">Ditolak</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <FormItem className="flex flex-col">
+                  <FormLabel>Tanggal Mulai (Opsional)</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pilih tanggal</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {form.watch("status") === "Accepted" ? (
-                <FormField
-                control={form.control}
-                name="start_date"
-                render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                    <FormLabel>Tanggal Mulai (Opsional)</FormLabel>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                        <FormControl>
-                            <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                            )}
-                            >
-                            {field.value ? (
-                                format(field.value, "PPP")
-                            ) : (
-                                <span>Pilih tanggal</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                        </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                        />
-                        </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-            ) : null}
+          )}
 
-            {form.watch("status") === "Rejected" ? (
-                <FormField
-                control={form.control}
-                name="rejection_reason"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Alasan Penolakan (Opsional)</FormLabel>
-                    <FormControl>
-                        <Textarea placeholder="Jelaskan alasan penolakan..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-            ) : null}
+          {/* Conditional Rejection Reason Field */}
+          {form.watch("status") === "Rejected" && (
+            <FormField
+              control={form.control}
+              name="rejection_reason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Alasan Penolakan (Opsional)</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Jelaskan alasan penolakan..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <Button type="submit">Simpan Keputusan</Button>
         </form>
