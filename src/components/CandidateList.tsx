@@ -35,6 +35,7 @@ interface Candidate {
   major: string | null;
   skills: string | null;
   positions?: { title: string } | null; // To fetch position title
+  decisions?: { status: string }[] | null; // Add decisions to fetch related decisions
 }
 
 interface CandidateListProps {
@@ -67,7 +68,8 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
 
     let query = supabase
       .from("candidates")
-      .select("*, positions!left(title)") // Keep the join for displaying the position title
+      // Select candidate data, left join positions for title, and left join decisions for status
+      .select("*, positions!left(title), decisions!left(status)")
       .order("created_at", { ascending: false });
 
     // Apply filter based on selected field and search term
@@ -141,6 +143,7 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
+                <TableHead>Status Keputusan</TableHead> {/* New column header */}
                 <TableHead>Dibuat Pada</TableHead>
               </TableRow>
             </TableHeader>
@@ -157,6 +160,12 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
                   <TableCell>{candidate.phone || "-"}</TableCell>
                   <TableCell>{candidate.last_education || "-"}</TableCell>
                   <TableCell>{candidate.skills || "-"}</TableCell>
+                  {/* Display decision status */}
+                  <TableCell>
+                    {candidate.decisions && candidate.decisions.length > 0
+                      ? candidate.decisions[0].status // Display status of the first decision found
+                      : "Proses"} {/* Display "Proses" if no decisions */}
+                  </TableCell>
                   <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                 </TableRow>
               ))}
