@@ -45,7 +45,8 @@ const RecruitmentPage = () => {
 
   // Estimate the height of the fixed header (title, description, tabs list, padding)
   // This is an approximation, adjust mt- value below if needed
-  const fixedHeaderHeightEstimate = 'mt-64'; // Adjusted height estimate for more tabs
+  // Adjusted height estimate for more tabs, considering 2 rows on large screens
+  const fixedHeaderHeightEstimate = 'mt-64 md:mt-56 lg:mt-48'; // Adjust margin top based on screen size
 
   return (
     <div className="container mx-auto p-4 pt-16"> {/* Main page container, pt-16 for main nav */}
@@ -58,7 +59,8 @@ const RecruitmentPage = () => {
               <p className="text-center text-gray-600 mb-4">
                 Kelola posisi yang dibutuhkan, data kandidat, proses wawancara, dan keputusan rekrutmen di sini.
               </p>
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8"> {/* Adjusted grid for 8 tabs */}
+              {/* Adjusted grid for TabsList to show 2 rows on large screens */}
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-5"> {/* Changed lg:grid-cols-8 to lg:grid-cols-5 */}
                 <TabsTrigger value="add-position">Tambah Posisi</TabsTrigger>
                 <TabsTrigger value="list-positions">Daftar Posisi</TabsTrigger>
                 <TabsTrigger value="add-candidate">Tambah Kandidat</TabsTrigger>
@@ -74,7 +76,7 @@ const RecruitmentPage = () => {
 
         {/* Scrolling content area */}
         {/* Add top margin to push content down below the fixed header */}
-        <div className={`${fixedHeaderHeightEstimate}`}>
+        <div className={`${fixedHeaderHeightEstimate}`}> {/* Use the adjusted margin */}
           <TabsContent value="add-position" className="mt-0">
             <AddPositionForm onPositionAdded={handlePositionAdded} />
           </TabsContent>
