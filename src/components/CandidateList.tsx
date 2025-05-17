@@ -161,7 +161,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
-                <TableHead>Status Keputusan</TableHead> {/* Added Status Keputusan TableHead back */}
+                {/* Removed Status Keputusan TableHead */}
                 <TableHead>Dibuat Pada</TableHead>
               </TableRow>
             </TableHeader>
@@ -190,10 +190,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                     <TableCell>{candidate.phone || "-"}</TableCell>
                     <TableCell>{candidate.last_education || "-"}</TableCell>
                     <TableCell>{candidate.skills || "-"}</TableCell>
-                    {/* Display the latest decision status */}
-                    <TableCell>
-                      {latestStatus} {/* Display the status text */}
-                    </TableCell>
+                    {/* Removed the TableCell for status */}
                     <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                   </TableRow>
                 );
