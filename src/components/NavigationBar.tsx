@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const NavigationBar = () => {
   return (
-    <nav className="bg-gray-800 text-white p-4 shadow-md">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-800 text-white p-4 shadow-md w-full">
       <div className="container mx-auto flex flex-wrap items-center justify-between">
         <Link to="/" className="text-xl font-bold mr-4">
           HRD ANDI OFFSET

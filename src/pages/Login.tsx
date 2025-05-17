@@ -28,7 +28,7 @@ const Login = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 pt-16"> {/* Added pt-16 */}
       <div className="w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
         <Auth

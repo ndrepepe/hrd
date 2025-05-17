@@ -8,7 +8,7 @@ import DecisionManager from '@/components/DecisionManager'; // Import the new co
 
 const RecruitmentPage = () => {
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 pt-16"> {/* Added pt-16 */}
       <h1 className="text-3xl font-bold mb-6 text-center">Modul Rekrutmen Karyawan</h1>
       <p className="text-center text-gray-600 mb-8">
         Kelola posisi yang dibutuhkan, data kandidat, proses wawancara, dan keputusan rekrutmen di sini.

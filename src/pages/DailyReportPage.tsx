@@ -13,7 +13,7 @@ const DailyReportPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 pt-16"> {/* Added pt-16 */}
       <h1 className="text-3xl font-bold mb-6 text-center">Modul Laporan Harian Karyawan</h1>
       <p className="text-center text-gray-600 mb-8">
         Input dan lihat rekap laporan harian aktivitas karyawan.
