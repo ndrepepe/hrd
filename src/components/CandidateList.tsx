@@ -101,7 +101,8 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
 
   // Function to find the latest decision status
   const getLatestDecisionStatus = (decisions: Candidate['decisions']): string => {
-    if (!decisions || decisions.length === 0) {
+    // Check if decisions is an array and is not empty
+    if (!Array.isArray(decisions) || decisions.length === 0) {
       return "Proses";
     }
     // Sort decisions by created_at descending to find the latest
