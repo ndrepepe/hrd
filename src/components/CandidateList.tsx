@@ -93,8 +93,9 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
     if (error) {
       console.error("Error fetching candidates:", error);
       showError("Gagal memuat data kandidat: " + error.message);
+      setCandidates([]); // Clear candidates on error
     } else {
-      console.log("Fetched candidates:", data);
+      console.log("Fetched candidates data:", data); // <-- ADDED LOGGING HERE
       setCandidates(data || []);
     }
     setLoading(false);
@@ -110,6 +111,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
     const sortedDecisions = [...decisions].sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
+    console.log("Decisions for candidate:", sortedDecisions); // <-- ADDED LOGGING HERE
     return sortedDecisions[0].status;
   };
 
