@@ -101,7 +101,7 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
         {
           candidate_id: values.candidate_id,
           stage: values.stage,
-          interview_date: format(values.interview_date, "yyyy-MM-dd"),
+          interview_date: values.interview_date ? format(values.interview_date, "yyyy-MM-dd") : null, // Ensure date is formatted or null
           result: values.result,
           notes: values.notes,
         },
@@ -138,9 +138,9 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
-                      <SelectItem disabled>Memuat kandidat...</SelectItem> {/* Removed value="" */}
+                      <SelectItem disabled>Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled>Belum ada kandidat</SelectItem> {/* Removed value="" */}
+                       <SelectItem disabled>Belum ada kandidat</SelectItem>
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
