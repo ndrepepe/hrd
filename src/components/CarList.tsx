@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import EditCarDialog from "./EditCarDialog"; // Import the new dialog component
 
 interface Car {
   id: string;
@@ -22,12 +23,14 @@ interface Car {
 interface CarListProps {
   refreshTrigger: number; // Prop to trigger refresh
   onCarDeleted: () => void; // Callback to notify parent when a car is deleted
-  onEditClick: (carId: string) => void; // New callback for edit button click
+  // Removed onEditClick prop
 }
 
-const CarList = ({ refreshTrigger, onCarDeleted, onEditClick }: CarListProps) => {
+const CarList = ({ refreshTrigger, onCarDeleted }: CarListProps) => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCarForEdit, setSelectedCarForEdit] = useState<Car | null>(null); // State for the car being edited
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control dialog visibility
 
   useEffect(() => {
     fetchCars();
@@ -67,9 +70,19 @@ const CarList = ({ refreshTrigger, onCarDeleted, onEditClick }: CarListProps) =>
     }
   };
 
-  const handleEdit = (car: Car) => {
-    console.log("Edit button clicked for car ID:", car.id);
-    onEditClick(car.id); // Call the parent's edit handler
+  const handleEditClick = (car: Car) => {
+    setSelectedCarForEdit(car); // Set the car data
+    setIsEditDialogOpen(true); // Open the dialog
+  };
+
+  const handleEditDialogClose = () => {
+    setSelectedCarForEdit(null); // Clear the selected car data
+    setIsEditDialogOpen(false); // Close the dialog
+  };
+
+  const handleCarUpdated = () => {
+    fetchCars(); // Refresh the list after a car is updated
+    onCarDeleted(); // Also notify parent, as the list of cars available in the form might need refreshing
   };
 
   if (loading) {
@@ -97,8 +110,8 @@ const CarList = ({ refreshTrigger, onCarDeleted, onEditClick }: CarListProps) =>
                   <TableCell>{car.name}</TableCell>
                   <TableCell>{new Date(car.created_at).toLocaleString()}</TableCell>
                   <TableCell className="flex space-x-2">
-                    {/* Use car.id for editing */}
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(car)}>Edit</Button>
+                    {/* Call handleEditClick with the car data */}
+                    <Button variant="outline" size="sm" onClick={() => handleEditClick(car)}>Edit</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(car.id)}>Hapus</Button>
                   </TableCell>
                 </TableRow>
@@ -107,6 +120,14 @@ const CarList = ({ refreshTrigger, onCarDeleted, onEditClick }: CarListProps) =>
           </Table>
         </div>
       )}
+
+      {/* Render the EditCarDialog */}
+      <EditCarDialog
+        car={selectedCarForEdit}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditDialogClose}
+        onCarUpdated={handleCarUpdated}
+      />
     </div>
   );
 };

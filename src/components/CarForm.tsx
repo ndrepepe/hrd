@@ -23,17 +23,20 @@ const formSchema = z.object({
   }),
 });
 
-interface AddCarFormProps {
+interface CarFormProps {
   onCarAdded: () => void; // Callback to notify parent when a car is added
+  // Removed editingCarId and setEditingCarId props
 }
 
-const AddCarForm = ({ onCarAdded }: AddCarFormProps) => {
+const CarForm = ({ onCarAdded }: CarFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
     },
   });
+
+  // Removed useEffect for loading data
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Submitting new car:", values);
@@ -82,4 +85,4 @@ const AddCarForm = ({ onCarAdded }: AddCarFormProps) => {
   );
 };
 
-export default AddCarForm;
+export default CarForm;

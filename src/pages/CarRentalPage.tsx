@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import CarRentalForm from "@/components/CarRentalForm";
 import CarRentalList from "@/components/CarRentalList";
-import CarForm from "@/components/CarForm"; // Renamed import
+import CarForm from "@/components/CarForm";
 import CarList from "@/components/CarList";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,14 +13,13 @@ const CarRentalPage = () => {
   const [refreshRentals, setRefreshRentals] = useState(0);
   const [activeTab, setActiveTab] = useState("add-rental"); // State to manage active tab
 
-  // State for editing
-  const [editingCarId, setEditingCarId] = useState<string | null>(null);
+  // State for editing rental (edit car is now handled within CarList)
   const [editingRentalId, setEditingRentalId] = useState<string | null>(null);
 
+  // This callback is used by CarForm (add) and CarList (delete/edit dialog)
   const handleCarAddedOrDeleted = () => {
     setRefreshCars(prev => prev + 1);
-    // Clear editing state if a car was added/deleted while editing
-    setEditingCarId(null);
+    // No need to clear editingCarId here anymore, it's managed in CarList
   };
 
   const handleRentalSubmitted = () => {
@@ -31,10 +30,7 @@ const CarRentalPage = () => {
     // setActiveTab("list-rentals");
   };
 
-  const handleCarEditClick = (carId: string) => {
-    setEditingCarId(carId);
-    setActiveTab("add-car"); // Switch to the form tab
-  };
+  // Removed handleCarEditClick
 
   const handleRentalEditClick = (rentalId: string) => {
     setEditingRentalId(rentalId);
@@ -69,20 +65,15 @@ const CarRentalPage = () => {
         {/* Add top margin to push content down below the fixed header */}
         <div className={`${contentAreaMarginTop}`}>
           <TabsContent value="add-car" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
-            {/* Pass editing state and setter to CarForm */}
-            <CarForm
-              onCarAdded={handleCarAddedOrDeleted}
-              editingCarId={editingCarId}
-              setEditingCarId={setEditingCarId}
-            />
+            {/* CarForm now only handles adding */}
+            <CarForm onCarAdded={handleCarAddedOrDeleted} />
           </TabsContent>
 
           <TabsContent value="list-cars" className="mt-0"> {/* mt-0 to override default TabsContent margin */}
-            {/* Pass edit click handler to CarList */}
+            {/* CarList now handles its own edit dialog */}
             <CarList
               refreshTrigger={refreshCars}
-              onCarDeleted={handleCarAddedOrDeleted}
-              onEditClick={handleCarEditClick}
+              onCarDeleted={handleCarAddedOrDeleted} // Still needed to refresh form's car list after delete/edit
             />
           </TabsContent>
 
