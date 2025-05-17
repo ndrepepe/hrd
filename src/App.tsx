@@ -9,9 +9,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CarRentalPage from "./pages/CarRentalPage";
 import RecruitmentPage from "./pages/RecruitmentPage";
-import DailyReportPage from "./pages/DailyReportPage"; // Import the new page
+import DailyReportPage from "./pages/DailyReportPage";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import NavigationBar from "./components/NavigationBar"; // Import NavigationBar
 
 const queryClient = new QueryClient();
 
@@ -21,15 +22,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        {/* Render NavigationBar outside of Routes */}
+        <NavigationBar /> 
         <Routes>
           {/* Public route for Login */}
           <Route path="/login" element={<Login />} />
 
           {/* Protected routes */}
+          {/* Wrap protected content with ProtectedRoute */}
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/car-rental" element={<ProtectedRoute><CarRentalPage /></ProtectedRoute>} />
           <Route path="/recruitment" element={<ProtectedRoute><RecruitmentPage /></ProtectedRoute>} />
-          <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} /> {/* Add the new route */}
+          <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
 
           {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
