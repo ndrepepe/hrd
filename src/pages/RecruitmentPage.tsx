@@ -28,7 +28,7 @@ const RecruitmentPage = () => {
     setRefreshCandidates(prev => prev + 1);
     // Also refresh candidate lists in Interview and Decision forms
     setRefreshInterviews(prev => prev + 1); // This will trigger fetchCandidates in AddInterviewForm
-    setRefreshDecisions(prev => prev + 1); // This will trigger fetchCandidates in AddDecisionForm
+    setRefreshDecisions(prev => prev + 1); // This will trigger fetchCandidates in AddDecisionForm - Corrected: This should trigger CandidateList refresh, not AddDecisionForm refresh
   };
 
   const handleInterviewAdded = () => {
@@ -36,7 +36,10 @@ const RecruitmentPage = () => {
   };
 
   const handleDecisionAdded = () => {
-    setRefreshDecisions(prev => prev + 1);
+    setRefreshDecisions(prev => prev + 1); // Trigger refresh for DecisionList AND CandidateList
+    // Also refresh candidate lists in Interview and Decision forms, as a candidate might now have a decision
+    setRefreshCandidates(prev => prev + 1); // Trigger refresh for CandidateList and forms that depend on it
+    setRefreshInterviews(prev => prev + 1); // Trigger refresh for AddInterviewForm (to update candidate dropdown)
   };
 
   // Estimate the height of the fixed header (title, description, tabs list, padding)
@@ -83,7 +86,8 @@ const RecruitmentPage = () => {
           </TabsContent>
 
           <TabsContent value="list-candidates" className="mt-0">
-            <CandidateList refreshTrigger={refreshCandidates} />
+            {/* Pass both refresh triggers to CandidateList */}
+            <CandidateList refreshTrigger={refreshCandidates} refreshDecisionsTrigger={refreshDecisions} />
           </TabsContent>
 
           <TabsContent value="add-interview" className="mt-0">

@@ -40,7 +40,8 @@ interface Candidate {
 }
 
 interface CandidateListProps {
-  refreshTrigger: number; // Prop to trigger refresh
+  refreshTrigger: number; // Prop to trigger refresh (e.g., when candidate added)
+  refreshDecisionsTrigger: number; // New prop to trigger refresh when decision added/changed
 }
 
 // Define searchable fields with their labels and database column names
@@ -53,7 +54,7 @@ const searchableFields = [
   { label: "Skill", value: "skills" },
 ];
 
-const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
+const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateListProps) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(""); // State for search input
@@ -61,7 +62,7 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
 
   useEffect(() => {
     fetchCandidates();
-  }, [refreshTrigger, searchTerm, searchField]); // Depend on refreshTrigger, searchTerm, AND searchField
+  }, [refreshTrigger, refreshDecisionsTrigger, searchTerm, searchField]); // Depend on ALL relevant triggers and filters
 
   const fetchCandidates = async () => {
     setLoading(true);
@@ -146,7 +147,7 @@ const CandidateList = ({ refreshTrigger }: CandidateListProps) => {
 
       {/* Candidate List Table */}
       {candidates.length === 0 ? (
-        <p>{searchTerm ? "Tidak ada kandidat yang cocok dengan pencarian Anda." : "Belum ada kandidat yang ditambahkan."}</p>
+        <p>{searchTerm || filterStatus !== "All" ? "Tidak ada kandidat yang cocok dengan filter Anda." : "Belum ada kandidat yang ditambahkan."}</p> {/* Added filterStatus check here */}
       ) : (
         <div className="overflow-x-auto">
           <Table>
