@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, // Import Select components
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -31,12 +31,11 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Updated formSchema to use employee_id instead of reporter_name
 const formSchema = z.object({
   report_date: z.date({
     required_error: "Tanggal laporan wajib diisi.",
   }),
-  employee_id: z.string({ // Use employee_id, make it required
+  employee_id: z.string({
     required_error: "Nama pelapor wajib dipilih.",
   }),
   activity: z.string().min(10, {
@@ -51,7 +50,7 @@ interface Employee {
 }
 
 interface DailyReportFormProps {
-  onReportSubmitted: () => void; // Callback to refresh list after submission
+  onReportSubmitted: () => void;
 }
 
 const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
@@ -62,13 +61,12 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       report_date: undefined,
-      employee_id: "", // Default value for select
+      employee_id: "",
       activity: "",
       notes: "",
     },
   });
 
-  // Fetch employees for the dropdown
   useEffect(() => {
     fetchEmployees();
   }, []);
@@ -98,12 +96,12 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
       .insert([
         {
           report_date: format(values.report_date, "yyyy-MM-dd"),
-          employee_id: values.employee_id, // Insert employee_id
+          employee_id: values.employee_id,
           activity: values.activity,
           notes: values.notes,
         },
       ])
-      .select(); // Use select() to get the inserted data
+      .select();
 
     if (error) {
       console.error("Error inserting daily report:", error);
@@ -111,13 +109,13 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
     } else {
       console.log("Daily report inserted successfully:", data);
       showSuccess("Laporan harian berhasil disimpan!");
-      form.reset({ // Reset form to initial default values
+      form.reset({
         report_date: undefined,
         employee_id: "",
         activity: "",
         notes: "",
       });
-      onReportSubmitted(); // Call callback to refresh list
+      onReportSubmitted();
     }
   }
 
@@ -168,7 +166,7 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
           {/* Nama Pelapor Field (Dropdown) */}
           <FormField
             control={form.control}
-            name="employee_id" // Use employee_id
+            name="employee_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nama Pelapor</FormLabel>
@@ -180,9 +178,11 @@ const DailyReportForm = ({ onReportSubmitted }: DailyReportFormProps) => {
                   </FormControl>
                   <SelectContent>
                     {loadingEmployees ? (
-                      <SelectItem disabled value="">Memuat karyawan...</SelectItem>
+                      // Removed value="" from disabled SelectItem
+                      <SelectItem disabled>Memuat karyawan...</SelectItem>
                     ) : employees.length === 0 ? (
-                       <SelectItem disabled value="">Belum ada data karyawan</SelectItem>
+                       // Removed value="" from disabled SelectItem
+                       <SelectItem disabled>Belum ada data karyawan</SelectItem>
                     ) : (
                       employees.map((employee) => (
                         <SelectItem key={employee.id} value={employee.id}>
