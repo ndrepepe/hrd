@@ -235,7 +235,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
-                {/* Removed TableHead for Status Keputusan */}
+                <TableHead>Status Keputusan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
                 <TableHead>Aksi</TableHead>
               </TableRow>
@@ -244,25 +244,23 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
               {candidates.map((candidate) => {
                 const latestStatus = getLatestDecisionStatus(candidate.decisions);
                 let textColorClass = '';
-                // Keep text color logic for name cell if needed, or remove
-                // if (latestStatus === 'Accepted') {
-                //   textColorClass = 'text-green-600 font-medium';
-                // } else if (latestStatus === 'Rejected') {
-                //   textColorClass = 'text-red-600 font-medium';
-                // }
+                if (latestStatus === 'Accepted') {
+                  textColorClass = 'text-green-600 font-medium';
+                } else if (latestStatus === 'Rejected') {
+                  textColorClass = 'text-red-600 font-medium';
+                }
 
                 const age = calculateAge(candidate.date_of_birth);
                 const dobDisplay = candidate.date_of_birth ? format(parseISO(candidate.date_of_birth), "dd-MM-yyyy") : "-";
                 const placeAndDob = `${candidate.place_of_birth || "-"}, ${dobDisplay}`;
                 const placeAndDobWithAge = age !== null ? `${placeAndDob} (${age} tahun)` : placeAndDob;
 
-                // Check if the candidate has any decisions
-                const hasDecision = Array.isArray(candidate.decisions) && candidate.decisions.length > 0;
+                // Determine if the edit button should be disabled
+                const disableEdit = latestStatus === 'Accepted' || latestStatus === 'Rejected';
 
                 return (
                   <TableRow key={candidate.id}>
                     <TableCell>
-                      {/* Apply text color class if needed */}
                       <span className={textColorClass}>{candidate.name}</span>
                     </TableCell>
                     <TableCell>{candidate.positions?.title || "-"}</TableCell>
@@ -270,16 +268,16 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                     <TableCell>{candidate.phone || "-"}</TableCell>
                     <TableCell>{candidate.last_education || "-"}</TableCell>
                     <TableCell>{candidate.skills || "-"}</TableCell>
-                    {/* Removed TableCell for Status Keputusan */}
+                    <TableCell>{latestStatus}</TableCell>
                     <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                     <TableCell className="flex space-x-2">
-                      {/* Disable Edit button if hasDecision is true */}
+                      {/* Disable Edit button based on latestStatus */}
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleEditClick(candidate.id)}
-                        disabled={hasDecision}
-                        title={hasDecision ? "Tidak bisa diedit karena sudah ada keputusan" : "Edit data kandidat"} // Add tooltip/title
+                        disabled={disableEdit}
+                        title={disableEdit ? "Nama sudah ada keputusan tidak bisa diedit" : "Edit data kandidat"} // Add tooltip/title
                       >
                         Edit
                       </Button>
