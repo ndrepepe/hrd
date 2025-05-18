@@ -55,35 +55,33 @@ const CarRentalPage = () => {
           <TabsTrigger value="list-rentals">Rekap Peminjaman Mobil</TabsTrigger>
         </TabsList>
 
-        {/* TabsContent area */}
-        <div> {/* Simple div wrapper for content */}
-          <TabsContent value="add-car" className="mt-0">
-            <CarForm onCarAdded={handleCarAddedOrDeleted} />
-          </TabsContent>
+        {/* TabsContent area - Removed the extra div wrapper */}
+        <TabsContent value="add-car" className="mt-0">
+          <CarForm onCarAdded={handleCarAddedOrDeleted} />
+        </TabsContent>
 
-          <TabsContent value="list-cars" className="mt-0">
-            <CarList
-              refreshTrigger={refreshCars}
-              onCarDeleted={handleCarAddedOrDeleted}
-            />
-          </TabsContent>
+        <TabsContent value="list-cars" className="mt-0">
+          <CarList
+            refreshTrigger={refreshCars}
+            onCarDeleted={handleCarAddedOrDeleted}
+          />
+        </TabsContent>
 
-          <TabsContent value="add-rental" className="mt-0">
-            <CarRentalForm
-              refreshCarsTrigger={refreshCars}
-              onRentalSubmitted={handleRentalSubmitted}
-              editingRentalId={editingRentalId}
-              setEditingRentalId={setEditingRentalId}
-            />
-          </TabsContent>
+        <TabsContent value="add-rental" className="mt-0">
+          <CarRentalForm
+            refreshCarsTrigger={refreshCars}
+            onRentalSubmitted={handleRentalSubmitted}
+            editingRentalId={editingRentalId}
+            setEditingRentalId={setEditingRentalId}
+          />
+        </TabsContent>
 
-          <TabsContent value="list-rentals" className="mt-0">
-            <CarRentalList
-              refreshTrigger={refreshRentals}
-              onEditClick={handleRentalEditClick}
-            />
-          </TabsContent>
-        </div>
+        <TabsContent value="list-rentals" className="mt-0">
+          <CarRentalList
+            refreshTrigger={refreshRentals}
+            onEditClick={handleRentalEditClick}
+          />
+        </TabsContent>
       </Tabs>
     </div>
   );

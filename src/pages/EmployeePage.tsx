@@ -33,16 +33,14 @@ const EmployeePage = () => {
           <TabsTrigger value="list-employees">Daftar Karyawan</TabsTrigger>
         </TabsList>
 
-        {/* TabsContent area */}
-        <div> {/* Simple div wrapper for content */}
-          <TabsContent value="add-employee" className="mt-0">
-            <AddEmployeeForm onEmployeeAdded={handleEmployeeAdded} />
-          </TabsContent>
+        {/* TabsContent area - Removed the extra div wrapper */}
+        <TabsContent value="add-employee" className="mt-0">
+          <AddEmployeeForm onEmployeeAdded={handleEmployeeAdded} />
+        </TabsContent>
 
-          <TabsContent value="list-employees" className="mt-0">
-            <EmployeeList refreshTrigger={refreshEmployees} />
-          </TabsContent>
-        </div>
+        <TabsContent value="list-employees" className="mt-0">
+          <EmployeeList refreshTrigger={refreshEmployees} />
+        </TabsContent>
       </Tabs>
     </div>
   );
