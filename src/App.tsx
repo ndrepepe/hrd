@@ -13,6 +13,7 @@ import DailyReportPage from "./pages/DailyReportPage";
 import EmployeePage from "./pages/EmployeePage";
 import Login from "./pages/Login"; // Keep Login page route as public
 import NavigationBar from "./components/NavigationBar";
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 
 const queryClient = new QueryClient();
 
@@ -22,18 +23,20 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        {/* Render NavigationBar outside of Routes */}
+        {/* NavigationBar should ideally be inside a protected route or handle auth state internally */}
+        {/* For now, keeping it outside Routes means it shows on Login page too */}
         <NavigationBar />
         <Routes>
-          {/* All main application pages are now public */}
-          <Route path="/" element={<Index />} />
-          <Route path="/car-rental" element={<CarRentalPage />} />
-          <Route path="/recruitment" element={<RecruitmentPage />} />
-          <Route path="/daily-report" element={<DailyReportPage />} />
-          <Route path="/employees" element={<EmployeePage />} />
-
           {/* Login page remains a public route */}
           <Route path="/login" element={<Login />} />
+
+          {/* Protected routes using ProtectedRoute component */}
+          {/* The 'component' prop receives the component to render if authenticated */}
+          <Route path="/" element={<ProtectedRoute component={Index} />} />
+          <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} />
+          <Route path="/recruitment" element={<ProtectedRoute component={RecruitmentPage} />} />
+          <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} />
+          <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
