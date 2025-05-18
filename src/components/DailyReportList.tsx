@@ -3,16 +3,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { showError } from "@/utils/toast";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { format } from "date-fns";
-import { Input } from "@/components/ui/input"; // Keep Input for potential future search, though not used for now
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -21,12 +13,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button"; // Import Button for clear filter
-import { CalendarIcon, XCircle } from "lucide-react"; // Import icons
-import { Calendar } from "@/components/ui/calendar"; // Import Calendar
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Import Popover
-import { cn } from "@/lib/utils"; // Import cn for class merging
-import { DateRange } from "react-day-picker"; // Import DateRange type
+import { Button } from "@/components/ui/button";
+import { CalendarIcon, XCircle } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 
 interface DailyReport {
   id: string;
@@ -45,9 +46,10 @@ interface Employee {
 
 interface DailyReportListProps {
   refreshTrigger: number; // Prop to trigger refresh
+  onEditClick: (reportId: string) => void; // New callback for edit button click
 }
 
-const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
+const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) => {
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]); // State for employees dropdown
   const [loadingReports, setLoadingReports] = useState(true);
@@ -127,6 +129,12 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
   const handleClearDateFilter = () => {
     setDateRange(undefined);
     setIsCalendarOpen(false);
+  };
+
+  // Handle edit button click
+  const handleEdit = (reportId: string) => {
+    console.log("Edit button clicked for report ID:", reportId);
+    onEditClick(reportId); // Call the parent's edit handler
   };
 
 
@@ -226,6 +234,7 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                 <TableHead>Aktivitas</TableHead>
                 <TableHead>Catatan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
+                <TableHead>Aksi</TableHead> {/* New Action Header */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -236,6 +245,10 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                   <TableCell>{report.activity}</TableCell>
                   <TableCell>{report.notes || "-"}</TableCell>
                   <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
+                  <TableCell> {/* New Action Cell */}
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(report.id)}>Edit</Button>
+                    {/* Add delete button here later if needed */}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
