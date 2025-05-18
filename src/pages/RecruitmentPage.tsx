@@ -122,8 +122,8 @@ const RecruitmentPage = () => {
           <TabsTrigger value="briefing-list">Pembekalan</TabsTrigger>
         </TabsList>
 
-        {/* TabsContent area */}
-        <div> {/* Simple div wrapper, no fixed positioning or extra margin needed */}
+        {/* TabsContent area - Removed the extra div wrapper */}
+        {/* <div> */}
           <TabsContent value="add-position" className="mt-0">
             <AddPositionForm onPositionAdded={handlePositionAdded} />
           </TabsContent>
@@ -174,7 +174,7 @@ const RecruitmentPage = () => {
           <TabsContent value="briefing-list" className="mt-0">
              <BriefingList refreshTrigger={refreshDecisions} />
           </TabsContent>
-        </div>
+        {/* </div> */}
       </Tabs>
     </div>
   );
