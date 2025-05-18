@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format, differenceInYears, parseISO } from "date-fns"; // Import parseISO
-import { CalendarIcon, Loader2 } from "lucide-react"; // Import Loader2
+import { format, differenceInYears, parseISO } from "date-fns";
+import { CalendarIcon, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,29 +35,29 @@ import { Textarea } from "@/components/ui/textarea";
 const formSchema = z.object({
   position_id: z.string({
     required_error: "Posisi wajib dipilih.",
-  }).nullable(), // Make nullable for edit mode
+  }).nullable(),
   name: z.string().min(2, {
     message: "Nama kandidat harus minimal 2 karakter.",
   }),
   place_of_birth: z.string().min(1, {
     message: "Tempat lahir wajib diisi.",
-  }).nullable(), // Make nullable for edit mode
+  }).nullable(),
   date_of_birth: z.date({
     required_error: "Tanggal lahir wajib diisi.",
-  }).nullable(), // Make nullable for edit mode
+  }).nullable(),
   phone: z.string().min(1, {
     message: "Nomor HP wajib diisi.",
-  }).nullable(), // Make nullable for edit mode
+  }).nullable(),
   address_ktp: z.string().min(1, {
     message: "Alamat KTP wajib diisi.",
-  }).nullable(), // Make nullable for edit mode
+  }).nullable(),
   last_education: z.string().min(1, {
     message: "Pendidikan terakhir wajib diisi.",
-  }).nullable(), // Make nullable for edit mode
+  }).nullable(),
   major: z.string().min(1, {
     message: "Jurusan wajib diisi.",
-  }).nullable(), // Make nullable for edit mode
-  skills: z.string().optional().nullable(), // Kept optional and nullable
+  }).nullable(),
+  skills: z.string().optional().nullable(),
 });
 
 interface Position {
@@ -69,15 +69,15 @@ interface Position {
 interface AddCandidateFormProps {
   onCandidateAdded: () => void;
   refreshPositionsTrigger: number;
-  editingCandidateId: string | null; // ID of the candidate being edited
-  setEditingCandidateId: (id: string | null) => void; // Function to clear editing state
+  editingCandidateId: string | null;
+  setEditingCandidateId: (id: string | null) => void;
 }
 
 const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCandidateId, setEditingCandidateId }: AddCandidateFormProps) => {
   const [positions, setPositions] = useState<Position[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(true);
-  const [loadingCandidateData, setLoadingCandidateData] = useState(false); // State for loading candidate data for edit
-  const [isSubmitting, setIsSubmitting] = useState(false); // State for submit loading
+  const [loadingCandidateData, setLoadingCandidateData] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -107,7 +107,6 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
 
   const calculatedAge = calculateAge(dateOfBirth);
 
-  // Effect to fetch positions for the select dropdown
   useEffect(() => {
     fetchPositions();
   }, [refreshPositionsTrigger]);
@@ -129,7 +128,6 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
     setLoadingPositions(false);
   };
 
-  // Effect to load candidate data when editingCandidateId changes
   useEffect(() => {
     if (editingCandidateId) {
       const fetchCandidate = async () => {
@@ -137,7 +135,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
         console.log("Fetching candidate data for edit:", editingCandidateId);
         const { data, error } = await supabase
           .from("candidates")
-          .select("*") // Fetch all fields needed for the form
+          .select("*")
           .eq("id", editingCandidateId)
           .single();
 
@@ -146,16 +144,13 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
         if (error) {
           console.error("Error fetching candidate for edit:", error);
           showError("Gagal memuat data kandidat untuk diedit: " + error.message);
-          setEditingCandidateId(null); // Clear editing state on error
+          setEditingCandidateId(null);
         } else if (data) {
           console.log("Candidate data fetched:", data);
-          // Populate the form with fetched data
           form.reset({
             ...data,
-            // Convert date string to Date object for the date picker
             date_of_birth: data.date_of_birth ? parseISO(data.date_of_birth) : undefined,
-            // Ensure optional fields are handled correctly if null
-            position_id: data.position_id || "", // Use "" for null in select
+            position_id: data.position_id || "",
             place_of_birth: data.place_of_birth || "",
             phone: data.phone || "",
             address_ktp: data.address_ktp || "",
@@ -164,15 +159,13 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
             skills: data.skills || "",
           });
         } else {
-           // Handle case where ID is not found (shouldn't happen if ID comes from list)
            console.warn("Candidate data not found for ID:", editingCandidateId);
            showError("Data kandidat tidak ditemukan.");
-           setEditingCandidateId(null); // Clear editing state
+           setEditingCandidateId(null);
         }
       };
       fetchCandidate();
     } else {
-      // Reset form when not editing (e.g., switching back to add mode or after submission)
       console.log("Resetting candidate form to default values.");
       form.reset({
         position_id: "",
@@ -186,16 +179,15 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
         skills: "",
       });
     }
-  }, [editingCandidateId, form, setEditingCandidateId]); // Depend on editingCandidateId, form, and setEditingCandidateId
+  }, [editingCandidateId, form, setEditingCandidateId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true); // Start loading
+    setIsSubmitting(true);
 
     console.log("Submitting candidate form:", values, "Editing ID:", editingCandidateId);
 
-    // Prepare data, converting empty strings/undefined to null for optional fields
     const candidateData = {
-      position_id: values.position_id || null, // Convert "" from select to null
+      position_id: values.position_id || null,
       name: values.name,
       place_of_birth: values.place_of_birth || null,
       date_of_birth: values.date_of_birth ? format(values.date_of_birth, "yyyy-MM-dd") : null,
@@ -208,14 +200,12 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
 
     let result;
     if (editingCandidateId) {
-      // Update existing candidate
       result = await supabase
         .from("candidates")
         .update(candidateData)
         .eq("id", editingCandidateId)
         .select();
     } else {
-      // Add new candidate
       result = await supabase
         .from("candidates")
         .insert([candidateData])
@@ -224,7 +214,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
 
     const { data, error } = result;
 
-    setIsSubmitting(false); // End loading
+    setIsSubmitting(false);
 
     if (error) {
       console.error(`Error ${editingCandidateId ? 'updating' : 'inserting'} candidate data:`, error);
@@ -232,16 +222,15 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
     } else {
       console.log(`Candidate data ${editingCandidateId ? 'updated' : 'inserted'} successfully:`, data);
       showSuccess(`Data kandidat berhasil di${editingCandidateId ? 'perbarui' : 'simpan'}!`);
-      form.reset(); // Reset form after successful submission
-      setEditingCandidateId(null); // Clear editing state
-      onCandidateAdded(); // Call the callback (now handles both add and update)
+      form.reset();
+      setEditingCandidateId(null);
+      onCandidateAdded();
     }
   }
 
-  // Function to handle canceling edit mode
   const handleCancelEdit = () => {
-    setEditingCandidateId(null); // Clear editing state
-    form.reset({ // Reset form to initial default values
+    setEditingCandidateId(null);
+    form.reset({
       position_id: "",
       name: "",
       place_of_birth: "",
@@ -255,7 +244,6 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
   };
 
 
-  // Calculate year range for date picker
   const currentYear = new Date().getFullYear();
   const fromYear = currentYear - 100;
   const toYear = currentYear;
@@ -264,7 +252,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
   return (
     <div className="w-full max-w-lg mx-auto">
       <h3 className="text-xl font-semibold mb-4">
-        {editingCandidateId ? "Edit Data Kandidat" : "Tambah Kandidat Baru"} {/* Dynamic title */}
+        {editingCandidateId ? "Edit Data Kandidat" : "Tambah Kandidat Baru"}
       </h3>
       {loadingCandidateData ? (
          <p>Memuat data kandidat...</p>
@@ -285,9 +273,11 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
                     </FormControl>
                     <SelectContent>
                       {loadingPositions ? (
-                        <SelectItem disabled value="">Memuat posisi...</SelectItem>
+                        // Removed value="" from disabled SelectItem
+                        <SelectItem disabled>Memuat posisi...</SelectItem>
                       ) : positions.length === 0 ? (
-                         <SelectItem disabled value="">Belum ada posisi yang terbuka</SelectItem>
+                         // Removed value="" from disabled SelectItem
+                         <SelectItem disabled>Belum ada posisi yang terbuka</SelectItem>
                       ) : (
                         positions.map((position) => (
                           <SelectItem key={position.id} value={position.id}>
@@ -445,9 +435,9 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
             <div className="flex space-x-2">
               <Button type="submit" disabled={isSubmitting}>
                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                 {editingCandidateId ? "Simpan Perubahan" : "Simpan Kandidat"} {/* Dynamic button text */}
+                 {editingCandidateId ? "Simpan Perubahan" : "Simpan Kandidat"}
               </Button>
-              {editingCandidateId && ( // Show cancel button only in edit mode
+              {editingCandidateId && (
                 <Button type="button" variant="outline" onClick={handleCancelEdit} disabled={isSubmitting}>
                   Batal Edit
                 </Button>
