@@ -39,6 +39,9 @@ const formSchema = z.object({
   stage: z.string().min(2, {
     message: "Tahapan wawancara harus minimal 2 karakter.",
   }),
+  interviewer_name: z.string().min(2, { // Make interviewer_name required
+    message: "Nama pewawancara wajib diisi minimal 2 karakter.",
+  }),
   interview_date: z.date({
     required_error: "Tanggal wawancara wajib diisi.",
   }),
@@ -46,7 +49,6 @@ const formSchema = z.object({
     required_error: "Hasil wawancara wajib dipilih.",
   }),
   notes: z.string().optional(),
-  interviewer_name: z.string().optional(), // Add interviewer_name field
 });
 
 interface Candidate {
@@ -70,10 +72,10 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
     defaultValues: {
       candidate_id: "",
       stage: "",
+      interviewer_name: "", // Default value for required field
       interview_date: undefined,
       result: "",
       notes: "",
-      interviewer_name: "", // Add default value
     },
   });
 
@@ -113,10 +115,10 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
         {
           candidate_id: values.candidate_id,
           stage: values.stage,
+          interviewer_name: values.interviewer_name, // interviewer_name is now required
           interview_date: values.interview_date ? format(values.interview_date, "yyyy-MM-dd") : null, // Ensure date is formatted or null
           result: values.result,
           notes: values.notes || null, // Save empty string as null
-          interviewer_name: values.interviewer_name || null, // Save empty string as null
         },
       ])
       .select();
@@ -146,7 +148,7 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Kandidat</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}> {/* Changed defaultValue to value */}
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih kandidat" />
@@ -154,11 +156,9 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
-                      // Removed value="" from disabled SelectItem
                       <SelectItem disabled>Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
-                       // Removed value="" from disabled SelectItem
-                       <SelectItem disabled>Tidak ada kandidat yang tersedia untuk wawancara</SelectItem> // Updated message
+                       <SelectItem disabled>Tidak ada kandidat yang tersedia untuk wawancara</SelectItem>
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
@@ -185,6 +185,20 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
               </FormItem>
             )}
           />
+           {/* Nama Pewawancara Field (Moved below stage) */}
+           <FormField
+              control={form.control}
+              name="interviewer_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Pewawancara</FormLabel> {/* Label is now required */}
+                  <FormControl>
+                    <Input placeholder="Nama pewawancara" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           <FormField
             control={form.control}
             name="interview_date"
@@ -229,7 +243,7 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Hasil Wawancara</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}> {/* Changed defaultValue to value */}
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih hasil" />
@@ -246,20 +260,6 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
               </FormItem>
             )}
           />
-           {/* New: Nama Pewawancara Field */}
-           <FormField
-              control={form.control}
-              name="interviewer_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nama Pewawancara (Opsional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nama pewawancara" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           <FormField
             control={form.control}
             name="notes"
