@@ -51,6 +51,7 @@ const formSchema = z.object({
     required_error: "Hasil wawancara wajib dipilih.",
   }),
   notes: z.string().optional().nullable(),
+  interviewer_name: z.string().optional().nullable(), // Add interviewer_name field, optional and nullable
 });
 
 // Define the type for the data passed to the dialog
@@ -61,6 +62,7 @@ interface InterviewData {
   interview_date: string; // Date is string from DB
   result: string;
   notes: string | null;
+  interviewer_name: string | null; // Add interviewer_name
   candidates?: { name: string } | null; // To display candidate name
 }
 
@@ -81,6 +83,7 @@ const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess }: Ed
       interview_date: undefined, // Default for date
       result: "",
       notes: "",
+      interviewer_name: "", // Add default value
     },
   });
 
@@ -93,6 +96,7 @@ const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess }: Ed
         interview_date: interview.interview_date ? parseISO(interview.interview_date) : undefined,
         result: interview.result,
         notes: interview.notes || "", // Handle null/undefined
+        interviewer_name: interview.interviewer_name || "", // Handle null/undefined
       });
     } else {
       // Reset form when dialog is closed or interview is null
@@ -101,6 +105,7 @@ const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess }: Ed
         interview_date: undefined,
         result: "",
         notes: "",
+        interviewer_name: "",
       });
     }
   }, [interview, form]); // Depend on 'interview' and 'form'
@@ -118,6 +123,7 @@ const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess }: Ed
       interview_date: format(values.interview_date, "yyyy-MM-dd"), // Date is required by schema
       result: values.result, // Result is required by schema
       notes: values.notes || null, // Convert "" to null
+      interviewer_name: values.interviewer_name || null, // Convert "" to null
     };
 
     const { data, error } = await supabase
@@ -239,6 +245,21 @@ const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess }: Ed
                       <SelectItem value="Pending">Pending</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* New: Nama Pewawancara Field */}
+            <FormField
+              control={form.control}
+              name="interviewer_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Pewawancara (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nama pewawancara" {...field} value={field.value || ""} /> {/* Handle null/undefined */}
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

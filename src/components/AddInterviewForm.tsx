@@ -46,6 +46,7 @@ const formSchema = z.object({
     required_error: "Hasil wawancara wajib dipilih.",
   }),
   notes: z.string().optional(),
+  interviewer_name: z.string().optional(), // Add interviewer_name field
 });
 
 interface Candidate {
@@ -72,6 +73,7 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
       interview_date: undefined,
       result: "",
       notes: "",
+      interviewer_name: "", // Add default value
     },
   });
 
@@ -113,7 +115,8 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
           stage: values.stage,
           interview_date: values.interview_date ? format(values.interview_date, "yyyy-MM-dd") : null, // Ensure date is formatted or null
           result: values.result,
-          notes: values.notes,
+          notes: values.notes || null, // Save empty string as null
+          interviewer_name: values.interviewer_name || null, // Save empty string as null
         },
       ])
       .select();
@@ -151,8 +154,10 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
+                      // Removed value="" from disabled SelectItem
                       <SelectItem disabled>Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
+                       // Removed value="" from disabled SelectItem
                        <SelectItem disabled>Tidak ada kandidat yang tersedia untuk wawancara</SelectItem> // Updated message
                     ) : (
                       candidates.map((candidate) => (
@@ -241,6 +246,20 @@ const AddInterviewForm = ({ onInterviewAdded, refreshCandidatesTrigger }: AddInt
               </FormItem>
             )}
           />
+           {/* New: Nama Pewawancara Field */}
+           <FormField
+              control={form.control}
+              name="interviewer_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Pewawancara (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nama pewawancara" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           <FormField
             control={form.control}
             name="notes"

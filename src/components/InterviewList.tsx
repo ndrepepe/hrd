@@ -31,6 +31,7 @@ interface Interview {
   interview_date: string;
   result: string;
   notes: string | null;
+  interviewer_name: string | null; // Add interviewer_name
   candidates?: { name: string } | null; // To fetch candidate name
 }
 
@@ -182,6 +183,11 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
               <div className="grid grid-cols-4 items-center gap-4">
                  <span className="text-sm font-medium col-span-1">Hasil:</span>
                  <span className="col-span-3">{selectedInterview.result}</span>
+              </div>
+              {/* New: Display Interviewer Name */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                 <span className="text-sm font-medium col-span-1">Pewawancara:</span>
+                 <span className="col-span-3">{selectedInterview.interviewer_name || "-"}</span>
               </div>
               <div className="grid grid-cols-4 items-start gap-4"> {/* Use items-start for textarea */}
                  <span className="text-sm font-medium col-span-1 pt-2">Catatan:</span> {/* Add padding top */}
