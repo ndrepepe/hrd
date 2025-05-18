@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError } from "@/utils/toast";
+import { showError, showSuccess } from "@/utils/toast";
 import { format } from "date-fns";
 
 import {
@@ -17,9 +17,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter, // Import DialogFooter
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator"; // Import Separator
+import { Separator } from "@/components/ui/separator";
+import EditInterviewDialog from "./EditInterviewDialog"; // Import the new dialog component
 
 interface Interview {
   id: string;
@@ -46,8 +48,12 @@ interface InterviewListProps {
 const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
   const [groupedInterviews, setGroupedInterviews] = useState<GroupedInterviews>({});
   const [loading, setLoading] = useState(true);
-  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null); // State for the interview whose details are shown
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false); // State to control details dialog visibility
+
+  const [editingInterview, setEditingInterview] = useState<Interview | null>(null); // State for the interview being edited
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control edit dialog visibility
+
 
   useEffect(() => {
     fetchInterviews();
@@ -82,9 +88,47 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
   };
 
   const handleStageClick = (interview: Interview) => {
-    setSelectedInterview(interview);
-    setIsDialogOpen(true);
+    setSelectedInterview(interview); // Set the interview data for the details dialog
+    setIsDetailsDialogOpen(true); // Open the details dialog
   };
+
+  const handleDeleteClick = async () => {
+    if (!selectedInterview) return; // Should not happen if dialog is open
+
+    if (window.confirm(`Apakah Anda yakin ingin menghapus data wawancara untuk tahapan "${selectedInterview.stage}"?`)) {
+      const { error } = await supabase
+        .from("interviews")
+        .delete()
+        .eq("id", selectedInterview.id);
+
+      if (error) {
+        console.error("Error deleting interview:", error);
+        showError("Gagal menghapus data wawancara: " + error.message);
+      } else {
+        showSuccess("Data wawancara berhasil dihapus!");
+        setIsDetailsDialogOpen(false); // Close the details dialog
+        fetchInterviews(); // Refresh the list
+      }
+    }
+  };
+
+  const handleEditClick = () => {
+    if (!selectedInterview) return; // Should not happen if dialog is open
+    setEditingInterview(selectedInterview); // Set the interview data for the edit dialog
+    setIsDetailsDialogOpen(false); // Close the details dialog
+    setIsEditDialogOpen(true); // Open the edit dialog
+  };
+
+  const handleEditDialogClose = () => {
+    setEditingInterview(null); // Clear the selected interview data for edit
+    setIsEditDialogOpen(false); // Close the edit dialog
+  };
+
+  const handleInterviewUpdated = () => {
+    fetchInterviews(); // Refresh the list after an interview is updated
+    // No need to explicitly close edit dialog here, it's handled internally
+  };
+
 
   if (loading) {
     return <div className="container mx-auto p-4">Memuat riwayat wawancara...</div>;
@@ -127,7 +171,7 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
       )}
 
       {/* Dialog for Interview Details */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Detail Wawancara</DialogTitle>
@@ -164,8 +208,25 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
               </div>
             </div>
           )}
+          <DialogFooter> {/* Add DialogFooter for buttons */}
+             <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>Tutup</Button>
+             {selectedInterview && ( // Only show buttons if an interview is selected
+                <>
+                   <Button variant="outline" onClick={handleEditClick}>Edit</Button>
+                   <Button variant="destructive" onClick={handleDeleteClick}>Hapus</Button>
+                </>
+             )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Render the EditInterviewDialog */}
+      <EditInterviewDialog
+        interview={editingInterview}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditDialogClose}
+        onUpdateSuccess={handleInterviewUpdated}
+      />
     </div>
   );
 };
