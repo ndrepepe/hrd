@@ -95,6 +95,28 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
   const handleDeleteClick = async () => {
     if (!selectedInterview) return; // Should not happen if dialog is open
 
+    // --- Start Validation Check: Check for linked decisions ---
+    console.log("Checking for decisions linked to candidate ID:", selectedInterview.candidate_id);
+    const { data: decisionsData, error: decisionsError } = await supabase
+      .from("decisions")
+      .select("id") // We only need to know if any exist
+      .eq("candidate_id", selectedInterview.candidate_id)
+      .limit(1); // Stop after finding the first one
+
+    if (decisionsError) {
+      console.error("Error checking for linked decisions:", decisionsError);
+      showError("Gagal memeriksa data keputusan terkait: " + decisionsError.message);
+      return; // Stop the delete process
+    }
+
+    if (decisionsData && decisionsData.length > 0) {
+      console.log("Found linked decisions, preventing interview deletion.");
+      showError("Wawancara ini tidak dapat dihapus karena kandidat terkait sudah memiliki data keputusan.");
+      return; // Stop the delete process
+    }
+    // --- End Validation Check ---
+
+
     if (window.confirm(`Apakah Anda yakin ingin menghapus data wawancara untuk tahapan "${selectedInterview.stage}"?`)) {
       const { error } = await supabase
         .from("interviews")
