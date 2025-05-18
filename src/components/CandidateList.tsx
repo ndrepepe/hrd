@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError } from "@/utils/toast";
+import { showError, showSuccess } from "@/utils/toast"; // Import showSuccess
 import {
   Table,
   TableBody,
@@ -20,7 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"; // Import Select components
 import { Label } from "@/components/ui/label"; // Import Label component
-import { format } from "date-fns";
+import { Button } from "@/components/ui/button"; // Import Button component
+import { format, differenceInYears } from "date-fns"; // Import format and differenceInYears
+import EditCandidateDialog from "./EditCandidateDialog"; // Import the new dialog component
 
 interface Candidate {
   id: string;
@@ -28,7 +30,7 @@ interface Candidate {
   position_id: string | null;
   name: string;
   place_of_birth: string | null;
-  date_of_birth: string | null;
+  date_of_birth: string | null; // Date is string from DB
   phone: string | null;
   address_ktp: string | null;
   last_education: string | null;
@@ -42,6 +44,8 @@ interface Candidate {
 interface CandidateListProps {
   refreshTrigger: number; // Prop to trigger refresh (e.g., when candidate added)
   refreshDecisionsTrigger: number; // New prop to trigger refresh when decision added/changed
+  onCandidateDeleted: () => void; // New callback for candidate deletion
+  onCandidateUpdated: () => void; // New callback for candidate update
 }
 
 // Define searchable fields with their labels and database column names
@@ -54,11 +58,15 @@ const searchableFields = [
   { label: "Skill", value: "skills" },
 ];
 
-const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateListProps) => {
+const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDeleted, onCandidateUpdated }: CandidateListProps) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(""); // State for search input
   const [searchField, setSearchField] = useState(searchableFields[0].value); // State for selected search field, default to 'Nama'
+
+  const [selectedCandidateForEdit, setSelectedCandidateForEdit] = useState<Candidate | null>(null); // State for the candidate being edited
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control dialog visibility
+
 
   useEffect(() => {
     fetchCandidates();
@@ -111,8 +119,99 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
     const sortedDecisions = [...decisions].sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-    console.log("Decisions for candidate:", sortedDecisions);
+    // console.log("Decisions for candidate:", sortedDecisions); // Keep for debugging if needed
     return sortedDecisions[0].status;
+  };
+
+  // Function to calculate age
+  const calculateAge = (dobString: string | null): number | null => {
+    if (!dobString) return null;
+    try {
+        const dob = parseISO(dobString);
+        if (isNaN(dob.getTime())) return null; // Check for invalid date
+        const today = new Date();
+        return differenceInYears(today, dob);
+    } catch (e) {
+        console.error("Error parsing date for age calculation:", e);
+        return null;
+    }
+  };
+
+
+  const handleDelete = async (id: string) => {
+    // --- Start Validation Check: Check for linked interviews ---
+    console.log("Checking for interviews linked to candidate ID:", id);
+    const { data: interviewsData, error: interviewsError } = await supabase
+      .from("interviews")
+      .select("id") // We only need to know if any exist
+      .eq("candidate_id", id)
+      .limit(1); // Stop after finding the first one
+
+    if (interviewsError) {
+      console.error("Error checking for linked interviews:", interviewsError);
+      showError("Gagal memeriksa riwayat wawancara terkait: " + interviewsError.message);
+      return; // Stop the delete process
+    }
+
+    if (interviewsData && interviewsData.length > 0) {
+      console.log("Found linked interviews, preventing deletion.");
+      showError("Kandidat ini tidak dapat dihapus karena sudah memiliki riwayat wawancara.");
+      return; // Stop the delete process
+    }
+    // --- End Validation Check ---
+
+    // --- Start Validation Check: Check for linked decisions ---
+     console.log("Checking for decisions linked to candidate ID:", id);
+     const { data: decisionsData, error: decisionsError } = await supabase
+       .from("decisions")
+       .select("id") // We only need to know if any exist
+       .eq("candidate_id", id)
+       .limit(1); // Stop after finding the first one
+
+     if (decisionsError) {
+       console.error("Error checking for linked decisions:", decisionsError);
+       showError("Gagal memeriksa data keputusan terkait: " + decisionsError.message);
+       return; // Stop the delete process
+     }
+
+     if (decisionsData && decisionsData.length > 0) {
+       console.log("Found linked decisions, preventing deletion.");
+       showError("Kandidat ini tidak dapat dihapus karena sudah memiliki data keputusan.");
+       return; // Stop the delete process
+     }
+     // --- End Validation Check ---
+
+
+    if (window.confirm("Apakah Anda yakin ingin menghapus data kandidat ini?")) {
+      const { error } = await supabase
+        .from("candidates")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error deleting candidate:", error);
+        showError("Gagal menghapus data kandidat: " + error.message);
+      } else {
+        showSuccess("Data kandidat berhasil dihapus!");
+        fetchCandidates(); // Refresh the list in this component
+        onCandidateDeleted(); // Notify parent (RecruitmentPage) to refresh other lists/forms
+      }
+    }
+  };
+
+  const handleEditClick = (candidate: Candidate) => {
+    setSelectedCandidateForEdit(candidate); // Set the candidate data
+    setIsEditDialogOpen(true); // Open the dialog
+  };
+
+  const handleEditDialogClose = () => {
+    setSelectedCandidateForEdit(null); // Clear the selected candidate data
+    setIsEditDialogOpen(false); // Close the dialog
+  };
+
+  const handleCandidateUpdated = () => {
+    fetchCandidates(); // Refresh the list after a candidate is updated
+    onCandidateUpdated(); // Notify parent (RecruitmentPage) to refresh other lists/forms
   };
 
 
@@ -161,8 +260,9 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
-                {/* Removed Status Keputusan TableHead */}
+                <TableHead>Status Keputusan</TableHead> {/* Added Status Keputusan Header */}
                 <TableHead>Dibuat Pada</TableHead>
+                <TableHead>Aksi</TableHead> {/* New Action Header */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -175,6 +275,13 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                   textColorClass = 'text-red-600 font-medium'; // Tailwind red
                 }
 
+                // Calculate age for display
+                const age = calculateAge(candidate.date_of_birth);
+                const dobDisplay = candidate.date_of_birth ? format(parseISO(candidate.date_of_birth), "dd-MM-yyyy") : "-";
+                const placeAndDob = `${candidate.place_of_birth || "-"}, ${dobDisplay}`;
+                const placeAndDobWithAge = age !== null ? `${placeAndDob} (${age} tahun)` : placeAndDob;
+
+
                 return (
                   <TableRow key={candidate.id}>
                     <TableCell>
@@ -182,16 +289,17 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
                       <span className={textColorClass}>{candidate.name}</span>
                     </TableCell>
                     <TableCell>{candidate.positions?.title || "-"}</TableCell>
-                    <TableCell>
-                        {candidate.place_of_birth || "-"}
-                        {candidate.place_of_birth && candidate.date_of_birth ? ", " : ""}
-                        {candidate.date_of_birth ? format(new Date(candidate.date_of_birth), "dd-MM-yyyy") : "-"}
-                    </TableCell>
+                    <TableCell>{placeAndDobWithAge}</TableCell> {/* Display place, DOB, and age */}
                     <TableCell>{candidate.phone || "-"}</TableCell>
                     <TableCell>{candidate.last_education || "-"}</TableCell>
                     <TableCell>{candidate.skills || "-"}</TableCell>
-                    {/* Removed the TableCell for status */}
+                    <TableCell>{latestStatus}</TableCell> {/* Display Status Keputusan */}
                     <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
+                    <TableCell className="flex space-x-2"> {/* New Action Cell */}
+                      {/* Call handleEditClick with the candidate data */}
+                      <Button variant="outline" size="sm" onClick={() => handleEditClick(candidate)}>Edit</Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(candidate.id)}>Hapus</Button>
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -199,6 +307,14 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger }: CandidateLis
           </Table>
         </div>
       )}
+
+      {/* Render the EditCandidateDialog */}
+      <EditCandidateDialog
+        candidate={selectedCandidateForEdit}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditDialogClose}
+        onCandidateUpdated={handleCandidateUpdated}
+      />
     </div>
   );
 };

@@ -53,6 +53,27 @@ const RecruitmentPage = () => {
     setRefreshDecisions(prev => prev + 1); // This will trigger fetchCandidates in AddDecisionForm
   };
 
+  // New callback for candidate deletion
+  const handleCandidateDeleted = () => {
+    setRefreshCandidates(prev => prev + 1);
+    // Refresh lists/forms that depend on the candidate list
+    setRefreshInterviews(prev => prev + 1);
+    setRefreshDecisions(prev => prev + 1);
+    // Also refresh decision list and briefing list in case the deleted candidate had a decision
+    setRefreshDecisions(prev => prev + 1);
+  };
+
+  // New callback for candidate update
+  const handleCandidateUpdated = () => {
+    setRefreshCandidates(prev => prev + 1);
+    // Refresh lists/forms that depend on the candidate list
+    setRefreshInterviews(prev => prev + 1);
+    setRefreshDecisions(prev => prev + 1);
+    // Also refresh decision list and briefing list in case the updated candidate had a decision
+    setRefreshDecisions(prev => prev + 1);
+  };
+
+
   const handleInterviewAdded = () => {
     setRefreshInterviews(prev => prev + 1);
   };
@@ -108,7 +129,12 @@ const RecruitmentPage = () => {
           </TabsContent>
 
           <TabsContent value="list-candidates" className="mt-0">
-            <CandidateList refreshTrigger={refreshCandidates} refreshDecisionsTrigger={refreshDecisions} />
+            <CandidateList
+              refreshTrigger={refreshCandidates}
+              refreshDecisionsTrigger={refreshDecisions}
+              onCandidateDeleted={handleCandidateDeleted} // Pass the new callback
+              onCandidateUpdated={handleCandidateUpdated} // Pass the new callback
+            />
           </TabsContent>
 
           <TabsContent value="add-interview" className="mt-0">
