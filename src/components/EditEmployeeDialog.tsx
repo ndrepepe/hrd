@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format, parseISO } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { format, parseISO } from "date-fns"; // Keep format, parseISO might not be needed if date fields are removed
+import { CalendarIcon, Loader2 } from "lucide-react"; // Keep Loader2, CalendarIcon might not be needed
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,8 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Keep Popover components for potential future use or if other date fields exist
+import { Textarea } from "@/components/ui/textarea"; // Keep Textarea for notes if it's kept
 import {
   Select,
   SelectContent,
@@ -38,9 +38,9 @@ import {
 } from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar"; // Keep Calendar for potential future use
 
-// Define the schema for the form fields
+// Define the schema for the form fields - REMOVING UNWANTED FIELDS
 const formSchema = z.object({
   employee_id: z.string().min(1, {
     message: "ID Karyawan wajib diisi.",
@@ -51,40 +51,40 @@ const formSchema = z.object({
   position: z.string().min(2, {
     message: "Posisi wajib diisi minimal 2 karakter.",
   }),
-  hire_date: z.date().optional().nullable(),
+  // Removed hire_date
   status: z.enum(['Active', 'Inactive', 'Terminated'], {
     required_error: "Status wajib dipilih.",
     invalid_type_error: "Status tidak valid.",
   }),
   phone: z.string().optional().nullable(),
   email: z.string().email({ message: "Format email tidak valid." }).optional().nullable(),
-  place_of_birth: z.string().optional().nullable(), // Added back optional fields
-  date_of_birth: z.date().optional().nullable(), // Added back optional fields
-  last_education: z.string().optional().nullable(), // Added back optional fields
-  major: z.string().optional().nullable(), // Added back optional fields
-  skills: z.string().optional().nullable(), // Added back optional fields
-  notes: z.string().optional().nullable(), // Added back optional fields
-  user_id: z.string().uuid({ message: "Format User ID tidak valid (harus UUID)." }).optional().nullable(), // Add user_id field, optional and nullable UUID
+  // Removed place_of_birth
+  // Removed date_of_birth
+  // Removed last_education
+  // Removed major
+  // Removed skills
+  // Removed notes
+  user_id: z.string().uuid({ message: "Format User ID tidak valid (harus UUID)." }).optional().nullable(), // Keep user_id field
 });
 
-// Define the type for the data passed to the dialog
+// Define the type for the data passed to the dialog - REMOVING UNWANTED FIELDS
 interface EmployeeData {
   id: string;
-  created_at: string;
+  created_at: string; // Keep for context if needed, though not displayed
   employee_id: string;
   name: string;
   position: string;
-  hire_date: string | null;
+  hire_date: string | null; // Keep in interface as it's fetched, but not used in form
   status: string;
   phone: string | null;
   email: string | null;
-  place_of_birth: string | null;
-  date_of_birth: string | null;
-  last_education: string | null;
-  major: string | null;
-  skills: string | null;
-  notes: string | null;
-  user_id: string | null; // Add user_id
+  place_of_birth: string | null; // Keep in interface, not used in form
+  date_of_birth: string | null; // Keep in interface, not used in form
+  last_education: string | null; // Keep in interface, not used in form
+  major: string | null; // Keep in interface, not used in form
+  skills: string | null; // Keep in interface, not used in form
+  notes: string | null; // Keep in interface, not used in form
+  user_id: string | null; // Keep user_id
 }
 
 interface EditEmployeeDialogProps {
@@ -103,16 +103,16 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
       employee_id: "",
       name: "",
       position: "",
-      hire_date: undefined,
+      // Removed hire_date
       status: undefined, // Default for enum
       phone: "",
       email: "",
-      place_of_birth: "",
-      date_of_birth: undefined,
-      last_education: "",
-      major: "",
-      skills: "",
-      notes: "",
+      // Removed place_of_birth
+      // Removed date_of_birth
+      // Removed last_education
+      // Removed major
+      // Removed skills
+      // Removed notes
       user_id: "", // Default for optional string
     },
   });
@@ -124,17 +124,16 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
         employee_id: employee.employee_id,
         name: employee.name,
         position: employee.position,
-        // Convert date string to Date object for the date picker
-        hire_date: employee.hire_date ? parseISO(employee.hire_date) : undefined,
+        // Removed hire_date
         status: employee.status as z.infer<typeof formSchema>['status'], // Cast to correct enum type
         phone: employee.phone || "", // Handle null/undefined
         email: employee.email || "", // Handle null/undefined
-        place_of_birth: employee.place_of_birth || "",
-        date_of_birth: employee.date_of_birth ? parseISO(employee.date_of_birth) : undefined,
-        last_education: employee.last_education || "",
-        major: employee.major || "",
-        skills: employee.skills || "",
-        notes: employee.notes || "",
+        // Removed place_of_birth
+        // Removed date_of_birth
+        // Removed last_education
+        // Removed major
+        // Removed skills
+        // Removed notes
         user_id: employee.user_id || "", // Handle null/undefined
       });
     } else {
@@ -143,16 +142,16 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
         employee_id: "",
         name: "",
         position: "",
-        hire_date: undefined,
+        // Removed hire_date
         status: undefined,
         phone: "",
         email: "",
-        place_of_birth: "",
-        date_of_birth: undefined,
-        last_education: "",
-        major: "",
-        skills: "",
-        notes: "",
+        // Removed place_of_birth
+        // Removed date_of_birth
+        // Removed last_education
+        // Removed major
+        // Removed skills
+        // Removed notes
         user_id: "",
       });
     }
@@ -165,21 +164,21 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
 
     console.log("Submitting edit employee form:", values, "Employee ID:", employee.id);
 
-    // Prepare update data, converting empty strings/undefined to null for optional fields
+    // Prepare update data - REMOVING UNWANTED FIELDS
     const updateData = {
       employee_id: values.employee_id,
       name: values.name,
       position: values.position,
-      hire_date: values.hire_date ? format(values.hire_date, "yyyy-MM-dd") : null,
+      // Removed hire_date
       status: values.status,
       phone: values.phone || null,
       email: values.email || null,
-      place_of_birth: values.place_of_birth || null,
-      date_of_birth: values.date_of_birth ? format(values.date_of_birth, "yyyy-MM-dd") : null,
-      last_education: values.last_education || null,
-      major: values.major || null,
-      skills: values.skills || null,
-      notes: values.notes || null,
+      // Removed place_of_birth
+      // Removed date_of_birth
+      // Removed last_education
+      // Removed major
+      // Removed skills
+      // Removed notes
       user_id: values.user_id || null, // Convert "" to null for user_id
     };
 
@@ -208,16 +207,16 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
     }
   }
 
-  // Calculate year range for date picker
-  const currentYear = new Date().getFullYear();
-  const fromYear = currentYear - 100; // Allow selecting years up to 100 years ago
-  const toYear = currentYear; // Allow selecting up to the current year
+  // Calculate year range for date picker - REMOVED as date fields are removed
+  // const currentYear = new Date().getFullYear();
+  // const fromYear = currentYear - 100;
+  // const toYear = currentYear;
 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       {/* Adjusted max-w-lg to max-w-xl for wider dialog on medium screens and up */}
-      <DialogContent className="sm:max-w-[425px] md:max-w-xl">
+      <DialogContent className="sm:max-w-[425px] md:max-w-lg"> {/* Adjusted max-width back to lg as fewer fields */}
         <DialogHeader>
           <DialogTitle>Edit Data Karyawan</DialogTitle>
           <DialogDescription>
@@ -225,8 +224,8 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          {/* Added overflow-y-auto and max-h-[80vh] to the form container to enable scrolling if content overflows */}
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 overflow-y-auto max-h-[80vh]">
+          {/* Removed overflow-y-auto and max-h-[80vh] as fewer fields */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4"> {/* Use grid for layout */}
             {/* Employee ID Field */}
             <FormField
               control={form.control}
@@ -292,48 +291,7 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
                 </FormItem>
               )}
             />
-            {/* Hire Date Field */}
-            <FormField
-                control={form.control}
-                name="hire_date"
-                render={({ field }) => (
-                <FormItem className="flex flex-col md:col-span-1">
-                    <FormLabel>Tanggal Masuk (Opsional)</FormLabel>
-                    <Popover>
-                    <PopoverTrigger asChild>
-                        <FormControl>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                            )}
-                        >
-                            {field.value ? (
-                            format(field.value, "PPP")
-                            ) : (
-                            <span>Pilih tanggal</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                        </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                        mode="single"
-                        selected={field.value || undefined}
-                        onSelect={field.onChange}
-                        initialFocus
-                        captionLayout="dropdown"
-                        fromYear={currentYear - 50} // Adjust year range as needed
-                        toYear={currentYear + 5}
-                        />
-                    </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
+            {/* Removed Hire Date Field */}
              {/* Phone Field */}
             <FormField
               control={form.control}
@@ -362,118 +320,12 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
                 </FormItem>
               )}
             />
-             {/* Place of Birth Field */}
-             <FormField
-                control={form.control}
-                name="place_of_birth"
-                render={({ field }) => (
-                <FormItem className="md:col-span-1">
-                    <FormLabel>Tempat Lahir (Opsional)</FormLabel>
-                    <FormControl>
-                    <Input placeholder="Kota" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            {/* Date of Birth Field */}
-            <FormField
-                control={form.control}
-                name="date_of_birth"
-                render={({ field }) => (
-                <FormItem className="flex flex-col md:col-span-1">
-                    <FormLabel>Tanggal Lahir (Opsional)</FormLabel>
-                    <Popover>
-                    <PopoverTrigger asChild>
-                        <FormControl>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                            )}
-                        >
-                            {field.value ? (
-                            format(field.value, "PPP")
-                            ) : (
-                            <span>Pilih tanggal</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                        </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                        mode="single"
-                        selected={field.value || undefined}
-                        onSelect={field.onChange}
-                        initialFocus
-                        captionLayout="dropdown"
-                        fromYear={fromYear}
-                        toYear={toYear}
-                        />
-                    </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-             {/* Last Education Field */}
-            <FormField
-                control={form.control}
-                name="last_education"
-                render={({ field }) => (
-                <FormItem className="md:col-span-1">
-                    <FormLabel>Pendidikan Terakhir (Opsional)</FormLabel>
-                    <FormControl>
-                    <Input placeholder="Contoh: S1 Teknik Informatika" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            {/* Major Field */}
-            <FormField
-                control={form.control}
-                name="major"
-                render={({ field }) => (
-                <FormItem className="md:col-span-1">
-                    <FormLabel>Jurusan (Opsional)</FormLabel>
-                    <FormControl>
-                    <Input placeholder="Contoh: Teknik Informatika" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            {/* Skills Field */}
-            <FormField
-              control={form.control}
-              name="skills"
-              render={({ field }) => (
-                <FormItem className="md:col-span-2"> {/* Span across two columns */}
-                  <FormLabel>Kemampuan Tambahan (Opsional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Contoh: React, Node.js, SQL" {...field} value={field.value || ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             {/* Notes Field */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem className="md:col-span-2"> {/* Span across two columns */}
-                  <FormLabel>Catatan (Opsional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Catatan tambahan..." {...field} value={field.value || ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+             {/* Removed Place of Birth Field */}
+            {/* Removed Date of Birth Field */}
+             {/* Removed Last Education Field */}
+            {/* Removed Major Field */}
+            {/* Removed Skills Field */}
+             {/* Removed Notes Field */}
             {/* User ID Field (for linking account) */}
             <FormField
               control={form.control}
