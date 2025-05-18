@@ -19,11 +19,13 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    {/* Global Toasters - placed outside TooltipProvider */}
+    <Toaster />
+    <Sonner />
+    {/* TooltipProvider now wraps the main app structure */}
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
       <BrowserRouter>
-        {/* Render NavigationBar outside of Routes */}
+        {/* NavigationBar is outside Routes but inside BrowserRouter */}
         <NavigationBar />
         <Routes>
           {/* Public route for Login */}
