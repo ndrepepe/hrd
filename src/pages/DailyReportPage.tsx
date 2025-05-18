@@ -43,23 +43,22 @@ const DailyReportPage = () => {
           <TabsTrigger value="list-reports">Daftar Laporan Harian</TabsTrigger>
         </TabsList>
 
-        {/* TabsContent area */}
-        <div> {/* Simple div wrapper, no fixed positioning or extra margin needed */}
-          <TabsContent value="input-report" className="mt-0"> {/* mt-0 to remove default TabsContent margin */}
-            <DailyReportForm
-              onReportSubmitted={handleReportSubmitted}
-              editingReportId={editingReportId} // Pass editing state
-              setEditingReportId={setEditingReportId} // Pass setter function
-            />
-          </TabsContent>
+        {/* TabsContent area - Removed the extra div wrapper */}
+        {/* Removed the extra div wrapper around TabsContent */}
+        <TabsContent value="input-report" className="mt-0"> {/* mt-0 to remove default TabsContent margin */}
+          <DailyReportForm
+            onReportSubmitted={handleReportSubmitted}
+            editingReportId={editingReportId} // Pass editing state
+            setEditingReportId={setEditingReportId} // Pass setter function
+          />
+        </TabsContent>
 
-          <TabsContent value="list-reports" className="mt-0"> {/* mt-0 to remove default TabsContent margin */}
-            <DailyReportList
-              refreshTrigger={refreshList}
-              onEditClick={handleEditClick} // Pass the edit handler down
-            />
-          </TabsContent>
-        </div>
+        <TabsContent value="list-reports" className="mt-0"> {/* mt-0 to remove default TabsContent margin */}
+          <DailyReportList
+            refreshTrigger={refreshList}
+            onEditClick={handleEditClick} // Pass the edit handler down
+          />
+        </TabsContent>
       </Tabs>
     </div>
   );
