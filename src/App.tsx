@@ -21,36 +21,38 @@ const queryClient = new QueryClient();
 const App = () => (
   // Wrap everything in a Fragment to ensure App returns a single element
   <React.Fragment>
+    {/* Global Toasters */}
+    <Toaster />
+    <Sonner />
     {/* QueryClientProvider wraps the main application structure */}
     <QueryClientProvider client={queryClient}>
       {/* TooltipProvider wraps the router */}
       <TooltipProvider>
         <BrowserRouter>
-          {/* BrowserRouter can have multiple children like NavigationBar and Routes */}
-          <NavigationBar />
-          <Routes>
-            {/* Public route for Login */}
-            <Route path="/login" element={<Login />} />
+          {/* Wrap NavigationBar and Routes in a single div */}
+          <div>
+            <NavigationBar />
+            <Routes>
+              {/* Public route for Login */}
+              <Route path="/login" element={<Login />} />
 
-            {/* Protected routes using the new pattern */}
-            {/* Pass the component to render via the 'component' prop */}
-            <Route path="/" element={<ProtectedRoute component={Index} />} />
-            <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} />
-            <Route path="/recruitment" element={<ProtectedRoute component={RecruitmentPage} />} />
-            <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} />
-            <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
+              {/* Protected routes using the new pattern */}
+              {/* Pass the component to render via the 'component' prop */}
+              <Route path="/" element={<ProtectedRoute component={Index} />} />
+              <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} />
+              <Route path="/recruitment" element={<ProtectedRoute component={RecruitmentPage} />} />
+              <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} />
+              <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
 
-            {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
-            {/* Catch-all route for 404 - also protected */}
-            <Route path="*" element={<ProtectedRoute component={NotFound} />} />
-          </Routes>
+              {/* Catch-all route for 404 - also protected */}
+              <Route path="*" element={<ProtectedRoute component={NotFound} />} />
+            </Routes>
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-    {/* Global Toasters - placed as siblings to the main provider chain */}
-    <Toaster />
-    <Sonner />
   </React.Fragment>
 );
 
