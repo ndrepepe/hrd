@@ -30,30 +30,30 @@ interface Employee {
   employee_id: string;
   name: string;
   position: string;
-  hire_date: string | null; // Add hire_date
-  status: string; // Add status
-  phone: string | null; // Add phone
-  email: string | null; // Add email
-  place_of_birth: string | null; // Added back optional fields
-  date_of_birth: string | null; // Added back optional fields
-  last_education: string | null; // Added back optional fields
-  major: string | null; // Added back optional fields
-  skills: string | null; // Added back optional fields
-  notes: string | null; // Added back optional fields
-  user_id: string | null; // Add user_id
+  hire_date: string | null; // Keep in interface as it's in DB, but won't display
+  status: string; // Keep status
+  phone: string | null; // Keep phone
+  email: string | null; // Keep email
+  place_of_birth: string | null; // Keep in interface, won't display
+  date_of_birth: string | null; // Keep in interface, won't display
+  last_education: string | null; // Keep in interface, won't display
+  major: string | null; // Keep in interface, won't display
+  skills: string | null; // Keep in interface, won't display
+  notes: string | null; // Keep in interface, won't display
+  user_id: string | null; // Keep user_id
 }
 
 interface EmployeeListProps {
   refreshTrigger: number; // Prop to trigger refresh
 }
 
-// Define searchable fields
+// Define searchable fields - Keep only fields that make sense for searching
 const searchableFields = [
   { label: "Nama", value: "name" },
   { label: "ID Karyawan", value: "employee_id" },
   { label: "Posisi", value: "position" },
-  { label: "No HP", value: "phone" }, // Add phone to searchable fields
-  { label: "Email", value: "email" }, // Add email to searchable fields
+  { label: "No HP", value: "phone" }, // Keep phone for searching
+  { label: "Email", value: "email" }, // Keep email for searching
 ];
 
 const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
@@ -77,7 +77,8 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
 
     let query = supabase
       .from("employees")
-      .select("id, created_at, employee_id, name, position, hire_date, status, phone, email, place_of_birth, date_of_birth, last_education, major, skills, notes, user_id") // Select all relevant fields
+      // Select only the fields needed for the list view and search/filter
+      .select("id, created_at, employee_id, name, position, status, phone, email, user_id")
       .order("created_at", { ascending: false }); // Order by creation date
 
     // Apply search filter if searchTerm is not empty
@@ -252,13 +253,17 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
                 <TableHead>ID Karyawan</TableHead>
                 <TableHead>Nama</TableHead>
                 <TableHead>Posisi</TableHead>
-                <TableHead>Tanggal Masuk</TableHead> {/* Add header */}
-                <TableHead>Status</TableHead> {/* Add header */}
-                <TableHead>No HP</TableHead> {/* Add header */}
-                <TableHead>Email</TableHead> {/* Add header */}
-                <TableHead>Akun Terhubung</TableHead> {/* Add header for user_id */}
+                {/* Removed Tanggal Masuk */}
+                <TableHead>Status</TableHead>
+                <TableHead>No HP</TableHead>
+                <TableHead>Email</TableHead>
+                {/* Removed Tempat/Tgl Lahir */}
+                {/* Removed Pendidikan */}
+                {/* Removed Skill */}
+                {/* Removed Catatan */}
+                <TableHead>Akun Terhubung</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
-                <TableHead>Aksi</TableHead> {/* Add Action header */}
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -267,13 +272,17 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
                   <TableCell>{employee.employee_id}</TableCell>
                   <TableCell>{employee.name}</TableCell>
                   <TableCell>{employee.position}</TableCell>
-                  <TableCell>{employee.hire_date ? format(new Date(employee.hire_date), "dd-MM-yyyy") : "-"}</TableCell> {/* Display hire_date */}
-                  <TableCell>{employee.status}</TableCell> {/* Display status */}
-                  <TableCell>{employee.phone || "-"}</TableCell> {/* Display phone */}
-                  <TableCell>{employee.email || "-"}</TableCell> {/* Display email */}
-                  <TableCell>{employee.user_id ? "Terhubung" : "Belum Terhubung"}</TableCell> {/* Display user_id status */}
+                  {/* Removed Tanggal Masuk cell */}
+                  <TableCell>{employee.status}</TableCell>
+                  <TableCell>{employee.phone || "-"}</TableCell>
+                  <TableCell>{employee.email || "-"}</TableCell>
+                   {/* Removed Tempat/Tgl Lahir cell */}
+                   {/* Removed Pendidikan cell */}
+                   {/* Removed Skill cell */}
+                   {/* Removed Catatan cell */}
+                  <TableCell>{employee.user_id ? "Terhubung" : "Belum Terhubung"}</TableCell>
                   <TableCell>{new Date(employee.created_at).toLocaleString()}</TableCell>
-                  <TableCell className="flex space-x-2"> {/* Action cell */}
+                  <TableCell className="flex space-x-2">
                      <Button variant="outline" size="sm" onClick={() => handleEditClick(employee)}>Edit</Button>
                      <Button variant="destructive" size="sm" onClick={() => handleDelete(employee.id)}>Hapus</Button>
                   </TableCell>
