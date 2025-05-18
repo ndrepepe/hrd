@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"; // Import Select components
 import { Label } from "@/components/ui/label"; // Import Label component
 import { Button } from "@/components/ui/button"; // Import Button component
-import { format, differenceInYears } from "date-fns"; // Import format and differenceInYears
+import { format, differenceInYears, parseISO } from "date-fns"; // Import format, differenceInYears, and parseISO
 import EditCandidateDialog from "./EditCandidateDialog"; // Import the new dialog component
 
 interface Candidate {
