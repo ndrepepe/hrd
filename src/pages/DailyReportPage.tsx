@@ -43,8 +43,8 @@ const DailyReportPage = () => {
           <TabsTrigger value="list-reports">Daftar Laporan Harian</TabsTrigger>
         </TabsList>
 
-        {/* TabsContent area - Removed the extra div wrapper */}
-        {/* <div> */}
+        {/* TabsContent area */}
+        <div> {/* Simple div wrapper, no fixed positioning or extra margin needed */}
           <TabsContent value="input-report" className="mt-0"> {/* mt-0 to remove default TabsContent margin */}
             <DailyReportForm
               onReportSubmitted={handleReportSubmitted}
@@ -59,7 +59,7 @@ const DailyReportPage = () => {
               onEditClick={handleEditClick} // Pass the edit handler down
             />
           </TabsContent>
-        {/* </div> */}
+        </div>
       </Tabs>
     </div>
   );
