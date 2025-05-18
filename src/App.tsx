@@ -10,9 +10,9 @@ import NotFound from "./pages/NotFound";
 import CarRentalPage from "./pages/CarRentalPage";
 import RecruitmentPage from "./pages/RecruitmentPage";
 import DailyReportPage from "./pages/DailyReportPage";
-import EmployeePage from "./pages/EmployeePage"; // Import the new page
+import EmployeePage from "./pages/EmployeePage";
 import Login from "./pages/Login";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 import NavigationBar from "./components/NavigationBar";
 
 const queryClient = new QueryClient();
@@ -29,19 +29,18 @@ const App = () => (
           {/* Public route for Login */}
           <Route path="/login" element={<Login />} />
 
-          {/* Protected routes */}
-          {/* Wrap protected content with ProtectedRoute */}
-          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-          <Route path="/car-rental" element={<ProtectedRoute><CarRentalPage /></ProtectedRoute>} />
-          <Route path="/recruitment" element={<ProtectedRoute><RecruitmentPage /></ProtectedRoute>} />
-          <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
-          {/* New protected route for Employee Data */}
-          <Route path="/employees" element={<ProtectedRoute><EmployeePage /></ProtectedRoute>} />
+          {/* Protected routes using the new pattern */}
+          {/* Pass the component to render via the 'component' prop */}
+          <Route path="/" element={<ProtectedRoute component={Index} />} />
+          <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} />
+          <Route path="/recruitment" element={<ProtectedRoute component={RecruitmentPage} />} />
+          <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} />
+          <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
 
           {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
           {/* Catch-all route for 404 - also protected */}
-          <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+          <Route path="*" element={<ProtectedRoute component={NotFound} />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
