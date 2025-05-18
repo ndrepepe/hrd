@@ -20,6 +20,10 @@ const RecruitmentPage = () => {
   const [refreshDecisions, setRefreshDecisions] = useState(0);
   const [activeTab, setActiveTab] = useState("add-candidate"); // Default active tab
 
+  // State to track the ID of the candidate being edited
+  const [editingCandidateId, setEditingCandidateId] = useState<string | null>(null);
+
+
   // Callbacks to trigger list refreshes
   const handlePositionAdded = () => {
     setRefreshPositions(prev => prev + 1);
@@ -51,6 +55,8 @@ const RecruitmentPage = () => {
     // Also refresh candidate lists in Interview and Decision forms
     setRefreshInterviews(prev => prev + 1); // This will trigger fetchCandidates in AddInterviewForm
     setRefreshDecisions(prev => prev + 1); // This will trigger fetchCandidates in AddDecisionForm
+    // Clear editing state after adding a new candidate
+    setEditingCandidateId(null);
   };
 
   // New callback for candidate deletion
@@ -61,6 +67,8 @@ const RecruitmentPage = () => {
     setRefreshDecisions(prev => prev + 1);
     // Also refresh decision list and briefing list in case the deleted candidate had a decision
     setRefreshDecisions(prev => prev + 1);
+    // Clear editing state if the deleted candidate was the one being edited
+    setEditingCandidateId(null);
   };
 
   // New callback for candidate update
@@ -71,6 +79,14 @@ const RecruitmentPage = () => {
     setRefreshDecisions(prev => prev + 1);
     // Also refresh decision list and briefing list in case the updated candidate had a decision
     setRefreshDecisions(prev => prev + 1);
+    // Clear editing state after updating
+    setEditingCandidateId(null);
+  };
+
+  // Callback when Edit button is clicked in CandidateList
+  const handleEditCandidate = (candidateId: string) => {
+    setEditingCandidateId(candidateId); // Set the ID of the candidate to edit
+    setActiveTab("add-candidate"); // Switch to the "Tambah Kandidat" tab
   };
 
 
@@ -110,51 +126,59 @@ const RecruitmentPage = () => {
           <TabsTrigger value="briefing-list">Pembekalan</TabsTrigger>
         </TabsList>
 
-        {/* TabsContent area - Removed the extra div wrapper */}
-        <TabsContent value="add-position" className="mt-0">
-          <AddPositionForm onPositionAdded={handlePositionAdded} />
-        </TabsContent>
+        {/* TabsContent area */}
+        <div> {/* Simple div wrapper, no fixed positioning or extra margin needed */}
+          <TabsContent value="add-position" className="mt-0">
+            <AddPositionForm onPositionAdded={handlePositionAdded} />
+          </TabsContent>
 
-        <TabsContent value="list-positions" className="mt-0">
-          <PositionList
-            refreshTrigger={refreshPositions}
-            onPositionDeleted={handlePositionDeleted} // Pass the new callback
-            onPositionUpdated={handlePositionUpdated} // Pass the new callback
-          />
-        </TabsContent>
+          <TabsContent value="list-positions" className="mt-0">
+            <PositionList
+              refreshTrigger={refreshPositions}
+              onPositionDeleted={handlePositionDeleted}
+              onPositionUpdated={handlePositionUpdated}
+            />
+          </TabsContent>
 
-        <TabsContent value="add-candidate" className="mt-0">
-          <AddCandidateForm onCandidateAdded={handleCandidateAdded} refreshPositionsTrigger={refreshPositions} />
-        </TabsContent>
+          <TabsContent value="add-candidate" className="mt-0">
+            <AddCandidateForm
+              onCandidateAdded={handleCandidateAdded}
+              refreshPositionsTrigger={refreshPositions}
+              editingCandidateId={editingCandidateId} // Pass editing state
+              setEditingCandidateId={setEditingCandidateId} // Pass setter function
+            />
+          </TabsContent>
 
-        <TabsContent value="list-candidates" className="mt-0">
-          <CandidateList
-            refreshTrigger={refreshCandidates}
-            refreshDecisionsTrigger={refreshDecisions}
-            onCandidateDeleted={handleCandidateDeleted} // Pass the new callback
-            onCandidateUpdated={handleCandidateUpdated} // Pass the new callback
-          />
-        </TabsContent>
+          <TabsContent value="list-candidates" className="mt-0">
+            <CandidateList
+              refreshTrigger={refreshCandidates}
+              refreshDecisionsTrigger={refreshDecisions}
+              onCandidateDeleted={handleCandidateDeleted}
+              onCandidateUpdated={handleCandidateUpdated}
+              onEditClick={handleEditCandidate} // Pass the new edit handler
+            />
+          </TabsContent>
 
-        <TabsContent value="add-interview" className="mt-0">
-          <AddInterviewForm onInterviewAdded={handleInterviewAdded} refreshCandidatesTrigger={refreshCandidates} />
-        </TabsContent>
+          <TabsContent value="add-interview" className="mt-0">
+            <AddInterviewForm onInterviewAdded={handleInterviewAdded} refreshCandidatesTrigger={refreshCandidates} />
+          </TabsContent>
 
-        <TabsContent value="list-interviews" className="mt-0">
-          <InterviewList refreshTrigger={refreshInterviews} />
-        </TabsContent>
+          <TabsContent value="list-interviews" className="mt-0">
+            <InterviewList refreshTrigger={refreshInterviews} />
+          </TabsContent>
 
-        <TabsContent value="add-decision" className="mt-0">
-          <AddDecisionForm onDecisionAdded={handleDecisionAdded} refreshCandidatesTrigger={refreshCandidates} />
-        </TabsContent>
+          <TabsContent value="add-decision" className="mt-0">
+            <AddDecisionForm onDecisionAdded={handleDecisionAdded} refreshCandidatesTrigger={refreshCandidates} />
+          </TabsContent>
 
-        <TabsContent value="list-decisions" className="mt-0">
-          <DecisionList refreshTrigger={refreshDecisions} />
-        </TabsContent>
+          <TabsContent value="list-decisions" className="mt-0">
+            <DecisionList refreshTrigger={refreshDecisions} />
+          </TabsContent>
 
-        <TabsContent value="briefing-list" className="mt-0">
-           <BriefingList refreshTrigger={refreshDecisions} />
-        </TabsContent>
+          <TabsContent value="briefing-list" className="mt-0">
+             <BriefingList refreshTrigger={refreshDecisions} />
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   );
