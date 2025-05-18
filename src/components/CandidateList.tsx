@@ -45,7 +45,7 @@ interface CandidateListProps {
   refreshDecisionsTrigger: number;
   onCandidateDeleted: () => void;
   onCandidateUpdated: () => void;
-  onEditClick: (candidateId: string) => void; // New prop: callback for edit button click
+  // Removed onEditClick prop
 }
 
 const searchableFields = [
@@ -57,7 +57,7 @@ const searchableFields = [
   { label: "Skill", value: "skills" },
 ];
 
-const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDeleted, onCandidateUpdated, onEditClick }: CandidateListProps) => {
+const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDeleted, onCandidateUpdated }: CandidateListProps) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -185,10 +185,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
     }
   };
 
-  const handleEditClick = (candidateId: string) => {
-    console.log("Edit button clicked for candidate ID:", candidateId);
-    onEditClick(candidateId); // Call the parent's edit handler
-  };
+  // Removed handleEditClick function
 
   if (loading) {
     return <p>Memuat daftar kandidat...</p>;
@@ -237,7 +234,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 <TableHead>Skill</TableHead>
                 <TableHead>Status Keputusan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
-                <TableHead>Aksi</TableHead>
+                <TableHead>Aksi</TableHead> {/* Keep Aksi header for Delete button */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -255,8 +252,9 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 const placeAndDob = `${candidate.place_of_birth || "-"}, ${dobDisplay}`;
                 const placeAndDobWithAge = age !== null ? `${placeAndDob} (${age} tahun)` : placeAndDob;
 
-                // Determine if the edit button should be disabled
-                const disableEdit = latestStatus === 'Accepted' || latestStatus === 'Rejected';
+                // Check if the candidate has any decisions (still needed for delete validation)
+                const hasDecision = Array.isArray(candidate.decisions) && candidate.decisions.length > 0;
+
 
                 return (
                   <TableRow key={candidate.id}>
@@ -269,18 +267,8 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                     <TableCell>{candidate.last_education || "-"}</TableCell>
                     <TableCell>{candidate.skills || "-"}</TableCell>
                     <TableCell>{latestStatus}</TableCell>
-                    <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                     <TableCell className="flex space-x-2">
-                      {/* Disable Edit button based on latestStatus */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditClick(candidate.id)}
-                        disabled={disableEdit}
-                        title={disableEdit ? "Nama sudah ada keputusan tidak bisa diedit" : "Edit data kandidat"} // Add tooltip/title
-                      >
-                        Edit
-                      </Button>
+                      {/* Removed Edit button */}
                       <Button variant="destructive" size="sm" onClick={() => handleDelete(candidate.id)}>Hapus</Button>
                     </TableCell>
                   </TableRow>

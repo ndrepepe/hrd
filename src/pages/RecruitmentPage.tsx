@@ -20,7 +20,7 @@ const RecruitmentPage = () => {
   const [refreshDecisions, setRefreshDecisions] = useState(0);
   const [activeTab, setActiveTab] = useState("add-candidate"); // Default active tab
 
-  // State to track the ID of the candidate being edited
+  // State to track the ID of the candidate being edited (still needed for AddCandidateForm)
   const [editingCandidateId, setEditingCandidateId] = useState<string | null>(null);
 
 
@@ -71,7 +71,7 @@ const RecruitmentPage = () => {
     setEditingCandidateId(null);
   };
 
-  // New callback for candidate update
+  // New callback for candidate update (still needed even if triggered internally by AddCandidateForm)
   const handleCandidateUpdated = () => {
     setRefreshCandidates(prev => prev + 1);
     // Refresh lists/forms that depend on the candidate list
@@ -79,15 +79,11 @@ const RecruitmentPage = () => {
     setRefreshDecisions(prev => prev + 1);
     // Also refresh decision list and briefing list in case the updated candidate had a decision
     setRefreshDecisions(prev => prev + 1);
-    // Clear editing state after updating
+    // Clear editing state after updating (handled by AddCandidateForm, but good practice to have a handler)
     setEditingCandidateId(null);
   };
 
-  // Callback when Edit button is clicked in CandidateList
-  const handleEditCandidate = (candidateId: string) => {
-    setEditingCandidateId(candidateId); // Set the ID of the candidate to edit
-    setActiveTab("add-candidate"); // Switch to the "Tambah Kandidat" tab
-  };
+  // Removed handleEditCandidate function
 
 
   const handleInterviewAdded = () => {
@@ -142,7 +138,7 @@ const RecruitmentPage = () => {
 
           <TabsContent value="add-candidate" className="mt-0">
             <AddCandidateForm
-              onCandidateAdded={handleCandidateAdded}
+              onCandidateAdded={handleCandidateAdded} // This callback is now used for both add and update success
               refreshPositionsTrigger={refreshPositions}
               editingCandidateId={editingCandidateId} // Pass editing state
               setEditingCandidateId={setEditingCandidateId} // Pass setter function
@@ -154,8 +150,8 @@ const RecruitmentPage = () => {
               refreshTrigger={refreshCandidates}
               refreshDecisionsTrigger={refreshDecisions}
               onCandidateDeleted={handleCandidateDeleted}
-              onCandidateUpdated={handleCandidateUpdated}
-              onEditClick={handleEditCandidate} // Pass the new edit handler
+              onCandidateUpdated={handleCandidateUpdated} // Keep this prop as delete also triggers it
+              // Removed onEditClick prop
             />
           </TabsContent>
 
