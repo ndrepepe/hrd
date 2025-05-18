@@ -63,8 +63,6 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
   const [searchTerm, setSearchTerm] = useState("");
   const [searchField, setSearchField] = useState(searchableFields[0].value);
 
-  // Removed state for selectedCandidateForEdit and isEditDialogOpen
-
   useEffect(() => {
     fetchCandidates();
   }, [refreshTrigger, refreshDecisionsTrigger, searchTerm, searchField]);
@@ -187,14 +185,10 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
     }
   };
 
-  // Modified handleEditClick to call the prop
   const handleEditClick = (candidateId: string) => {
     console.log("Edit button clicked for candidate ID:", candidateId);
     onEditClick(candidateId); // Call the parent's edit handler
   };
-
-  // Removed handleEditDialogClose and handleCandidateUpdated (handled by parent)
-
 
   if (loading) {
     return <p>Memuat daftar kandidat...</p>;
@@ -261,6 +255,8 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 const placeAndDob = `${candidate.place_of_birth || "-"}, ${dobDisplay}`;
                 const placeAndDobWithAge = age !== null ? `${placeAndDob} (${age} tahun)` : placeAndDob;
 
+                // Check if the candidate has any decisions
+                const hasDecision = Array.isArray(candidate.decisions) && candidate.decisions.length > 0;
 
                 return (
                   <TableRow key={candidate.id}>
@@ -275,8 +271,16 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                     <TableCell>{latestStatus}</TableCell>
                     <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                     <TableCell className="flex space-x-2">
-                      {/* Call handleEditClick with the candidate ID */}
-                      <Button variant="outline" size="sm" onClick={() => handleEditClick(candidate.id)}>Edit</Button>
+                      {/* Disable Edit button if hasDecision is true */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditClick(candidate.id)}
+                        disabled={hasDecision}
+                        title={hasDecision ? "Tidak bisa diedit karena sudah ada keputusan" : "Edit data kandidat"} // Add tooltip/title
+                      >
+                        Edit
+                      </Button>
                       <Button variant="destructive" size="sm" onClick={() => handleDelete(candidate.id)}>Hapus</Button>
                     </TableCell>
                   </TableRow>
@@ -286,8 +290,6 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
           </Table>
         </div>
       )}
-
-      {/* Removed rendering of EditCandidateDialog */}
     </div>
   );
 };
