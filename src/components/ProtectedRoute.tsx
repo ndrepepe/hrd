@@ -44,7 +44,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return null;
   }
 
-  return <>{children}</>;
+  // Changed from <> to <div> for debugging
+  return <div>{children}</div>;
 };
 
 export default ProtectedRoute;
