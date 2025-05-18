@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+// Removed import for supabase as it's not directly used here anymore
+// Removed import for ProtectedRoute
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -11,8 +12,7 @@ import CarRentalPage from "./pages/CarRentalPage";
 import RecruitmentPage from "./pages/RecruitmentPage";
 import DailyReportPage from "./pages/DailyReportPage";
 import EmployeePage from "./pages/EmployeePage";
-import Login from "./pages/Login";
-import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
+import Login from "./pages/Login"; // Keep Login page route
 import NavigationBar from "./components/NavigationBar";
 
 const queryClient = new QueryClient();
@@ -29,18 +29,17 @@ const App = () => (
           {/* Public route for Login */}
           <Route path="/login" element={<Login />} />
 
-          {/* Protected routes using the new pattern */}
-          {/* Pass the component to render via the 'component' prop */}
-          <Route path="/" element={<ProtectedRoute component={Index} />} />
-          <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} />
-          <Route path="/recruitment" element={<ProtectedRoute component={RecruitmentPage} />} />
-          <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} />
-          <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
+          {/* Main application routes - now publicly accessible */}
+          <Route path="/" element={<Index />} />
+          <Route path="/car-rental" element={<CarRentalPage />} />
+          <Route path="/recruitment" element={<RecruitmentPage />} />
+          <Route path="/daily-report" element={<DailyReportPage />} />
+          <Route path="/employees" element={<EmployeePage />} />
 
-          {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
-          {/* Catch-all route for 404 - also protected */}
-          <Route path="*" element={<ProtectedRoute component={NotFound} />} />
+          {/* Catch-all route for 404 - now publicly accessible */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
