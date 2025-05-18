@@ -56,6 +56,7 @@ const formSchema = z.object({
 // Define the type for the data passed to the dialog
 interface InterviewData {
   id: string;
+  created_at: string; // Include created_at for delete validation if needed later
   candidate_id: string; // Needed for context, though not edited
   stage: string;
   interview_date: string; // Date is string from DB
@@ -69,10 +70,13 @@ interface EditInterviewDialogProps {
   isOpen: boolean; // Controls dialog visibility
   onClose: () => void; // Callback to close the dialog
   onUpdateSuccess: () => void; // Callback to notify parent after update
+  onDeleteSuccess: () => void; // New callback to notify parent after delete
 }
 
-const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess }: EditInterviewDialogProps) => {
+const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess, onDeleteSuccess }: EditInterviewDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false); // State for submit loading
+  const [isDeleting, setIsDeleting] = useState(false); // State for delete loading
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -144,6 +148,31 @@ const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess }: Ed
        onClose(); // Close the dialog
     }
   }
+
+  const handleDelete = async () => {
+    if (!interview) return; // Should not happen if dialog is open
+
+    if (window.confirm(`Apakah Anda yakin ingin menghapus data wawancara untuk tahapan "${interview.stage}"?`)) {
+      setIsDeleting(true); // Start delete loading
+
+      const { error } = await supabase
+        .from("interviews")
+        .delete()
+        .eq("id", interview.id);
+
+      setIsDeleting(false); // End delete loading
+
+      if (error) {
+        console.error("Error deleting interview:", error);
+        showError("Gagal menghapus data wawancara: " + error.message);
+      } else {
+        showSuccess("Data wawancara berhasil dihapus!");
+        onDeleteSuccess(); // Notify parent to refresh the list
+        onClose(); // Close the dialog
+      }
+    }
+  };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -260,8 +289,13 @@ const EditInterviewDialog = ({ interview, isOpen, onClose, onUpdateSuccess }: Ed
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>Batal</Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting || isDeleting}>Batal</Button>
+              {/* Add Delete button */}
+              <Button type="button" variant="destructive" onClick={handleDelete} disabled={isSubmitting || isDeleting}>
+                 {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                 Hapus
+              </Button>
+              <Button type="submit" disabled={isSubmitting || isDeleting}>
                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                  Simpan Perubahan
               </Button>
