@@ -20,14 +20,15 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    {/* Global Toasters - placed outside TooltipProvider */}
-    <Toaster />
-    <Sonner />
-    {/* TooltipProvider now wraps the main app structure */}
-    <TooltipProvider>
-      <BrowserRouter>
-        {/* Wrap NavigationBar and Routes in a Fragment */}
-        <React.Fragment>
+    {/* Wrap all content inside QueryClientProvider with a single Fragment */}
+    <React.Fragment>
+      {/* Global Toasters */}
+      <Toaster />
+      <Sonner />
+      {/* TooltipProvider wraps the main app structure */}
+      <TooltipProvider>
+        <BrowserRouter>
+          {/* BrowserRouter can have multiple children like NavigationBar and Routes */}
           <NavigationBar />
           <Routes>
             {/* Public route for Login */}
@@ -46,9 +47,9 @@ const App = () => (
             {/* Catch-all route for 404 - also protected */}
             <Route path="*" element={<ProtectedRoute component={NotFound} />} />
           </Routes>
-        </React.Fragment>
-      </BrowserRouter>
-    </TooltipProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </React.Fragment>
   </QueryClientProvider>
 );
 
