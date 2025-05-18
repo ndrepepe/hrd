@@ -17,8 +17,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Select, // Added Select import
+  SelectContent, // Added SelectContent import
+  SelectItem, // Added SelectItem import
+  SelectTrigger, // Added SelectTrigger import
+  SelectValue, // Added SelectValue import
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea"; // Keep Textarea for optional fields if needed, but removing notes field
 
-// Updated formSchema to only include required fields
+// Updated formSchema to only include desired fields
 const formSchema = z.object({
   employee_id: z.string().min(1, {
     message: "ID Karyawan wajib diisi.",
@@ -29,7 +37,13 @@ const formSchema = z.object({
   position: z.string().min(2, {
     message: "Posisi wajib diisi minimal 2 karakter.",
   }),
-  // Removed hire_date, status, phone, email, address, date_of_birth, place_of_birth, last_education, major, skills, notes
+  status: z.enum(['Active', 'Inactive', 'Terminated'], { // Added status field
+    required_error: "Status wajib dipilih.",
+    invalid_type_error: "Status tidak valid.",
+  }),
+  phone: z.string().optional().nullable(), // Keep phone as optional
+  email: z.string().email({ message: "Format email tidak valid." }).optional().nullable(), // Keep email as optional with validation
+  // Removed hire_date, address, date_of_birth, place_of_birth, last_education, major, skills, notes, user_id
 });
 
 interface AddEmployeeFormProps {
@@ -39,11 +53,14 @@ interface AddEmployeeFormProps {
 const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // Updated defaultValues to only include required fields
+    // Updated defaultValues to only include desired fields
     defaultValues: {
       employee_id: "",
       name: "",
       position: "",
+      status: "Active", // Default status to Active
+      phone: "",
+      email: "",
       // Removed other default values
     },
   });
@@ -58,7 +75,10 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
           employee_id: values.employee_id,
           name: values.name,
           position: values.position,
-          // Only include the required fields in the insert data
+          status: values.status, // Include status
+          phone: values.phone || null, // Save empty string as null
+          email: values.email || null, // Save empty string as null
+          // Only include the required fields and optional fields that are in the form
           // Other columns in the database will use their default values or be null
         },
       ])
@@ -74,6 +94,9 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
          employee_id: "",
          name: "",
          position: "",
+         status: "Active", // Reset status to default
+         phone: "",
+         email: "",
       });
       onEmployeeAdded(); // Call callback
     }
@@ -128,6 +151,57 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
               </FormItem>
             )}
           />
+           {/* Status Field */}
+           <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="Terminated">Terminated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Phone Field */}
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nomor HP (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Contoh: 0812..." {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             {/* Email Field */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Contoh: nama@example.com" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           {/* Removed other FormField components */}
 
           <Button type="submit">Simpan Karyawan</Button>
