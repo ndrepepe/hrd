@@ -24,7 +24,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription, // Added FormDescription import
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -216,7 +216,8 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-lg"> {/* Adjusted max-width */}
+      {/* Adjusted max-w-lg to max-w-xl for wider dialog on medium screens and up */}
+      <DialogContent className="sm:max-w-[425px] md:max-w-xl">
         <DialogHeader>
           <DialogTitle>Edit Data Karyawan</DialogTitle>
           <DialogDescription>
@@ -224,7 +225,8 @@ const EditEmployeeDialog = ({ employee, isOpen, onClose, onEmployeeUpdated }: Ed
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4"> {/* Use grid for layout */}
+          {/* Added overflow-y-auto and max-h-[80vh] to the form container to enable scrolling if content overflows */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 overflow-y-auto max-h-[80vh]">
             {/* Employee ID Field */}
             <FormField
               control={form.control}
