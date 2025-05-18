@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import React from 'react'; // Import React for Fragment
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -25,25 +26,27 @@ const App = () => (
     {/* TooltipProvider now wraps the main app structure */}
     <TooltipProvider>
       <BrowserRouter>
-        {/* NavigationBar is outside Routes but inside BrowserRouter */}
-        <NavigationBar />
-        <Routes>
-          {/* Public route for Login */}
-          <Route path="/login" element={<Login />} />
+        {/* Wrap NavigationBar and Routes in a Fragment */}
+        <React.Fragment>
+          <NavigationBar />
+          <Routes>
+            {/* Public route for Login */}
+            <Route path="/login" element={<Login />} />
 
-          {/* Protected routes using the new pattern */}
-          {/* Pass the component to render via the 'component' prop */}
-          <Route path="/" element={<ProtectedRoute component={Index} />} />
-          <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} />
-          <Route path="/recruitment" element={<ProtectedRoute component={RecruitmentPage} />} />
-          <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} />
-          <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
+            {/* Protected routes using the new pattern */}
+            {/* Pass the component to render via the 'component' prop */}
+            <Route path="/" element={<ProtectedRoute component={Index} />} />
+            <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} />
+            <Route path="/recruitment" element={<ProtectedRoute component={RecruitmentPage} />} />
+            <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} />
+            <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
 
-          {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* ADD ALL CUSTOM PROTECTED ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
-          {/* Catch-all route for 404 - also protected */}
-          <Route path="*" element={<ProtectedRoute component={NotFound} />} />
-        </Routes>
+            {/* Catch-all route for 404 - also protected */}
+            <Route path="*" element={<ProtectedRoute component={NotFound} />} />
+          </Routes>
+        </React.Fragment>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
