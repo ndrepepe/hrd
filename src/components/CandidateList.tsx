@@ -235,7 +235,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
-                <TableHead>Status Keputusan</TableHead>
+                {/* Removed TableHead for Status Keputusan */}
                 <TableHead>Dibuat Pada</TableHead>
                 <TableHead>Aksi</TableHead>
               </TableRow>
@@ -244,11 +244,12 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
               {candidates.map((candidate) => {
                 const latestStatus = getLatestDecisionStatus(candidate.decisions);
                 let textColorClass = '';
-                if (latestStatus === 'Accepted') {
-                  textColorClass = 'text-green-600 font-medium';
-                } else if (latestStatus === 'Rejected') {
-                  textColorClass = 'text-red-600 font-medium';
-                }
+                // Keep text color logic for name cell if needed, or remove
+                // if (latestStatus === 'Accepted') {
+                //   textColorClass = 'text-green-600 font-medium';
+                // } else if (latestStatus === 'Rejected') {
+                //   textColorClass = 'text-red-600 font-medium';
+                // }
 
                 const age = calculateAge(candidate.date_of_birth);
                 const dobDisplay = candidate.date_of_birth ? format(parseISO(candidate.date_of_birth), "dd-MM-yyyy") : "-";
@@ -261,6 +262,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 return (
                   <TableRow key={candidate.id}>
                     <TableCell>
+                      {/* Apply text color class if needed */}
                       <span className={textColorClass}>{candidate.name}</span>
                     </TableCell>
                     <TableCell>{candidate.positions?.title || "-"}</TableCell>
@@ -268,7 +270,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                     <TableCell>{candidate.phone || "-"}</TableCell>
                     <TableCell>{candidate.last_education || "-"}</TableCell>
                     <TableCell>{candidate.skills || "-"}</TableCell>
-                    <TableCell>{latestStatus}</TableCell>
+                    {/* Removed TableCell for Status Keputusan */}
                     <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                     <TableCell className="flex space-x-2">
                       {/* Disable Edit button if hasDecision is true */}
