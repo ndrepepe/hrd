@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError } from "@/utils/toast";
+import { showError, showSuccess } from "@/utils/toast"; // Import showSuccess
 import {
   Table,
   TableBody,
@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns"; // Keep format for date display
+import { Button } from "@/components/ui/button"; // Import Button
+import EditEmployeeDialog from "./EditEmployeeDialog"; // Import the new dialog component
 
 interface Employee {
   id: string;
@@ -32,6 +34,12 @@ interface Employee {
   status: string; // Add status
   phone: string | null; // Add phone
   email: string | null; // Add email
+  place_of_birth: string | null; // Added back optional fields
+  date_of_birth: string | null; // Added back optional fields
+  last_education: string | null; // Added back optional fields
+  major: string | null; // Added back optional fields
+  skills: string | null; // Added back optional fields
+  notes: string | null; // Added back optional fields
   user_id: string | null; // Add user_id
 }
 
@@ -55,6 +63,10 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
   const [searchField, setSearchField] = useState(searchableFields[0].value); // State for selected search field, default to 'Nama'
   const [filterStatus, setFilterStatus] = useState("All"); // Keep status filter
 
+  const [selectedEmployeeForEdit, setSelectedEmployeeForEdit] = useState<Employee | null>(null); // State for the employee being edited
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control dialog visibility
+
+
   useEffect(() => {
     fetchEmployees();
   }, [refreshTrigger, searchTerm, searchField, filterStatus]); // Depend on relevant triggers and filters
@@ -65,7 +77,7 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
 
     let query = supabase
       .from("employees")
-      .select("id, created_at, employee_id, name, position, hire_date, status, phone, email, user_id") // Select all relevant fields
+      .select("id, created_at, employee_id, name, position, hire_date, status, phone, email, place_of_birth, date_of_birth, last_education, major, skills, notes, user_id") // Select all relevant fields
       .order("created_at", { ascending: false }); // Order by creation date
 
     // Apply search filter if searchTerm is not empty
@@ -93,6 +105,88 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
     }
     setLoading(false);
   };
+
+  const handleEditClick = (employee: Employee) => {
+    setSelectedEmployeeForEdit(employee); // Set the employee data
+    setIsEditDialogOpen(true); // Open the dialog
+  };
+
+  const handleEditDialogClose = () => {
+    setSelectedEmployeeForEdit(null); // Clear the selected employee data
+    setIsEditDialogOpen(false); // Close the dialog
+  };
+
+  const handleEmployeeUpdated = () => {
+    fetchEmployees(); // Refresh the list after an employee is updated
+    // No need to notify parent here unless parent needs to react to *any* employee update
+  };
+
+  const handleDelete = async (id: string) => {
+     // --- Start Validation Check: Check for linked daily reports ---
+     console.log("Checking for daily reports linked to employee ID:", id);
+     const { data: reportsData, error: reportsError } = await supabase
+       .from("daily_reports")
+       .select("id") // We only need to know if any exist
+       .eq("employee_id", id)
+       .limit(1); // Stop after finding the first one
+
+     if (reportsError) {
+       console.error("Error checking for linked daily reports:", reportsError);
+       showError("Gagal memeriksa laporan harian terkait: " + reportsError.message);
+       return; // Stop the delete process
+     }
+
+     if (reportsData && reportsData.length > 0) {
+       console.log("Found linked daily reports, preventing deletion.");
+       showError("Karyawan ini tidak dapat dihapus karena sudah memiliki laporan harian terkait.");
+       return; // Stop the delete process
+     }
+     // --- End Validation Check ---
+
+     // --- Start Validation Check: Check for linked user account ---
+     // Note: Deleting the employee record does NOT delete the Supabase Auth user account.
+     // However, we might want to prevent deleting an employee if they are linked to an active user account
+     // to avoid orphaned user accounts or unexpected behavior.
+     // For now, let's allow deletion even if linked, but warn the user or add a specific check if needed.
+     // The current schema allows NULL user_id, so deleting the employee record is fine from a DB perspective.
+     // If you wanted to prevent deletion of linked employees, you'd add a check here similar to the reports check.
+     // console.log("Checking for linked user account for employee ID:", id);
+     // const { data: userData, error: userError } = await supabase
+     //   .from("employees")
+     //   .select("user_id")
+     //   .eq("id", id)
+     //   .not("user_id", "is", null)
+     //   .single();
+     // if (userError && userError.code !== 'PGRST116') { // PGRST116 means no rows found
+     //    console.error("Error checking for linked user account:", userError);
+     //    showError("Gagal memeriksa akun pengguna terkait: " + userError.message);
+     //    return;
+     // }
+     // if (userData && userData.user_id) {
+     //    console.log("Found linked user account, preventing deletion.");
+     //    showError("Karyawan ini tidak dapat dihapus karena sudah terhubung dengan akun pengguna.");
+     //    return;
+     // }
+     // --- End Validation Check ---
+
+
+    if (window.confirm("Apakah Anda yakin ingin menghapus data karyawan ini? Laporan harian yang terkait tidak akan terhapus.")) {
+      const { error } = await supabase
+        .from("employees")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error deleting employee:", error);
+        showError("Gagal menghapus data karyawan: " + error.message);
+      } else {
+        showSuccess("Data karyawan berhasil dihapus!");
+        fetchEmployees(); // Refresh the list
+        // No need to notify parent here unless parent needs to react to deletion
+      }
+    }
+  };
+
 
   if (loading) {
     return <p>Memuat daftar karyawan...</p>;
@@ -164,7 +258,7 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
                 <TableHead>Email</TableHead> {/* Add header */}
                 <TableHead>Akun Terhubung</TableHead> {/* Add header for user_id */}
                 <TableHead>Dibuat Pada</TableHead>
-                {/* Add more columns as needed */}
+                <TableHead>Aksi</TableHead> {/* Add Action header */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -179,13 +273,24 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
                   <TableCell>{employee.email || "-"}</TableCell> {/* Display email */}
                   <TableCell>{employee.user_id ? "Terhubung" : "Belum Terhubung"}</TableCell> {/* Display user_id status */}
                   <TableCell>{new Date(employee.created_at).toLocaleString()}</TableCell>
-                  {/* Add more cells for other fields */}
+                  <TableCell className="flex space-x-2"> {/* Action cell */}
+                     <Button variant="outline" size="sm" onClick={() => handleEditClick(employee)}>Edit</Button>
+                     <Button variant="destructive" size="sm" onClick={() => handleDelete(employee.id)}>Hapus</Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
       )}
+
+      {/* Render the EditEmployeeDialog */}
+      <EditEmployeeDialog
+        employee={selectedEmployeeForEdit}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditDialogClose}
+        onEmployeeUpdated={handleEmployeeUpdated}
+      />
     </div>
   );
 };
