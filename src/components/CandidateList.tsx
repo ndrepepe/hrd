@@ -232,9 +232,9 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 <TableHead>No HP</TableHead>
                 <TableHead>Pendidikan</TableHead>
                 <TableHead>Skill</TableHead>
-                <TableHead>Status Keputusan</TableHead>
+                {/* Removed TableHead for Status Keputusan */}
                 <TableHead>Dibuat Pada</TableHead>
-                <TableHead>Aksi</TableHead> {/* Keep Aksi header for Delete button */}
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -266,7 +266,8 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                     <TableCell>{candidate.phone || "-"}</TableCell>
                     <TableCell>{candidate.last_education || "-"}</TableCell>
                     <TableCell>{candidate.skills || "-"}</TableCell>
-                    <TableCell>{latestStatus}</TableCell>
+                    {/* Removed TableCell for Status Keputusan */}
+                    <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                     <TableCell className="flex space-x-2">
                       {/* Removed Edit button */}
                       <Button variant="destructive" size="sm" onClick={() => handleDelete(candidate.id)}>Hapus</Button>
