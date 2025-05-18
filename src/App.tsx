@@ -13,8 +13,6 @@ import DailyReportPage from "./pages/DailyReportPage";
 import EmployeePage from "./pages/EmployeePage";
 import Login from "./pages/Login"; // Keep Login page route as public
 import NavigationBar from "./components/NavigationBar";
-import { PermissionsProvider } from "./hooks/usePermissions"; // Import PermissionsProvider
-import PermissionsPage from "./pages/PermissionsPage"; // Import the new PermissionsPage
 
 const queryClient = new QueryClient();
 
@@ -24,31 +22,24 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        {/* Wrap the main content (including NavigationBar and Routes) with PermissionsProvider */}
-        <PermissionsProvider>
-          {/* NavigationBar needs access to permissions to show/hide links */}
-          <NavigationBar />
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="*" element={<NotFound />} /> {/* 404 page */}
+        {/* Render NavigationBar outside of Routes */}
+        <NavigationBar />
+        <Routes>
+          {/* All main application pages are now public */}
+          <Route path="/" element={<Index />} />
+          <Route path="/car-rental" element={<CarRentalPage />} />
+          <Route path="/recruitment" element={<RecruitmentPage />} />
+          <Route path="/daily-report" element={<DailyReportPage />} />
+          <Route path="/employees" element={<EmployeePage />} />
 
-            {/* Protected routes (will use usePermissions internally) */}
-            {/* We don't need a top-level ProtectedRoute wrapper anymore,
-                each page/component will check permissions */}
-            <Route path="/car-rental" element={<CarRentalPage />} />
-            <Route path="/recruitment" element={<RecruitmentPage />} />
-            <Route path="/daily-report" element={<DailyReportPage />} />
-            <Route path="/employees" element={<EmployeePage />} />
-            {/* New route for Permissions Management */}
-            <Route path="/permissions" element={<PermissionsPage />} />
+          {/* Login page remains a public route */}
+          <Route path="/login" element={<Login />} />
 
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-
-          </Routes>
-        </PermissionsProvider>
+          {/* Catch-all route for 404 - remains public */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
