@@ -19,13 +19,11 @@ import NavigationBar from "./components/NavigationBar";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    {/* Wrap all content inside QueryClientProvider with a single Fragment */}
-    <React.Fragment>
-      {/* Global Toasters */}
-      <Toaster />
-      <Sonner />
-      {/* TooltipProvider wraps the main app structure */}
+  // Wrap everything in a Fragment to ensure App returns a single element
+  <React.Fragment>
+    {/* QueryClientProvider wraps the main application structure */}
+    <QueryClientProvider client={queryClient}>
+      {/* TooltipProvider wraps the router */}
       <TooltipProvider>
         <BrowserRouter>
           {/* BrowserRouter can have multiple children like NavigationBar and Routes */}
@@ -49,8 +47,11 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </React.Fragment>
-  </QueryClientProvider>
+    </QueryClientProvider>
+    {/* Global Toasters - placed as siblings to the main provider chain */}
+    <Toaster />
+    <Sonner />
+  </React.Fragment>
 );
 
 export default App;
