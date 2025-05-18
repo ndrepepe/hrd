@@ -17,11 +17,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter, // Import DialogFooter
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import EditInterviewDialog from "./EditInterviewDialog"; // Import the new dialog component
+// Removed import for EditInterviewDialog
 
 interface Interview {
   id: string;
@@ -51,8 +51,7 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null); // State for the interview whose details are shown
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false); // State to control details dialog visibility
 
-  const [editingInterview, setEditingInterview] = useState<Interview | null>(null); // State for the interview being edited
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control edit dialog visibility
+  // Removed state for editingInterview and isEditDialogOpen
 
 
   useEffect(() => {
@@ -112,22 +111,9 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
     }
   };
 
-  const handleEditClick = () => {
-    if (!selectedInterview) return; // Should not happen if dialog is open
-    setEditingInterview(selectedInterview); // Set the interview data for the edit dialog
-    setIsDetailsDialogOpen(false); // Close the details dialog
-    setIsEditDialogOpen(true); // Open the edit dialog
-  };
-
-  const handleEditDialogClose = () => {
-    setEditingInterview(null); // Clear the selected interview data for edit
-    setIsEditDialogOpen(false); // Close the edit dialog
-  };
-
-  const handleInterviewUpdated = () => {
-    fetchInterviews(); // Refresh the list after an interview is updated
-    // No need to explicitly close edit dialog here, it's handled internally
-  };
+  // Removed handleEditClick function
+  // Removed handleEditDialogClose function
+  // Removed handleInterviewUpdated function
 
 
   if (loading) {
@@ -212,7 +198,7 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
              <Button variant="outline" onClick={() => setIsDetailsDialogOpen(false)}>Tutup</Button>
              {selectedInterview && ( // Only show buttons if an interview is selected
                 <>
-                   <Button variant="outline" onClick={handleEditClick}>Edit</Button>
+                   {/* Removed Edit button */}
                    <Button variant="destructive" onClick={handleDeleteClick}>Hapus</Button>
                 </>
              )}
@@ -220,13 +206,7 @@ const InterviewList = ({ refreshTrigger }: InterviewListProps) => {
         </DialogContent>
       </Dialog>
 
-      {/* Render the EditInterviewDialog */}
-      <EditInterviewDialog
-        interview={editingInterview}
-        isOpen={isEditDialogOpen}
-        onClose={handleEditDialogClose}
-        onUpdateSuccess={handleInterviewUpdated}
-      />
+      {/* Removed rendering of EditInterviewDialog */}
     </div>
   );
 };
