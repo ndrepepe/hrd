@@ -1,19 +1,16 @@
-import HeroSection from "@/components/HeroSection";
-import ProductSection from "@/components/ProductSection";
-import AboutSection from "@/components/AboutSection";
-import ContactSection from "@/components/ContactSection";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
-    <div className="flex flex-col items-center pt-16"> {/* pt-16 for navbar */}
-      <HeroSection />
-      <ProductSection />
-      <AboutSection />
-      <ContactSection />
-      {/* Add a simple footer */}
-      <footer className="w-full text-center py-8 text-gray-600 text-sm">
-        <p>&copy; {new Date().getFullYear()} PepeNio. All rights reserved.</p>
-      </footer>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 pt-16"> {/* Added pt-16 */}
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-4">Selamat Datang di Aplikasi HRD ANDI OFFSET</h1>
+        <p className="text-xl text-gray-600 mb-8">
+          Gunakan bilah navigasi di atas untuk berpindah antar modul.
+        </p>
+        {/* Navigation buttons removed */}
+      </div>
     </div>
   );
 };
