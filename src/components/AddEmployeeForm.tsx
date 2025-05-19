@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-// Removed unused imports: format, CalendarIcon, cn, Calendar, Popover, PopoverContent, PopoverTrigger, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,13 +18,13 @@ import { Input } from "@/components/ui/input";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Select, // Added Select import
-  SelectContent, // Added SelectContent import
-  SelectItem, // Added SelectItem import
-  SelectTrigger, // Added SelectTrigger import
-  SelectValue, // Added SelectValue import
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea"; // Keep Textarea for optional fields if needed, but removing notes field
+// Removed unused Textarea import as notes field is removed
 
 // Updated formSchema to include user_id
 const formSchema = z.object({
@@ -77,8 +76,8 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
           name: values.name,
           position: values.position,
           status: values.status,
-          phone: values.phone || null,
-          email: values.email || null,
+          phone: values.phone || null, // Save empty string as null
+          email: values.email || null, // Save empty string as null
           user_id: values.user_id || null, // Include user_id, convert empty string to null
         },
       ])
