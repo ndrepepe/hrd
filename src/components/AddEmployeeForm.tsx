@@ -13,6 +13,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription, // Import FormDescription
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { showSuccess, showError } from "@/utils/toast";
@@ -26,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea"; // Keep Textarea for optional fields if needed, but removing notes field
 
-// Updated formSchema to only include desired fields
+// Updated formSchema to include user_id
 const formSchema = z.object({
   employee_id: z.string().min(1, {
     message: "ID Karyawan wajib diisi.",
@@ -37,13 +38,13 @@ const formSchema = z.object({
   position: z.string().min(2, {
     message: "Posisi wajib diisi minimal 2 karakter.",
   }),
-  status: z.enum(['Active', 'Inactive', 'Terminated'], { // Added status field
+  status: z.enum(['Active', 'Inactive', 'Terminated'], {
     required_error: "Status wajib dipilih.",
     invalid_type_error: "Status tidak valid.",
   }),
-  phone: z.string().optional().nullable(), // Keep phone as optional
-  email: z.string().email({ message: "Format email tidak valid." }).optional().nullable(), // Keep email as optional with validation
-  // Removed hire_date, address, date_of_birth, place_of_birth, last_education, major, skills, notes, user_id
+  phone: z.string().optional().nullable(),
+  email: z.string().email({ message: "Format email tidak valid." }).optional().nullable(),
+  user_id: z.string().uuid({ message: "Format User ID tidak valid (harus UUID)." }).optional().nullable(), // Added user_id field with UUID validation
 });
 
 interface AddEmployeeFormProps {
@@ -53,15 +54,15 @@ interface AddEmployeeFormProps {
 const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // Updated defaultValues to only include desired fields
+    // Updated defaultValues to include user_id
     defaultValues: {
       employee_id: "",
       name: "",
       position: "",
-      status: "Active", // Default status to Active
+      status: "Active",
       phone: "",
       email: "",
-      // Removed other default values
+      user_id: "", // Default value for user_id
     },
   });
 
@@ -75,11 +76,10 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
           employee_id: values.employee_id,
           name: values.name,
           position: values.position,
-          status: values.status, // Include status
-          phone: values.phone || null, // Save empty string as null
-          email: values.email || null, // Save empty string as null
-          // Only include the required fields and optional fields that are in the form
-          // Other columns in the database will use their default values or be null
+          status: values.status,
+          phone: values.phone || null,
+          email: values.email || null,
+          user_id: values.user_id || null, // Include user_id, convert empty string to null
         },
       ])
       .select();
@@ -94,15 +94,14 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
          employee_id: "",
          name: "",
          position: "",
-         status: "Active", // Reset status to default
+         status: "Active",
          phone: "",
          email: "",
+         user_id: "", // Reset user_id
       });
       onEmployeeAdded(); // Call callback
     }
   }
-
-  // Removed year range calculation as date fields are removed
 
   return (
     <div className="w-full max-w-lg mx-auto">
@@ -202,7 +201,23 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
                 </FormItem>
               )}
             />
-          {/* Removed other FormField components */}
+            {/* User ID Field (for linking account) */}
+            <FormField
+              control={form.control}
+              name="user_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ID Akun Pengguna Supabase (Opsional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan User ID (UUID) dari Supabase Auth" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormDescription>
+                    Hubungkan karyawan ini dengan akun pengguna Supabase Auth yang sudah ada.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
           <Button type="submit">Simpan Karyawan</Button>
         </form>
