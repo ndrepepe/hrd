@@ -4,19 +4,13 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format, parseISO, differenceInYears } from "date-fns"; // Import parseISO and differenceInYears
-import { CalendarIcon, Loader2 } from "lucide-react"; // Import Loader2
+import { format, parseISO, differenceInYears } from "date-fns";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom"; // Import useParams and useNavigate
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -37,7 +31,6 @@ import {
 } from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar } from "@/components/ui/calendar";
 
 // Define the schema for the form fields (matching AddCandidateForm but optional for edit)
 const formSchema = z.object({
@@ -54,7 +47,7 @@ const formSchema = z.object({
   skills: z.string().optional().nullable(),
 });
 
-// Define the type for the data passed to the dialog
+// Define the type for the data fetched from DB
 interface CandidateData {
   id: string;
   position_id: string | null;
@@ -74,16 +67,13 @@ interface Position {
   status: string; // Include status to filter 'Open' positions
 }
 
-interface EditCandidateDialogProps {
-  candidate: CandidateData | null; // The candidate data to edit, or null if dialog is closed
-  isOpen: boolean; // Controls dialog visibility
-  onClose: () => void; // Callback to close the dialog
-  onCandidateUpdated: () => void; // Callback to notify parent after update
-}
+const EditCandidatePage = () => {
+  const { candidateId } = useParams<{ candidateId: string }>(); // Get candidateId from URL
+  const navigate = useNavigate(); // For navigation after save/cancel
 
-const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }: EditCandidateDialogProps) => {
   const [positions, setPositions] = useState<Position[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(true);
+  const [loadingCandidate, setLoadingCandidate] = useState(true); // State for loading candidate data
   const [isSubmitting, setIsSubmitting] = useState(false); // State for submit loading
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -136,43 +126,59 @@ const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }:
     fetchPositions();
   }, []); // Fetch positions only once when the component mounts
 
-  // Effect to populate the form when the 'candidate' prop changes (i.e., when dialog opens with data)
+  // Effect to load candidate data when the page loads (based on candidateId from URL)
   useEffect(() => {
-    if (candidate) {
-      form.reset({
-        position_id: candidate.position_id || "", // Use "" for null/undefined in select
-        name: candidate.name,
-        place_of_birth: candidate.place_of_birth || "",
-        // Convert date string to Date object for the date picker
-        date_of_birth: candidate.date_of_birth ? parseISO(candidate.date_of_birth) : undefined,
-        phone: candidate.phone || "",
-        address_ktp: candidate.address_ktp || "",
-        last_education: candidate.last_education || "",
-        major: candidate.major || "",
-        skills: candidate.skills || "",
-      });
-    } else {
-      // Reset form when dialog is closed or candidate is null
-      form.reset({
-        position_id: "",
-        name: "",
-        place_of_birth: "",
-        date_of_birth: undefined,
-        phone: "",
-        address_ktp: "",
-        last_education: "",
-        major: "",
-        skills: "",
-      });
+    if (!candidateId) {
+        showError("ID Kandidat tidak ditemukan di URL.");
+        setLoadingCandidate(false);
+        return;
     }
-  }, [candidate, form]); // Depend on 'candidate' and 'form'
+
+    const fetchCandidate = async () => {
+      setLoadingCandidate(true);
+      const { data, error } = await supabase
+        .from("candidates")
+        .select("*") // Fetch all fields needed for the form
+        .eq("id", candidateId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching candidate for edit:", error);
+        showError("Gagal memuat data kandidat: " + error.message);
+        // Optionally redirect or show an error state
+      } else if (data) {
+        // Populate the form with fetched data
+        form.reset({
+          position_id: data.position_id || "", // Use "" for null/undefined in select
+          name: data.name,
+          place_of_birth: data.place_of_birth || "",
+          // Convert date string to Date object for the date picker
+          date_of_birth: data.date_of_birth ? parseISO(data.date_of_birth) : undefined,
+          phone: data.phone || "",
+          address_ktp: data.address_ktp || "",
+          last_education: data.last_education || "",
+          major: data.major || "",
+          skills: data.skills || "",
+        });
+      } else {
+         // Handle case where ID is not found
+         showError("Data kandidat tidak ditemukan.");
+         // Optionally redirect or show an error state
+      }
+      setLoadingCandidate(false);
+    };
+    fetchCandidate();
+  }, [candidateId, form]); // Depend on candidateId and form
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!candidate) return; // Should not happen if dialog is open, but safety check
+    if (!candidateId) {
+        showError("ID Kandidat tidak ditemukan.");
+        return;
+    }
 
     setIsSubmitting(true); // Start loading
 
-    console.log("Submitting edit candidate form:", values, "Candidate ID:", candidate.id);
+    console.log("Submitting edit candidate form:", values, "Candidate ID:", candidateId);
 
     // Prepare update data, converting empty strings/undefined to null for optional fields
     const updateData = {
@@ -190,7 +196,7 @@ const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }:
     const { data, error } = await supabase
       .from("candidates")
       .update(updateData)
-      .eq("id", candidate.id)
+      .eq("id", candidateId)
       .select() // Select the updated row
       .single(); // Expecting a single row update
 
@@ -202,13 +208,13 @@ const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }:
     } else if (data) {
       console.log("Candidate data updated successfully:", data);
       showSuccess("Data kandidat berhasil diperbarui!");
-      onCandidateUpdated(); // Notify parent to refresh the list
-      onClose(); // Close the dialog
+      // Optionally navigate back to the list page after successful update
+      // navigate('/recruitment'); // Or a more specific list route if available
     } else {
-       console.warn(`Update successful for ID ${candidate.id}, but no data returned.`);
+       console.warn(`Update successful for ID ${candidateId}, but no data returned.`);
        showSuccess("Data kandidat berhasil diperbarui!"); // Still show success even if no data returned
-       onCandidateUpdated(); // Notify parent
-       onClose(); // Close the dialog
+       // Optionally navigate back
+       // navigate('/recruitment');
     }
   }
 
@@ -217,16 +223,18 @@ const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }:
   const fromYear = currentYear - 100; // Allow selecting years up to 100 years ago
   const toYear = currentYear; // Allow selecting up to the current year
 
+  if (loadingCandidate) {
+      return <div className="container mx-auto p-4 pt-16">Memuat data kandidat...</div>;
+  }
+
+  // If candidateId is missing or data wasn't found, you might render an error message or redirect
+  // For now, the error is shown via toast, and the form will be empty/unusable if data fetch failed.
+  // You might add a check here like: if (!form.formState.isSubmitted && !loadingCandidate && !form.getValues().name) { return <ErrorMessage /> }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Data Kandidat</DialogTitle>
-          <DialogDescription>
-            Ubah detail kandidat di sini. Klik simpan jika sudah selesai.
-          </DialogDescription>
-        </DialogHeader>
+    <div className="container mx-auto p-4 pt-16"> {/* Add padding top for fixed nav */}
+      <div className="w-full max-w-lg mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Edit Data Kandidat</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Posisi Dilamar Field */}
@@ -244,8 +252,10 @@ const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }:
                     </FormControl>
                     <SelectContent>
                       {loadingPositions ? (
+                        // Removed value="" from disabled SelectItem
                         <SelectItem disabled value="">Memuat posisi...</SelectItem>
                       ) : positions.length === 0 ? (
+                         // Removed value="" from disabled SelectItem
                          <SelectItem disabled value="">Belum ada posisi yang terbuka</SelectItem>
                       ) : (
                         positions.map((position) => (
@@ -412,18 +422,18 @@ const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }:
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>Batal</Button>
+            <div className="flex justify-end space-x-2 mt-6"> {/* Use flex and justify-end for buttons */}
+              <Button type="button" variant="outline" onClick={() => navigate('/recruitment')} disabled={isSubmitting}>Kembali ke Daftar</Button> {/* Back button */}
               <Button type="submit" disabled={isSubmitting}>
                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                  Simpan Perubahan
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
 
-export default EditCandidateDialog;
+export default EditCandidatePage;
