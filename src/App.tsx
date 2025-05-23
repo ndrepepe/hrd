@@ -13,7 +13,6 @@ import DailyReportPage from "./pages/DailyReportPage";
 import EmployeePage from "./pages/EmployeePage";
 import Login from "./pages/Login"; // Keep Login page route as public
 import NavigationBar from "./components/NavigationBar";
-import EditCandidatePage from "./pages/EditCandidatePage"; // Import the new edit page
 
 const queryClient = new QueryClient();
 
@@ -37,9 +36,6 @@ const App = () => (
           <Route path="/login" element={<Login />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          {/* New route for editing a candidate */}
-          <Route path="/recruitment/candidates/edit/:candidateId" element={<EditCandidatePage />} />
-
 
           {/* Catch-all route for 404 - remains public */}
           <Route path="*" element={<NotFound />} />

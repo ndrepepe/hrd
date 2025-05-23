@@ -220,15 +220,12 @@ const DecisionManager = () => {
                                 !field.value && "text-muted-foreground"
                             )}
                             >
-                            {/* WRAP CONTENT IN SPAN */}
-                            <span className="flex justify-between items-center w-full">
-                                {field.value ? (
+                            {field.value ? (
                                 format(field.value, "PPP")
-                                ) : (
+                            ) : (
                                 <span>Pilih tanggal</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                         </FormControl>
                         </PopoverTrigger>

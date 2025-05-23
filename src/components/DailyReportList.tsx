@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError, showSuccess } from "@/utils/toast";
+import { showError } from "@/utils/toast";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
-TableHeader,
+  TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
@@ -27,7 +27,6 @@ import { Calendar } from "@/components/ui/calendar"; // Import Calendar
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Import Popover
 import { cn } from "@/lib/utils"; // Import cn for class merging
 import { DateRange } from "react-day-picker"; // Import DateRange type
-import EditDailyReportDialog from "./EditDailyReportDialog"; // Import the new dialog component
 
 interface DailyReport {
   id: string;
@@ -56,10 +55,6 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("All"); // State for employee filter, default 'All'
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined); // State for date range filter
   const [isCalendarOpen, setIsCalendarOpen] = useState(false); // State to control calendar popover
-
-  const [selectedReportForEdit, setSelectedReportForEdit] = useState<DailyReport | null>(null); // State for the report being edited
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control dialog visibility
-
 
   useEffect(() => {
     fetchEmployees(); // Fetch employees when component mounts
@@ -134,37 +129,6 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
     setIsCalendarOpen(false);
   };
 
-  const handleEditClick = (report: DailyReport) => {
-    setSelectedReportForEdit(report); // Set the report data
-    setIsEditDialogOpen(true); // Open the dialog
-  };
-
-  const handleEditDialogClose = () => {
-    setSelectedReportForEdit(null); // Clear the selected report data
-    setIsEditDialogOpen(false); // Close the dialog
-  };
-
-  const handleReportUpdated = () => {
-    fetchReports(); // Refresh the list after a report is updated
-  };
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus laporan harian ini?")) {
-      const { error } = await supabase
-        .from("daily_reports")
-        .delete()
-        .eq("id", id);
-
-      if (error) {
-        console.error("Error deleting daily report:", error);
-        showError("Gagal menghapus laporan harian: " + error.message);
-      } else {
-        showSuccess("Laporan harian berhasil dihapus!");
-        fetchReports(); // Refresh the list
-      }
-    }
-  };
-
 
   if (loadingReports || loadingEmployees) {
     return <div className="container mx-auto p-4">Memuat laporan harian...</div>;
@@ -207,22 +171,19 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                    !dateRange && "text-muted-foreground"
                  )}
                >
-                 {/* WRAP CONTENT IN SPAN */}
-                 <span className="flex justify-between items-center w-full">
-                   <CalendarIcon className="mr-2 h-4 w-4" />
-                   {dateRange?.from ? (
-                     dateRange.to ? (
-                       <>
-                         {format(dateRange.from, "LLL dd, y")} -{" "}
-                         {format(dateRange.to, "LLL dd, y")}
-                       </>
-                     ) : (
-                       format(dateRange.from, "LLL dd, y")
-                     )
+                 <CalendarIcon className="mr-2 h-4 w-4" />
+                 {dateRange?.from ? (
+                   dateRange.to ? (
+                     <>
+                       {format(dateRange.from, "LLL dd, y")} -{" "}
+                       {format(dateRange.to, "LLL dd, y")}
+                     </>
                    ) : (
-                     <span>Pilih tanggal atau rentang</span>
-                   )}
-                 </span>
+                     format(dateRange.from, "LLL dd, y")
+                   )
+                 ) : (
+                   <span>Pilih tanggal atau rentang</span>
+                 )}
                </Button>
              </PopoverTrigger>
              <PopoverContent className="w-auto p-0" align="start">
@@ -265,7 +226,6 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                 <TableHead>Aktivitas</TableHead>
                 <TableHead>Catatan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
-                <TableHead>Aksi</TableHead> {/* Added Action Header */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -276,25 +236,12 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                   <TableCell>{report.activity}</TableCell>
                   <TableCell>{report.notes || "-"}</TableCell>
                   <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
-                  <TableCell className="flex space-x-2"> {/* Added Action Cell */}
-                     <Button variant="outline" size="sm" onClick={() => handleEditClick(report)}>Edit</Button>
-                     <Button variant="destructive" size="sm" onClick={() => handleDelete(report.id)}>Hapus</Button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
       )}
-
-      {/* Render the EditDailyReportDialog */}
-      <EditDailyReportDialog
-        report={selectedReportForEdit}
-        isOpen={isEditDialogOpen}
-        onClose={handleEditDialogClose}
-        onReportUpdated={handleReportUpdated}
-        employees={employees} // Pass the list of employees to the dialog
-      />
     </div>
   );
 };

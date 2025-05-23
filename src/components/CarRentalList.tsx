@@ -124,22 +124,19 @@ const CarRentalList = ({ refreshTrigger, onEditClick }: CarRentalListProps) => {
                 !dateRange && "text-muted-foreground"
               )}
             >
-              {/* WRAP CONTENT IN SPAN */}
-              <span className="flex justify-between items-center w-full">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, "LLL dd, y")} -{" "}
-                      {format(dateRange.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(dateRange.from, "LLL dd, y")
-                  )
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {dateRange?.from ? (
+                dateRange.to ? (
+                  <>
+                    {format(dateRange.from, "LLL dd, y")} -{" "}
+                    {format(dateRange.to, "LLL dd, y")}
+                  </>
                 ) : (
-                  <span>Pilih tanggal atau rentang</span>
-                )}
-              </span>
+                  format(dateRange.from, "LLL dd, y")
+                )
+              ) : (
+                <span>Pilih tanggal atau rentang</span>
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -201,15 +198,6 @@ const CarRentalList = ({ refreshTrigger, onEditClick }: CarRentalListProps) => {
           </Table>
         </div>
       )}
-
-      {/* Render the EditCarDialog */}
-      {/* Note: EditCarDialog is for car names, not rentals. This comment seems misplaced. */}
-      {/* <EditCarDialog
-        car={selectedCarForEdit}
-        isOpen={isEditDialogOpen}
-        onClose={handleEditDialogClose}
-        onCarUpdated={handleCarUpdated}
-      /> */}
     </div>
   );
 };

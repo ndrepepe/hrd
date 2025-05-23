@@ -68,6 +68,17 @@ const RecruitmentPage = () => {
     // Clear editing state if the deleted candidate was the one being edited - Removed as editing state is now in CandidateList
   };
 
+  // New callback for candidate update (still needed even if triggered internally by AddCandidateForm)
+  const handleCandidateUpdated = () => {
+    setRefreshCandidates(prev => prev + 1);
+    // Refresh lists/forms that depend on the candidate list
+    setRefreshInterviews(prev => prev + 1);
+    setRefreshDecisions(prev => prev + 1);
+    // Also refresh decision list and briefing list in case the updated candidate had a decision
+    setRefreshDecisions(prev => prev + 1);
+    // Clear editing state after updating (handled by AddCandidateForm, but good practice to have a handler) - Removed as editing state is now in CandidateList
+  };
+
   // Removed handleEditCandidate function
 
 
@@ -134,7 +145,7 @@ const RecruitmentPage = () => {
               refreshTrigger={refreshCandidates}
               refreshDecisionsTrigger={refreshDecisions}
               onCandidateDeleted={handleCandidateDeleted}
-              // Removed onCandidateUpdated prop
+              onCandidateUpdated={handleCandidateUpdated} // Keep this prop as delete also triggers it
               // Removed onEditClick prop
             />
           </TabsContent>

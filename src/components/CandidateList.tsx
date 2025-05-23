@@ -22,7 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { format, differenceInYears, parseISO } from "date-fns";
-// Removed import for EditCandidateDialog
+import EditCandidateDialog from "./EditCandidateDialog"; // Import the new dialog component
 
 interface Candidate {
   id: string;
@@ -44,7 +44,7 @@ interface CandidateListProps {
   refreshTrigger: number;
   refreshDecisionsTrigger: number;
   onCandidateDeleted: () => void;
-  // Removed onCandidateUpdated prop as edit is now in a new tab
+  onCandidateUpdated: () => void; // Keep this prop to notify parent after edit/delete
   // Removed onEditClick prop
 }
 
@@ -57,13 +57,15 @@ const searchableFields = [
   { label: "Skill", value: "skills" },
 ];
 
-// Removed state for selectedCandidateForEdit and isEditDialogOpen
-
-const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDeleted }: CandidateListProps) => { // Removed onCandidateUpdated prop
+const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDeleted, onCandidateUpdated }: CandidateListProps) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchField, setSearchField] = useState(searchableFields[0].value);
+
+  const [selectedCandidateForEdit, setSelectedCandidateForEdit] = useState<Candidate | null>(null); // State for the candidate being edited
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control dialog visibility
+
 
   useEffect(() => {
     fetchCandidates();
@@ -187,15 +189,23 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
     }
   };
 
-  // Function to handle edit button click - now opens in new tab
-  const handleEditClick = (candidateId: string) => {
-    console.log("Opening edit page for candidate ID:", candidateId);
-    // Open the new edit page URL in a new tab
-    window.open(`/recruitment/candidates/edit/${candidateId}`, '_blank');
+  // Function to handle edit button click
+  const handleEditClick = (candidate: Candidate) => {
+    setSelectedCandidateForEdit(candidate); // Set the candidate data
+    setIsEditDialogOpen(true); // Open the dialog
   };
 
-  // Removed handleEditDialogClose function
-  // Removed handleCandidateUpdated function
+  // Function to close the edit dialog
+  const handleEditDialogClose = () => {
+    setSelectedCandidateForEdit(null); // Clear the selected candidate data
+    setIsEditDialogOpen(false); // Close the dialog
+  };
+
+  // Callback function when candidate is successfully updated in the dialog
+  const handleCandidateUpdated = () => {
+    fetchCandidates(); // Refresh the list in this component
+    onCandidateUpdated(); // Notify parent (RecruitmentPage)
+  };
 
 
   if (loading) {
@@ -264,7 +274,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 const placeAndDobWithAge = age !== null ? `${placeAndDob} (${age} tahun)` : placeAndDob;
 
                 // Check if the candidate has any decisions (still needed for delete validation)
-                // const hasDecision = Array.isArray(candidate.decisions) && candidate.decisions.length > 0; // This variable is not used
+                const hasDecision = Array.isArray(candidate.decisions) && decisions.length > 0;
 
 
                 return (
@@ -280,8 +290,8 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                     {/* Removed TableCell for Status Keputusan */}
                     <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
                     <TableCell className="flex space-x-2">
-                      {/* Added Edit button - now calls handleEditClick with ID */}
-                      <Button variant="outline" size="sm" onClick={() => handleEditClick(candidate.id)}>Edit</Button>
+                      {/* Added Edit button */}
+                      <Button variant="outline" size="sm" onClick={() => handleEditClick(candidate)}>Edit</Button>
                       <Button variant="destructive" size="sm" onClick={() => handleDelete(candidate.id)}>Hapus</Button>
                     </TableCell>
                   </TableRow>
@@ -292,7 +302,13 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
         </div>
       )}
 
-      {/* Removed rendering of EditCandidateDialog */}
+      {/* Render the EditCandidateDialog */}
+      <EditCandidateDialog
+        candidate={selectedCandidateForEdit}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditDialogClose}
+        onCandidateUpdated={handleCandidateUpdated}
+      />
     </div>
   );
 };
