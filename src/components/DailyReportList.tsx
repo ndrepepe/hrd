@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError } from "@/utils/toast";
+import { showError, showSuccess } from "@/utils/toast";
 import {
   Table,
   TableBody,
@@ -27,6 +27,7 @@ import { Calendar } from "@/components/ui/calendar"; // Import Calendar
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Import Popover
 import { cn } from "@/lib/utils"; // Import cn for class merging
 import { DateRange } from "react-day-picker"; // Import DateRange type
+import EditDailyReportDialog from "./EditDailyReportDialog"; // Import the new dialog component
 
 interface DailyReport {
   id: string;
@@ -55,6 +56,10 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("All"); // State for employee filter, default 'All'
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined); // State for date range filter
   const [isCalendarOpen, setIsCalendarOpen] = useState(false); // State to control calendar popover
+
+  const [selectedReportForEdit, setSelectedReportForEdit] = useState<DailyReport | null>(null); // State for the report being edited
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control dialog visibility
+
 
   useEffect(() => {
     fetchEmployees(); // Fetch employees when component mounts
@@ -127,6 +132,37 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
   const handleClearDateFilter = () => {
     setDateRange(undefined);
     setIsCalendarOpen(false);
+  };
+
+  const handleEditClick = (report: DailyReport) => {
+    setSelectedReportForEdit(report); // Set the report data
+    setIsEditDialogOpen(true); // Open the dialog
+  };
+
+  const handleEditDialogClose = () => {
+    setSelectedReportForEdit(null); // Clear the selected report data
+    setIsEditDialogOpen(false); // Close the dialog
+  };
+
+  const handleReportUpdated = () => {
+    fetchReports(); // Refresh the list after a report is updated
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus laporan harian ini?")) {
+      const { error } = await supabase
+        .from("daily_reports")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error deleting daily report:", error);
+        showError("Gagal menghapus laporan harian: " + error.message);
+      } else {
+        showSuccess("Laporan harian berhasil dihapus!");
+        fetchReports(); // Refresh the list
+      }
+    }
   };
 
 
@@ -229,6 +265,7 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                 <TableHead>Aktivitas</TableHead>
                 <TableHead>Catatan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
+                <TableHead>Aksi</TableHead> {/* Added Action Header */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -239,12 +276,25 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                   <TableCell>{report.activity}</TableCell>
                   <TableCell>{report.notes || "-"}</TableCell>
                   <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
+                  <TableCell className="flex space-x-2"> {/* Added Action Cell */}
+                     <Button variant="outline" size="sm" onClick={() => handleEditClick(report)}>Edit</Button>
+                     <Button variant="destructive" size="sm" onClick={() => handleDelete(report.id)}>Hapus</Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
       )}
+
+      {/* Render the EditDailyReportDialog */}
+      <EditDailyReportDialog
+        report={selectedReportForEdit}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditDialogClose}
+        onReportUpdated={handleReportUpdated}
+        employees={employees} // Pass the list of employees to the dialog
+      />
     </div>
   );
 };
