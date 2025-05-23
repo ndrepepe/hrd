@@ -311,12 +311,15 @@ const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }:
                                 !field.value && "text-muted-foreground"
                                 )}
                             >
-                                {field.value ? (
-                                format(field.value, "PPP")
-                                ) : (
-                                <span>Pilih tanggal</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                {/* WRAP CONTENT IN SPAN */}
+                                <span className="flex justify-between items-center w-full">
+                                    {field.value ? (
+                                    format(field.value, "PPP")
+                                    ) : (
+                                    <span>Pilih tanggal</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </span>
                             </Button>
                             </FormControl>
                         </PopoverTrigger>
