@@ -69,13 +69,14 @@ interface Position {
 interface AddCandidateFormProps {
   onCandidateAdded: () => void;
   refreshPositionsTrigger: number;
-  // Removed editingCandidateId and setEditingCandidateId props
+  editingCandidateId: string | null;
+  setEditingCandidateId: (id: string | null) => void;
 }
 
-const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCandidateFormProps) => {
+const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCandidateId, setEditingCandidateId }: AddCandidateFormProps) => {
   const [positions, setPositions] = useState<Position[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(true);
-  // Removed loadingCandidateData state
+  const [loadingCandidateData, setLoadingCandidateData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
 
@@ -127,12 +128,63 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
     setLoadingPositions(false);
   };
 
-  // Removed useEffect for loading candidate data for editing
+  useEffect(() => {
+    if (editingCandidateId) {
+      const fetchCandidate = async () => {
+        setLoadingCandidateData(true);
+        console.log("Fetching candidate data for edit:", editingCandidateId);
+        const { data, error } = await supabase
+          .from("candidates")
+          .select("*")
+          .eq("id", editingCandidateId)
+          .single();
+
+        setLoadingCandidateData(false);
+
+        if (error) {
+          console.error("Error fetching candidate for edit:", error);
+          showError("Gagal memuat data kandidat untuk diedit: " + error.message);
+          setEditingCandidateId(null);
+        } else if (data) {
+          console.log("Candidate data fetched:", data);
+          form.reset({
+            ...data,
+            date_of_birth: data.date_of_birth ? parseISO(data.date_of_birth) : undefined,
+            position_id: data.position_id || "",
+            place_of_birth: data.place_of_birth || "",
+            phone: data.phone || "",
+            address_ktp: data.address_ktp || "",
+            last_education: data.last_education || "",
+            major: data.major || "",
+            skills: data.skills || "",
+          });
+        } else {
+           console.warn("Candidate data not found for ID:", editingCandidateId);
+           showError("Data kandidat tidak ditemukan.");
+           setEditingCandidateId(null);
+        }
+      };
+      fetchCandidate();
+    } else {
+      console.log("Resetting candidate form to default values.");
+      form.reset({
+        position_id: "",
+        name: "",
+        place_of_birth: "",
+        date_of_birth: undefined,
+        phone: "",
+        address_ktp: "",
+        last_education: "",
+        major: "",
+        skills: "",
+      });
+    }
+  }, [editingCandidateId, form, setEditingCandidateId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
 
-    console.log("Submitting new candidate:", values);
+    console.log("Submitting candidate form:", values, "Editing ID:", editingCandidateId);
 
     const candidateData = {
       position_id: values.position_id || null,
@@ -146,37 +198,50 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
       skills: values.skills || null,
     };
 
-    // This form now ONLY handles insertion
-    const { data, error } = await supabase
-      .from("candidates")
-      .insert([candidateData])
-      .select();
+    let result;
+    if (editingCandidateId) {
+      result = await supabase
+        .from("candidates")
+        .update(candidateData)
+        .eq("id", editingCandidateId)
+        .select();
+    } else {
+      result = await supabase
+        .from("candidates")
+        .insert([candidateData])
+        .select();
+    }
 
+    const { data, error } = result;
 
     setIsSubmitting(false);
 
     if (error) {
-      console.error("Error inserting candidate data:", error);
-      showError("Gagal menyimpan data kandidat: " + error.message);
+      console.error(`Error ${editingCandidateId ? 'updating' : 'inserting'} candidate data:`, error);
+      showError(`Gagal ${editingCandidateId ? 'memperbarui' : 'menyimpan'} data kandidat: ` + error.message);
     } else {
-      console.log("Candidate data inserted successfully:", data);
-      showSuccess("Data kandidat berhasil disimpan!");
-      form.reset({ // Reset form to initial default values
-        position_id: "",
-        name: "",
-        place_of_birth: "",
-        date_of_birth: undefined,
-        phone: "",
-        address_ktp: "",
-        last_education: "",
-        major: "",
-        skills: "",
-      });
-      onCandidateAdded(); // Call callback
+      console.log(`Candidate data ${editingCandidateId ? 'updated' : 'inserted'} successfully:`, data);
+      showSuccess(`Data kandidat berhasil di${editingCandidateId ? 'perbarui' : 'simpan'}!`);
+      form.reset();
+      setEditingCandidateId(null);
+      onCandidateAdded();
     }
   }
 
-  // Removed handleCancelEdit function
+  const handleCancelEdit = () => {
+    setEditingCandidateId(null);
+    form.reset({
+      position_id: "",
+      name: "",
+      place_of_birth: "",
+      date_of_birth: undefined,
+      phone: "",
+      address_ktp: "",
+      last_education: "",
+      major: "",
+      skills: "",
+    });
+  };
 
 
   const currentYear = new Date().getFullYear();
@@ -187,9 +252,11 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
   return (
     <div className="w-full max-w-lg mx-auto">
       <h3 className="text-xl font-semibold mb-4">
-        Tambah Kandidat Baru
+        {editingCandidateId ? "Edit Data Kandidat" : "Tambah Kandidat Baru"}
       </h3>
-      {/* Removed conditional rendering based on loadingCandidateData */}
+      {loadingCandidateData ? (
+         <p>Memuat data kandidat...</p>
+      ) : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -368,12 +435,17 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
             <div className="flex space-x-2">
               <Button type="submit" disabled={isSubmitting}>
                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                 Simpan Kandidat
+                 {editingCandidateId ? "Simpan Perubahan" : "Simpan Kandidat"}
               </Button>
-              {/* Removed Edit/Cancel buttons */}
+              {editingCandidateId && (
+                <Button type="button" variant="outline" onClick={handleCancelEdit} disabled={isSubmitting}>
+                  Batal Edit
+                </Button>
+              )}
             </div>
           </form>
         </Form>
+      )}
     </div>
   );
 };
