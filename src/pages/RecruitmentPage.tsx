@@ -20,8 +20,7 @@ const RecruitmentPage = () => {
   const [refreshDecisions, setRefreshDecisions] = useState(0);
   const [activeTab, setActiveTab] = useState("add-candidate"); // Default active tab
 
-  // State to track the ID of the candidate being edited (still needed for AddCandidateForm)
-  const [editingCandidateId, setEditingCandidateId] = useState<string | null>(null);
+  // Removed state to track the ID of the candidate being edited
 
 
   // Callbacks to trigger list refreshes
@@ -55,8 +54,7 @@ const RecruitmentPage = () => {
     // Also refresh candidate lists in Interview and Decision forms
     setRefreshInterviews(prev => prev + 1); // This will trigger fetchCandidates in AddInterviewForm
     setRefreshDecisions(prev => prev + 1); // This will trigger fetchCandidates in AddDecisionForm
-    // Clear editing state after adding a new candidate
-    setEditingCandidateId(null);
+    // Clear editing state after adding a new candidate - Removed as editing state is now in CandidateList
   };
 
   // New callback for candidate deletion
@@ -67,8 +65,7 @@ const RecruitmentPage = () => {
     setRefreshDecisions(prev => prev + 1);
     // Also refresh decision list and briefing list in case the deleted candidate had a decision
     setRefreshDecisions(prev => prev + 1);
-    // Clear editing state if the deleted candidate was the one being edited
-    setEditingCandidateId(null);
+    // Clear editing state if the deleted candidate was the one being edited - Removed as editing state is now in CandidateList
   };
 
   // New callback for candidate update (still needed even if triggered internally by AddCandidateForm)
@@ -79,8 +76,7 @@ const RecruitmentPage = () => {
     setRefreshDecisions(prev => prev + 1);
     // Also refresh decision list and briefing list in case the updated candidate had a decision
     setRefreshDecisions(prev => prev + 1);
-    // Clear editing state after updating (handled by AddCandidateForm, but good practice to have a handler)
-    setEditingCandidateId(null);
+    // Clear editing state after updating (handled by AddCandidateForm, but good practice to have a handler) - Removed as editing state is now in CandidateList
   };
 
   // Removed handleEditCandidate function
@@ -140,8 +136,7 @@ const RecruitmentPage = () => {
             <AddCandidateForm
               onCandidateAdded={handleCandidateAdded} // This callback is now used for both add and update success
               refreshPositionsTrigger={refreshPositions}
-              editingCandidateId={editingCandidateId} // Pass editing state
-              setEditingCandidateId={setEditingCandidateId} // Pass setter function
+              // Removed editingCandidateId and setEditingCandidateId props
             />
           </TabsContent>
 

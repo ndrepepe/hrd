@@ -207,7 +207,7 @@ const EditCandidateDialog = ({ candidate, isOpen, onClose, onCandidateUpdated }:
     } else {
        console.warn(`Update successful for ID ${candidate.id}, but no data returned.`);
        showSuccess("Data kandidat berhasil diperbarui!"); // Still show success even if no data returned
-       onUpdateSuccess(); // Notify parent
+       onCandidateUpdated(); // Notify parent
        onClose(); // Close the dialog
     }
   }
