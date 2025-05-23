@@ -8,7 +8,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TableHeader,
+TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
@@ -171,19 +171,22 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                    !dateRange && "text-muted-foreground"
                  )}
                >
-                 <CalendarIcon className="mr-2 h-4 w-4" />
-                 {dateRange?.from ? (
-                   dateRange.to ? (
-                     <>
-                       {format(dateRange.from, "LLL dd, y")} -{" "}
-                       {format(dateRange.to, "LLL dd, y")}
-                     </>
+                 {/* WRAP CONTENT IN SPAN */}
+                 <span className="flex justify-between items-center w-full">
+                   <CalendarIcon className="mr-2 h-4 w-4" />
+                   {dateRange?.from ? (
+                     dateRange.to ? (
+                       <>
+                         {format(dateRange.from, "LLL dd, y")} -{" "}
+                         {format(dateRange.to, "LLL dd, y")}
+                       </>
+                     ) : (
+                       format(dateRange.from, "LLL dd, y")
+                     )
                    ) : (
-                     format(dateRange.from, "LLL dd, y")
-                   )
-                 ) : (
-                   <span>Pilih tanggal atau rentang</span>
-                 )}
+                     <span>Pilih tanggal atau rentang</span>
+                   )}
+                 </span>
                </Button>
              </PopoverTrigger>
              <PopoverContent className="w-auto p-0" align="start">
