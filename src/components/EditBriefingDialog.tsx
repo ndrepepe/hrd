@@ -122,7 +122,8 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      {/* Adjusted max-w-lg to max-w-xl for wider dialog on medium screens and up */}
+      <DialogContent className="sm:max-w-[425px] md:max-w-lg"> {/* Adjusted max-width back to lg as fewer fields */}
         <DialogHeader>
           <DialogTitle>Edit Data Pembekalan</DialogTitle>
           <DialogDescription>
@@ -130,7 +131,8 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Removed overflow-y-auto and max-h-[80vh] as fewer fields */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4"> {/* Use grid for layout */}
             {/* Tanggal Berakhir Field */}
             <FormField
               control={form.control}
@@ -148,12 +150,15 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pilih tanggal</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          {/* WRAP CONTENT IN SPAN */}
+                          <span className="flex justify-between items-center w-full">
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pilih tanggal</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </span>
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
@@ -197,9 +202,12 @@ const EditBriefingDialog = ({ decision, isOpen, onClose, onUpdateSuccess }: Edit
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>Batal</Button>
-              <Button type="submit">Simpan Perubahan</Button>
+            <DialogFooter className="md:col-span-2 flex justify-end space-x-2"> {/* Span and align right */}
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>Batal</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                 Simpan Perubahan
+              </Button>
             </DialogFooter>
           </form>
         </Form>
