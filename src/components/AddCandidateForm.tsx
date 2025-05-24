@@ -32,32 +32,23 @@ import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Textarea } from "@/components/ui/textarea";
 
+// Updated formSchema to make position_id, name, and phone required
 const formSchema = z.object({
   position_id: z.string({
     required_error: "Posisi wajib dipilih.",
-  }).nullable(),
+  }), // Made required
   name: z.string().min(2, {
     message: "Nama kandidat harus minimal 2 karakter.",
-  }),
-  place_of_birth: z.string().min(1, {
-    message: "Tempat lahir wajib diisi.",
-  }).nullable(),
-  date_of_birth: z.date({
-    required_error: "Tanggal lahir wajib diisi.",
-  }).nullable(),
-  phone: z.string().min(1, {
+  }), // Already required, kept min length
+  place_of_birth: z.string().optional().nullable(), // Made optional
+  date_of_birth: z.date().optional().nullable(), // Made optional
+  phone: z.string().min(1, { // Made required with min length check
     message: "Nomor HP wajib diisi.",
-  }).nullable(),
-  address_ktp: z.string().min(1, {
-    message: "Alamat KTP wajib diisi.",
-  }).nullable(),
-  last_education: z.string().min(1, {
-    message: "Pendidikan terakhir wajib diisi.",
-  }).nullable(),
-  major: z.string().min(1, {
-    message: "Jurusan wajib diisi.",
-  }).nullable(),
-  skills: z.string().optional().nullable(),
+  }),
+  address_ktp: z.string().optional().nullable(), // Made optional
+  last_education: z.string().optional().nullable(), // Made optional
+  major: z.string().optional().nullable(), // Made optional
+  skills: z.string().optional().nullable(), // Kept optional
 });
 
 interface Position {
@@ -69,14 +60,13 @@ interface Position {
 interface AddCandidateFormProps {
   onCandidateAdded: () => void;
   refreshPositionsTrigger: number;
-  editingCandidateId: string | null;
-  setEditingCandidateId: (id: string | null) => void;
+  // Removed editingCandidateId and setEditingCandidateId props
 }
 
-const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCandidateId, setEditingCandidateId }: AddCandidateFormProps) => {
+const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCandidateFormProps) => {
   const [positions, setPositions] = useState<Position[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(true);
-  const [loadingCandidateData, setLoadingCandidateData] = useState(false);
+  // Removed loadingCandidateData state
   const [isSubmitting, setIsSubmitting] = useState(false);
 
 
@@ -128,46 +118,41 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
     setLoadingPositions(false);
   };
 
-  useEffect(() => {
-    if (editingCandidateId) {
-      const fetchCandidate = async () => {
-        setLoadingCandidateData(true);
-        console.log("Fetching candidate data for edit:", editingCandidateId);
-        const { data, error } = await supabase
-          .from("candidates")
-          .select("*")
-          .eq("id", editingCandidateId)
-          .single();
+  // Removed useEffect for loading candidate data for editing
 
-        setLoadingCandidateData(false);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
 
-        if (error) {
-          console.error("Error fetching candidate for edit:", error);
-          showError("Gagal memuat data kandidat untuk diedit: " + error.message);
-          setEditingCandidateId(null);
-        } else if (data) {
-          console.log("Candidate data fetched:", data);
-          form.reset({
-            ...data,
-            date_of_birth: data.date_of_birth ? parseISO(data.date_of_birth) : undefined,
-            position_id: data.position_id || "",
-            place_of_birth: data.place_of_birth || "",
-            phone: data.phone || "",
-            address_ktp: data.address_ktp || "",
-            last_education: data.last_education || "",
-            major: data.major || "",
-            skills: data.skills || "",
-          });
-        } else {
-           console.warn("Candidate data not found for ID:", editingCandidateId);
-           showError("Data kandidat tidak ditemukan.");
-           setEditingCandidateId(null);
-        }
-      };
-      fetchCandidate();
+    console.log("Submitting new candidate:", values);
+
+    const candidateData = {
+      position_id: values.position_id, // Now required
+      name: values.name, // Now required
+      place_of_birth: values.place_of_birth || null, // Optional
+      date_of_birth: values.date_of_birth ? format(values.date_of_birth, "yyyy-MM-dd") : null, // Optional
+      phone: values.phone, // Now required
+      address_ktp: values.address_ktp || null, // Optional
+      last_education: values.last_education || null, // Optional
+      major: values.major || null, // Optional
+      skills: values.skills || null, // Optional
+    };
+
+    // This form now ONLY handles insertion
+    const { data, error } = await supabase
+      .from("candidates")
+      .insert([candidateData])
+      .select();
+
+
+    setIsSubmitting(false);
+
+    if (error) {
+      console.error("Error inserting candidate data:", error);
+      showError("Gagal menyimpan data kandidat: " + error.message);
     } else {
-      console.log("Resetting candidate form to default values.");
-      form.reset({
+      console.log("Candidate data inserted successfully:", data);
+      showSuccess("Data kandidat berhasil disimpan!");
+      form.reset({ // Reset form to initial default values
         position_id: "",
         name: "",
         place_of_birth: "",
@@ -178,70 +163,11 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
         major: "",
         skills: "",
       });
-    }
-  }, [editingCandidateId, form, setEditingCandidateId]);
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-
-    console.log("Submitting candidate form:", values, "Editing ID:", editingCandidateId);
-
-    const candidateData = {
-      position_id: values.position_id || null,
-      name: values.name,
-      place_of_birth: values.place_of_birth || null,
-      date_of_birth: values.date_of_birth ? format(values.date_of_birth, "yyyy-MM-dd") : null,
-      phone: values.phone || null,
-      address_ktp: values.address_ktp || null,
-      last_education: values.last_education || null,
-      major: values.major || null,
-      skills: values.skills || null,
-    };
-
-    let result;
-    if (editingCandidateId) {
-      result = await supabase
-        .from("candidates")
-        .update(candidateData)
-        .eq("id", editingCandidateId)
-        .select();
-    } else {
-      result = await supabase
-        .from("candidates")
-        .insert([candidateData])
-        .select();
-    }
-
-    const { data, error } = result;
-
-    setIsSubmitting(false);
-
-    if (error) {
-      console.error(`Error ${editingCandidateId ? 'updating' : 'inserting'} candidate data:`, error);
-      showError(`Gagal ${editingCandidateId ? 'memperbarui' : 'menyimpan'} data kandidat: ` + error.message);
-    } else {
-      console.log(`Candidate data ${editingCandidateId ? 'updated' : 'inserted'} successfully:`, data);
-      showSuccess(`Data kandidat berhasil di${editingCandidateId ? 'perbarui' : 'simpan'}!`);
-      form.reset();
-      setEditingCandidateId(null);
-      onCandidateAdded();
+      onCandidateAdded(); // Call callback
     }
   }
 
-  const handleCancelEdit = () => {
-    setEditingCandidateId(null);
-    form.reset({
-      position_id: "",
-      name: "",
-      place_of_birth: "",
-      date_of_birth: undefined,
-      phone: "",
-      address_ktp: "",
-      last_education: "",
-      major: "",
-      skills: "",
-    });
-  };
+  // Removed handleCancelEdit function
 
 
   const currentYear = new Date().getFullYear();
@@ -252,11 +178,9 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
   return (
     <div className="w-full max-w-lg mx-auto">
       <h3 className="text-xl font-semibold mb-4">
-        {editingCandidateId ? "Edit Data Kandidat" : "Tambah Kandidat Baru"}
+        Tambah Kandidat Baru
       </h3>
-      {loadingCandidateData ? (
-         <p>Memuat data kandidat...</p>
-      ) : (
+      {/* Removed conditional rendering based on loadingCandidateData */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -370,7 +294,7 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nomor HP (Opsional)</FormLabel>
+                  <FormLabel>Nomor HP</FormLabel> {/* Label changed to required */}
                   <FormControl>
                     <Input placeholder="Contoh: 0812..." {...field} value={field.value || ""} />
                   </FormControl>
@@ -435,17 +359,12 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger, editingCa
             <div className="flex space-x-2">
               <Button type="submit" disabled={isSubmitting}>
                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                 {editingCandidateId ? "Simpan Perubahan" : "Simpan Kandidat"}
+                 Simpan Kandidat
               </Button>
-              {editingCandidateId && (
-                <Button type="button" variant="outline" onClick={handleCancelEdit} disabled={isSubmitting}>
-                  Batal Edit
-                </Button>
-              )}
+              {/* Removed Edit/Cancel buttons */}
             </div>
           </form>
         </Form>
-      )}
     </div>
   );
 };
