@@ -22,7 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { format, differenceInYears, parseISO } from "date-fns";
-// Removed import for EditCandidateDialog
+import EditCandidateDialog from "./EditCandidateDialog"; // Import the new dialog component
 
 interface Candidate {
   id: string;
@@ -44,7 +44,7 @@ interface CandidateListProps {
   refreshTrigger: number;
   refreshDecisionsTrigger: number;
   onCandidateDeleted: () => void;
-  onCandidateUpdated: () => void;
+  onCandidateUpdated: () => void; // Keep this prop to notify parent after edit/delete
   // Removed onEditClick prop
 }
 
@@ -58,12 +58,18 @@ const searchableFields = [
 ];
 
 const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDeleted, onCandidateUpdated }: CandidateListProps) => {
+  console.log("CandidateList component rendering..."); // Log when component renders
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchField, setSearchField] = useState(searchableFields[0].value);
 
+  const [selectedCandidateForEdit, setSelectedCandidateForEdit] = useState<Candidate | null>(null); // State for the candidate being edited
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // State to control dialog visibility
+
+
   useEffect(() => {
+    console.log("CandidateList useEffect triggered. Refresh triggers:", { refreshTrigger, refreshDecisionsTrigger }); // Log useEffect trigger
     fetchCandidates();
   }, [refreshTrigger, refreshDecisionsTrigger, searchTerm, searchField]);
 
@@ -92,9 +98,9 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
     if (error) {
       console.error("Error fetching candidates:", error);
       showError("Gagal memuat data kandidat: " + error.message);
-      setCandidates([]);
+      setCandidates([]); // Clear employees on error
     } else {
-      console.log("Fetched candidates data:", data);
+      console.log("Fetched candidates data:", data); // Log fetched data
       setCandidates(data || []);
     }
     setLoading(false);
@@ -180,12 +186,32 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
       } else {
         showSuccess("Data kandidat berhasil dihapus!");
         fetchCandidates();
-        onCandidateDeleted();
+        onCandidateDeleted(); // Notify parent
       }
     }
   };
 
-  // Removed handleEditClick function
+  // Function to handle edit button click
+  const handleEditClick = (candidate: Candidate) => {
+    console.log("Edit button clicked for candidate:", candidate); // Log edit click
+    setSelectedCandidateForEdit(candidate); // Set the candidate data
+    setIsEditDialogOpen(true); // Open the dialog
+  };
+
+  // Function to close the edit dialog
+  const handleEditDialogClose = () => {
+    console.log("Edit dialog closed."); // Log dialog close
+    setSelectedCandidateForEdit(null); // Clear the selected candidate data
+    setIsEditDialogOpen(false); // Close the dialog
+  };
+
+  // Callback function when candidate is successfully updated in the dialog
+  const handleCandidateUpdated = () => {
+    console.log("Candidate updated successfully, refreshing list."); // Log update success
+    fetchCandidates(); // Refresh the list in this component
+    onCandidateUpdated(); // Notify parent (RecruitmentPage)
+  };
+
 
   if (loading) {
     return <p>Memuat daftar kandidat...</p>;
@@ -234,11 +260,12 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 <TableHead>Skill</TableHead>
                 {/* Removed TableHead for Status Keputusan */}
                 <TableHead>Dibuat Pada</TableHead>
-                <TableHead>Aksi</TableHead>
+                <TableHead>Aksi</TableHead> {/* Added Action Header */}
               </TableRow>
             </TableHeader>
             <TableBody>
               {candidates.map((candidate) => {
+                console.log("Rendering row for candidate:", candidate.name); // Log for each row
                 const latestStatus = getLatestDecisionStatus(candidate.decisions);
                 let textColorClass = '';
                 if (latestStatus === 'Accepted') {
@@ -253,7 +280,7 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                 const placeAndDobWithAge = age !== null ? `${placeAndDob} (${age} tahun)` : placeAndDob;
 
                 // Check if the candidate has any decisions (still needed for delete validation)
-                const hasDecision = Array.isArray(candidate.decisions) && candidate.decisions.length > 0;
+                const hasDecision = Array.isArray(candidate.decisions) && decisions.length > 0;
 
 
                 return (
@@ -268,8 +295,9 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
                     <TableCell>{candidate.skills || "-"}</TableCell>
                     {/* Removed TableCell for Status Keputusan */}
                     <TableCell>{new Date(candidate.created_at).toLocaleString()}</TableCell>
-                    <TableCell className="flex space-x-2">
-                      {/* Removed Edit button */}
+                    <TableCell className="flex space-x-2"> {/* New Action Cell */}
+                      {/* Added Edit button */}
+                      <Button variant="outline" size="sm" onClick={() => handleEditClick(candidate)}>Edit</Button>
                       <Button variant="destructive" size="sm" onClick={() => handleDelete(candidate.id)}>Hapus</Button>
                     </TableCell>
                   </TableRow>
@@ -279,6 +307,14 @@ const CandidateList = ({ refreshTrigger, refreshDecisionsTrigger, onCandidateDel
           </Table>
         </div>
       )}
+
+      {/* Render the EditCandidateDialog */}
+      <EditCandidateDialog
+        candidate={selectedCandidateForEdit}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditDialogClose}
+        onCandidateUpdated={handleCandidateUpdated}
+      />
     </div>
   );
 };
