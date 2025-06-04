@@ -45,9 +45,10 @@ interface Employee {
 
 interface DailyReportListProps {
   refreshTrigger: number; // Prop to trigger refresh
+  onEditClick: (reportId: string) => void; // New callback for edit button click
 }
 
-const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
+const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) => {
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]); // State for employees dropdown
   const [loadingReports, setLoadingReports] = useState(true);
@@ -122,6 +123,28 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
       setReports(data || []);
     }
     setLoadingReports(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus laporan harian ini?")) {
+      const { error } = await supabase
+        .from("daily_reports")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error deleting daily report:", error);
+        showError("Gagal menghapus laporan harian: " + error.message);
+      } else {
+        showSuccess("Laporan harian berhasil dihapus!");
+        fetchReports(); // Refresh the list
+      }
+    }
+  };
+
+  const handleEdit = (report: DailyReport) => {
+    console.log("Edit button clicked for report ID:", report.id);
+    onEditClick(report.id); // Call the parent's edit handler
   };
 
   const handleClearDateFilter = () => {
@@ -226,6 +249,7 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                 <TableHead>Aktivitas</TableHead>
                 <TableHead>Catatan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
+                <TableHead>Aksi</TableHead> {/* New Action Header */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -236,6 +260,10 @@ const DailyReportList = ({ refreshTrigger }: DailyReportListProps) => {
                   <TableCell>{report.activity}</TableCell>
                   <TableCell>{report.notes || "-"}</TableCell>
                   <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
+                  <TableCell className="flex space-x-2"> {/* New Action Cell */}
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(report)}>Edit</Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(report.id)}>Hapus</Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
