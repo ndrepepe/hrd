@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError, showSuccess } from "@/utils/toast";
+import { showError } from "@/utils/toast";
 import {
   Table,
   TableBody,
@@ -31,7 +31,6 @@ import { DateRange } from "react-day-picker"; // Import DateRange type
 interface DailyReport {
   id: string;
   created_at: string;
-  updated_at: string | null; // Add updated_at field
   report_date: string;
   employee_id: string | null;
   activity: string;
@@ -91,7 +90,7 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
 
     let query = supabase
       .from("daily_reports")
-      .select("*, employees(name)") // Select all columns, including the new updated_at
+      .select("*, employees(name)")
       .order("report_date", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -120,6 +119,7 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
       showError("Gagal memuat data laporan harian: " + error.message);
       setReports([]);
     } else {
+      console.log("Fetched daily reports data:", data);
       setReports(data || []);
     }
     setLoadingReports(false);
@@ -248,26 +248,19 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
                 <TableHead>Pelapor</TableHead>
                 <TableHead>Aktivitas</TableHead>
                 <TableHead>Catatan</TableHead>
-                <TableHead>Dibuat/Diedit Pada</TableHead> {/* Updated header */}
-                <TableHead>Aksi</TableHead>
+                <TableHead>Dibuat Pada</TableHead>
+                <TableHead>Aksi</TableHead> {/* New Action Header */}
               </TableRow>
             </TableHeader>
             <TableBody>
               {reports.map((report) => (
                 <TableRow key={report.id}>
                   <TableCell>{format(new Date(report.report_date), "dd-MM-yyyy")}</TableCell>
-                  <TableCell>{report.employees?.name || "-"}</TableCell>
+                  <TableCell>{report.employees?.name || "-"}</TableCell> {/* Display employee name from join */}
                   <TableCell>{report.activity}</TableCell>
                   <TableCell>{report.notes || "-"}</TableCell>
-                  <TableCell>
-                    {new Date(report.created_at).toLocaleString()}
-                    {report.updated_at && new Date(report.updated_at).getTime() !== new Date(report.created_at).getTime() && (
-                      <span className="block text-xs text-gray-500">
-                        (Diedit: {new Date(report.updated_at).toLocaleString()})
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="flex space-x-2">
+                  <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
+                  <TableCell className="flex space-x-2"> {/* New Action Cell */}
                     <Button variant="outline" size="sm" onClick={() => handleEdit(report)}>Edit</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(report.id)}>Hapus</Button>
                   </TableCell>
