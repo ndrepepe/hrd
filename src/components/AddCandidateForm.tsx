@@ -198,10 +198,10 @@ const AddCandidateForm = ({ onCandidateAdded, refreshPositionsTrigger }: AddCand
                     <SelectContent>
                       {loadingPositions ? (
                         // Removed value="" from disabled SelectItem
-                        <SelectItem disabled>Memuat posisi...</SelectItem>
+                        <SelectItem disabled value="_loading_positions_">Memuat posisi...</SelectItem>
                       ) : positions.length === 0 ? (
                          // Removed value="" from disabled SelectItem
-                         <SelectItem disabled>Belum ada posisi yang terbuka</SelectItem>
+                         <SelectItem disabled value="_no_open_positions_">Belum ada posisi yang terbuka</SelectItem>
                       ) : (
                         positions.map((position) => (
                           <SelectItem key={position.id} value={position.id}>

@@ -219,9 +219,9 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
                   </FormControl>
                   <SelectContent>
                     {loadingCars ? (
-                      <SelectItem disabled>Memuat mobil...</SelectItem>
+                      <SelectItem disabled value="_loading_cars_">Memuat mobil...</SelectItem>
                     ) : cars.length === 0 ? (
-                       <SelectItem disabled>Belum ada mobil</SelectItem>
+                       <SelectItem disabled value="_no_cars_">Belum ada mobil</SelectItem>
                     ) : (
                       cars.map((car) => (
                         <SelectItem key={car.id} value={car.id}>

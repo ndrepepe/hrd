@@ -236,9 +236,9 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
                   </FormControl>
                   <SelectContent>
                     {loadingEmployees ? (
-                      <SelectItem disabled value="">Memuat karyawan...</SelectItem>
+                      <SelectItem disabled value="_loading_employees_">Memuat karyawan...</SelectItem>
                     ) : employees.length === 0 ? (
-                       <SelectItem disabled value="">Belum ada data karyawan</SelectItem>
+                       <SelectItem disabled value="_no_employees_">Belum ada data karyawan</SelectItem>
                     ) : (
                       employees.map((employee) => (
                         <SelectItem key={employee.id} value={employee.id}>

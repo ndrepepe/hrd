@@ -65,7 +65,6 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
     defaultValues: {
       candidate_id: "",
       status: undefined, // Default status is undefined for enum
-      start_date: undefined,
       rejection_reason: "",
     },
   });
@@ -173,9 +172,9 @@ const AddDecisionForm = ({ onDecisionAdded, refreshCandidatesTrigger }: AddDecis
                   </FormControl>
                   <SelectContent>
                     {loadingCandidates ? (
-                      <SelectItem disabled>Memuat kandidat...</SelectItem>
+                      <SelectItem disabled value="_loading_candidates_">Memuat kandidat...</SelectItem>
                     ) : candidates.length === 0 ? (
-                       <SelectItem disabled>Tidak ada kandidat yang tersedia untuk keputusan</SelectItem>
+                       <SelectItem disabled value="_no_candidates_">Tidak ada kandidat yang tersedia untuk keputusan</SelectItem>
                     ) : (
                       candidates.map((candidate) => (
                         <SelectItem key={candidate.id} value={candidate.id}>
