@@ -97,6 +97,8 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
             report_date: data.report_date ? parseISO(data.report_date) : undefined,
             // Ensure optional fields are handled correctly if null
             notes: data.notes || "",
+            // Ensure employee_id is a string, even if null from DB
+            employee_id: data.employee_id || "", 
           });
         } else {
            // Handle case where ID is not found
@@ -126,7 +128,9 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
     if (error) {
       console.error("Error fetching employees:", error);
       showError("Gagal memuat daftar karyawan: " + error.message);
+      setEmployees([]);
     } else {
+      console.log("Fetched employees:", data);
       setEmployees(data || []);
     }
     setLoadingEmployees(false);
