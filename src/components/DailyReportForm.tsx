@@ -42,11 +42,6 @@ const formSchema = z.object({
   activity: z.string().min(5, {
     message: "Aktivitas harus minimal 5 karakter.",
   }),
-  // hours_worked: z.coerce.number().min(0.5, { // Removed hours_worked from schema
-  //   message: "Jam kerja minimal 0.5 jam.",
-  // }).max(24, {
-  //   message: "Jam kerja maksimal 24 jam.",
-  // }),
   notes: z.string().optional(),
 });
 
@@ -72,7 +67,6 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
       employee_id: "",
       report_date: undefined,
       activity: "",
-      // hours_worked: 0, // Removed hours_worked from defaultValues
       notes: "",
     },
   });
@@ -115,7 +109,6 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
             ...data,
             employee_id: data.employee_id || "",
             report_date: data.report_date ? parseISO(data.report_date) : undefined,
-            // hours_worked: data.hours_worked || 0, // Removed hours_worked from reset
             notes: data.notes || "",
             activity: data.activity || "",
           });
@@ -130,7 +123,6 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
         employee_id: "",
         report_date: undefined,
         activity: "",
-        // hours_worked: 0, // Removed hours_worked from reset
         notes: "",
       });
     }
@@ -143,7 +135,6 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
       employee_id: values.employee_id,
       report_date: formattedReportDate,
       activity: values.activity,
-      // hours_worked: values.hours_worked, // Removed hours_worked from reportData
       notes: values.notes || null,
     };
 
@@ -175,7 +166,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-[90%] mx-auto"> {/* Changed width to 90% */}
       <h3 className="text-xl font-semibold mb-4">{editingReportId ? "Edit Laporan Harian" : "Input Laporan Harian"}</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -266,23 +257,6 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
               </FormItem>
             )}
           />
-
-          {/* Removed the hours_worked field */}
-          {/*
-          <FormField
-            control={form.control}
-            name="hours_worked"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jam Kerja (dalam jam)</FormLabel>
-                <FormControl>
-                  <Input type="number" step="0.5" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          */}
 
           <FormField
             control={form.control}
