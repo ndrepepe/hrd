@@ -35,6 +35,7 @@ interface DailyReport {
   employee_id: string | null;
   activity: string;
   notes: string | null;
+  updated_at: string; // Added updated_at field
   employees?: { name: string } | null;
 }
 
@@ -90,7 +91,7 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
 
     let query = supabase
       .from("daily_reports")
-      .select("*, employees(name)")
+      .select("*, employees(name)") // Select all fields including updated_at and join with employees
       .order("report_date", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -249,18 +250,20 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
                 <TableHead>Aktivitas</TableHead>
                 <TableHead>Catatan</TableHead>
                 <TableHead>Dibuat Pada</TableHead>
-                <TableHead>Aksi</TableHead> {/* New Action Header */}
+                <TableHead>Terakhir Diedit</TableHead> {/* New Table Head */}
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {reports.map((report) => (
                 <TableRow key={report.id}>
                   <TableCell>{format(new Date(report.report_date), "dd-MM-yyyy")}</TableCell>
-                  <TableCell>{report.employees?.name || "-"}</TableCell> {/* Display employee name from join */}
-                  <TableCell dangerouslySetInnerHTML={{ __html: report.activity }} /> {/* Render HTML content */}
+                  <TableCell>{report.employees?.name || "-"}</TableCell>
+                  <TableCell dangerouslySetInnerHTML={{ __html: report.activity }} />
                   <TableCell>{report.notes || "-"}</TableCell>
                   <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
-                  <TableCell className="flex space-x-2"> {/* New Action Cell */}
+                  <TableCell>{new Date(report.updated_at).toLocaleString()}</TableCell> {/* Display updated_at */}
+                  <TableCell className="flex space-x-2">
                     <Button variant="outline" size="sm" onClick={() => handleEdit(report)}>Edit</Button>
                     <Button variant="destructive" size="sm" onClick={() => handleDelete(report.id)}>Hapus</Button>
                   </TableCell>
