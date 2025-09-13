@@ -170,7 +170,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
       <h3 className="text-xl font-semibold mb-4">{editingReportId ? "Edit Laporan Harian" : "Input Laporan Harian"}</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start"> {/* Added items-start */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <FormField
               control={form.control}
               name="employee_id"
@@ -206,7 +206,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
               control={form.control}
               name="report_date"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem> {/* Removed className="flex flex-col" */}
                   <FormLabel>Tanggal Laporan</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
