@@ -249,26 +249,35 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
                 <TableHead>Pelapor</TableHead>
                 <TableHead>Aktivitas</TableHead>
                 <TableHead>Catatan</TableHead>
-                <TableHead>Dibuat Pada</TableHead>
-                <TableHead>Terakhir Diedit</TableHead> {/* New Table Head */}
+                <TableHead>Waktu Laporan</TableHead> {/* Combined header */}
                 <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reports.map((report) => (
-                <TableRow key={report.id}>
-                  <TableCell>{format(new Date(report.report_date), "dd-MM-yyyy")}</TableCell>
-                  <TableCell>{report.employees?.name || "-"}</TableCell>
-                  <TableCell dangerouslySetInnerHTML={{ __html: report.activity }} />
-                  <TableCell>{report.notes || "-"}</TableCell>
-                  <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
-                  <TableCell>{new Date(report.updated_at).toLocaleString()}</TableCell> {/* Display updated_at */}
-                  <TableCell className="flex space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(report)}>Edit</Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(report.id)}>Hapus</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {reports.map((report) => {
+                const createdAt = new Date(report.created_at);
+                const updatedAt = new Date(report.updated_at);
+                const isEdited = updatedAt.getTime() !== createdAt.getTime();
+
+                return (
+                  <TableRow key={report.id}>
+                    <TableCell>{format(new Date(report.report_date), "dd-MM-yyyy")}</TableCell>
+                    <TableCell>{report.employees?.name || "-"}</TableCell>
+                    <TableCell dangerouslySetInnerHTML={{ __html: report.activity }} />
+                    <TableCell>{report.notes || "-"}</TableCell>
+                    <TableCell>
+                      <p>Dibuat: {createdAt.toLocaleString()}</p>
+                      {isEdited && (
+                        <p>Diedit: {updatedAt.toLocaleString()}</p>
+                      )}
+                    </TableCell>
+                    <TableCell className="flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(report)}>Edit</Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(report.id)}>Hapus</Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
