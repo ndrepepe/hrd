@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react"; // Import useRef and useCallback
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format, parseISO } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react"; // Import Loader2 for loading indicator
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,9 @@ interface DailyReportFormProps {
 const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportId, onCancelEdit }: DailyReportFormProps) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
+  const [lastSavedActivity, setLastSavedActivity] = useState(""); // State to track last saved activity content
+  const [isAutoSaving, setIsAutoSaving] = useState(false); // State for auto-save loading indicator
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null); // Ref for the auto-save timer
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -91,6 +94,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
     setLoadingEmployees(false);
   };
 
+  // Effect to load report data when editingReportId changes and initialize lastSavedActivity
   useEffect(() => {
     if (editingReportId) {
       const fetchReport = async () => {
@@ -112,6 +116,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
             notes: data.notes || "",
             activity: data.activity || "",
           });
+          setLastSavedActivity(data.activity || ""); // Initialize lastSavedActivity
         } else {
           showError("Data laporan tidak ditemukan.");
           setEditingReportId(null);
@@ -125,8 +130,86 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
         activity: "",
         notes: "",
       });
+      setLastSavedActivity(""); // Reset for new reports
     }
   }, [editingReportId, form, setEditingReportId]);
+
+  // Auto-save function, memoized with useCallback
+  const autoSaveReport = useCallback(async () => {
+    const currentValues = form.getValues();
+    const currentActivity = currentValues.activity;
+
+    // Only auto-save if activity has changed AND has content
+    if (currentActivity === lastSavedActivity || !currentActivity || currentActivity.trim() === "") {
+      return;
+    }
+
+    setIsAutoSaving(true);
+    let result;
+    const reportData = {
+      employee_id: currentValues.employee_id || null,
+      report_date: currentValues.report_date ? format(currentValues.report_date, "yyyy-MM-dd") : null,
+      activity: currentActivity,
+      notes: currentValues.notes || null,
+    };
+
+    if (editingReportId) {
+      // Update existing report
+      result = await supabase
+        .from("daily_reports")
+        .update(reportData)
+        .eq("id", editingReportId)
+        .select();
+    } else {
+      // Insert new report (only if required fields are present)
+      if (!reportData.employee_id || !reportData.report_date) {
+        showError("Tidak dapat menyimpan otomatis laporan baru: Nama Karyawan dan Tanggal Laporan wajib diisi.");
+        setIsAutoSaving(false);
+        return;
+      }
+      result = await supabase
+        .from("daily_reports")
+        .insert([reportData])
+        .select();
+
+      if (result.data && result.data.length > 0) {
+        // If a new report was inserted, update editingReportId so subsequent auto-saves update it
+        setEditingReportId(result.data[0].id);
+      }
+    }
+
+    const { data, error } = result;
+
+    if (error) {
+      console.error("Error auto-saving report:", error);
+      showError("Gagal menyimpan otomatis laporan: " + error.message);
+    } else {
+      console.log("Report auto-saved successfully:", data);
+      showSuccess("Laporan otomatis disimpan!");
+      setLastSavedActivity(currentActivity); // Update last saved activity
+    }
+    setIsAutoSaving(false);
+  }, [form, editingReportId, lastSavedActivity, setEditingReportId]); // Dependencies for useCallback
+
+  // Effect for auto-save timer
+  useEffect(() => {
+    // Clear any existing timer when the component mounts or autoSaveReport dependency changes
+    if (autoSaveTimerRef.current) {
+      clearInterval(autoSaveTimerRef.current);
+    }
+
+    // Set up a new interval for auto-save
+    autoSaveTimerRef.current = setInterval(() => {
+      autoSaveReport();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    // Cleanup function to clear the interval when the component unmounts
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+      }
+    };
+  }, [autoSaveReport]); // Depend on autoSaveReport (which is memoized by useCallback)
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const formattedReportDate = format(values.report_date, "yyyy-MM-dd");
@@ -152,7 +235,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
         .select();
     }
 
-    const { error } = result;
+    const { data, error } = result;
 
     if (error) {
       console.error(`Error ${editingReportId ? 'updating' : 'inserting'} report data:`, error);
@@ -162,6 +245,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
       form.reset();
       setEditingReportId(null);
       onReportSubmitted();
+      setLastSavedActivity(values.activity); // Update last saved activity after manual save
     }
   }
 
@@ -206,7 +290,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
               control={form.control}
               name="report_date"
               render={({ field }) => (
-                <FormItem> {/* Removed className="flex flex-col" */}
+                <FormItem>
                   <FormLabel>Tanggal Laporan</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -240,7 +324,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
                 </FormItem>
               )}
             />
-          </div> {/* End of horizontal wrapper */}
+          </div>
 
           <FormField
             control={form.control}
@@ -275,9 +359,12 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
           />
 
           <div className="flex space-x-2">
-            <Button type="submit">{editingReportId ? "Simpan Perubahan" : "Simpan Laporan"}</Button>
+            <Button type="submit" disabled={isAutoSaving}>
+               {isAutoSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+               {editingReportId ? "Simpan Perubahan" : "Simpan Laporan"}
+            </Button>
             {editingReportId && (
-              <Button type="button" variant="outline" onClick={onCancelEdit}>
+              <Button type="button" variant="outline" onClick={onCancelEdit} disabled={isAutoSaving}>
                 Batal Edit
               </Button>
             )}
