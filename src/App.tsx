@@ -1,31 +1,31 @@
 "use client";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner"; // Mengubah import dari react-hot-toast menjadi sonner
 import { SessionContextProvider } from "@/components/SessionContextProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import NavigationBar from "@/components/NavigationBar";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
-import CarRentalPage from "@/pages/CarRentalPage"; // Mengubah import dari CarRental menjadi CarRentalPage
-import DailyReportPage from "@/pages/DailyReportPage"; // Mengubah import dari DailyReport menjadi DailyReportPage
-import EmployeePage from "@/pages/EmployeePage"; // Mengubah import dari Employees menjadi EmployeePage
+import CarRentalPage from "@/pages/CarRentalPage";
+import DailyReportPage from "@/pages/DailyReportPage";
+import EmployeePage from "@/pages/EmployeePage";
 
 function App() {
   return (
     <BrowserRouter>
       <SessionContextProvider>
         <NavigationBar />
-        <main className="pt-16"> {/* Add padding top to prevent content from being hidden by fixed navbar */}
+        <main className="pt-16">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<ProtectedRoute component={Index} />} />
-            <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} /> {/* Menggunakan CarRentalPage */}
-            <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} /> {/* Menggunakan DailyReportPage */}
-            <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} /> {/* Menggunakan EmployeePage */}
+            <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} />
+            <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} />
+            <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
           </Routes>
         </main>
-        <Toaster />
+        <Toaster /> {/* Menggunakan Toaster dari sonner */}
       </SessionContextProvider>
     </BrowserRouter>
   );
