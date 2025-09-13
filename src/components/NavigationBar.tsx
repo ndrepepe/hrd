@@ -2,22 +2,22 @@
 
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client"; // Import supabase client
-import { useSession } from "@/components/SessionContextProvider"; // Import useSession
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/components/SessionContextProvider";
 
 const NavigationBar = () => {
-  const { session } = useSession(); // Get session from context
+  const { session } = useSession();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    console.log("Attempting to log out..."); // Log untuk melacak
+    console.log("Attempting to log out...");
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error logging out:", error.message);
       // Optionally show an error toast
     } else {
-      console.log("User logged out successfully. Redirecting to /login."); // Log sukses
-      navigate('/login'); // Redirect to login page after logout
+      console.log("User logged out successfully. Redirecting to /login.");
+      navigate('/login');
     }
   };
 
@@ -27,26 +27,25 @@ const NavigationBar = () => {
         <Link to="/" className="text-xl font-bold mr-4">
           HRD ANDI OFFSET
         </Link>
-        <div className="flex flex-wrap space-x-4">
-          <Link to="/car-rental">
-            <Button variant="ghost" className="text-white hover:bg-gray-700">Peminjaman Mobil</Button>
-          </Link>
-          <Link to="/recruitment">
-            <Button variant="ghost" className="text-white hover:bg-gray-700">Rekrutmen Karyawan</Button>
-          </Link>
-          <Link to="/daily-report">
-            <Button variant="ghost" className="text-white hover:bg-gray-700">Laporan Harian</Button>
-          </Link>
-          {/* New link for Employee Data */}
-          <Link to="/employees">
-            <Button variant="ghost" className="text-white hover:bg-gray-700">Data Karyawan</Button>
-          </Link>
-          {session && ( // Conditionally render Logout button if session exists
+        {session && ( // Hanya tampilkan menu jika ada sesi (pengguna login)
+          <div className="flex flex-wrap space-x-4">
+            <Link to="/car-rental">
+              <Button variant="ghost" className="text-white hover:bg-gray-700">Peminjaman Mobil</Button>
+            </Link>
+            <Link to="/recruitment">
+              <Button variant="ghost" className="text-white hover:bg-gray-700">Rekrutmen Karyawan</Button>
+            </Link>
+            <Link to="/daily-report">
+              <Button variant="ghost" className="text-white hover:bg-gray-700">Laporan Harian</Button>
+            </Link>
+            <Link to="/employees">
+              <Button variant="ghost" className="text-white hover:bg-gray-700">Data Karyawan</Button>
+            </Link>
             <Button variant="ghost" className="text-white hover:bg-gray-700" onClick={handleLogout}>
               Logout
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </nav>
   );
