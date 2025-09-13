@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Keep useNavigate for Auth component's redirect
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { useSession } from '@/components/SessionContextProvider'; // Import useSession
+import { useSession } from '@/components/SessionContextProvider';
 
 const Login = () => {
-  const { session } = useSession(); // Get session from context
+  const { session } = useSession();
   const navigate = useNavigate();
 
-  // Redirect authenticated users from login page to home
   useEffect(() => {
     if (session) {
       console.log("User already authenticated, redirecting from /login to /");
@@ -37,7 +36,8 @@ const Login = () => {
             },
           }}
           theme="light"
-          redirectTo={window.location.origin + '/'}
+          // Diubah agar mengarah ke halaman login
+          redirectTo={window.location.origin + '/login'}
         />
       </div>
     </div>
