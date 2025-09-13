@@ -24,6 +24,7 @@ interface DailyReport {
   employee_id: string;
   activity: string;
   notes: string | null;
+  updated_at: string; // Added updated_at
   employees: {
     name: string;
   } | null;
@@ -53,8 +54,9 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
         employee_id,
         activity,
         notes,
+        updated_at,
         employees (name)
-      `)
+      `) // Added updated_at to select
       .order("report_date", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -62,7 +64,6 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
       console.error("Error fetching daily reports:", error);
       showError("Gagal memuat daftar laporan harian: " + error.message);
     } else {
-      // Use double cast to explicitly tell TypeScript the shape of the data
       setReports((data as unknown as DailyReport[]) || []);
     }
     setLoading(false);
@@ -105,6 +106,7 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
             <TableHead>Karyawan</TableHead>
             <TableHead>Aktivitas</TableHead>
             <TableHead>Catatan</TableHead>
+            <TableHead>Waktu Laporan</TableHead> {/* New TableHead */}
             <TableHead>Aksi</TableHead>
           </TableRow>
         </TableHeader>
@@ -115,6 +117,14 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
               <TableCell>{report.employees?.name || "N/A"}</TableCell>
               <TableCell dangerouslySetInnerHTML={{ __html: report.activity }} />
               <TableCell>{report.notes || "-"}</TableCell>
+              <TableCell>
+                <div className="text-sm text-gray-600">
+                  Dibuat: {format(parseISO(report.created_at), "dd MMM yyyy HH:mm", { locale: id })}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Diperbarui: {format(parseISO(report.updated_at), "dd MMM yyyy HH:mm", { locale: id })}
+                </div>
+              </TableCell> {/* New TableCell */}
               <TableCell className="flex space-x-2">
                 <Button variant="outline" size="icon" onClick={() => onEditClick(report.id)}>
                   <Edit className="h-4 w-4" />
