@@ -195,7 +195,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
               control={form.control}
               name="report_date"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem> {/* Removed className="flex flex-col" */}
                   <FormLabel>Tanggal Laporan</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
