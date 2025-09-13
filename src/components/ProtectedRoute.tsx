@@ -11,6 +11,7 @@ const ProtectedRoute = ({ component: Component }: ProtectedRouteProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("ProtectedRoute useEffect: session changed to", session); // Log untuk melacak perubahan sesi
     // Jika session adalah null, itu berarti SessionContextProvider telah selesai memuat
     // dan menentukan tidak ada sesi aktif.
     if (session === null) {

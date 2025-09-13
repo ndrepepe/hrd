@@ -10,12 +10,13 @@ const NavigationBar = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    console.log("Attempting to log out..."); // Log untuk melacak
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error logging out:", error.message);
       // Optionally show an error toast
     } else {
-      console.log("User logged out successfully.");
+      console.log("User logged out successfully. Redirecting to /login."); // Log sukses
       navigate('/login'); // Redirect to login page after logout
     }
   };
