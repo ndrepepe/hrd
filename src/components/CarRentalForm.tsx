@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format, parseISO } from "date-fns"; // Import parseISO
+import { format, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -41,12 +41,22 @@ const formSchema = z.object({
   rent_date: z.date({
     required_error: "Tanggal pinjam wajib diisi.",
   }),
-  start_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: "Format jam pinjam tidak valid (HH:MM).",
-  }),
-  end_time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: "Format jam kembali tidak valid (HH:MM).",
-  }),
+  start_time: z.string()
+    .optional()
+    .refine(val => val !== undefined && val !== "", {
+      message: "Jam pinjam wajib diisi.",
+    })
+    .refine(val => val ? /^([01]\d|2[0-3]):([0-5]\d)$/.test(val) : true, {
+      message: "Format jam pinjam tidak valid (HH:MM).",
+    }),
+  end_time: z.string()
+    .optional()
+    .refine(val => val !== undefined && val !== "", {
+      message: "Jam kembali wajib diisi.",
+    })
+    .refine(val => val ? /^([01]\d|2[0-3]):([0-5]\d)$/.test(val) : true, {
+      message: "Format jam kembali tidak valid (HH:MM).",
+    }),
 });
 
 interface Car {
@@ -55,10 +65,10 @@ interface Car {
 }
 
 interface CarRentalFormProps {
-  refreshCarsTrigger: number; // Prop to trigger refresh of car list
-  onRentalSubmitted: () => void; // Callback after submission (add or edit)
-  editingRentalId: string | null; // ID of the rental being edited, or null for adding
-  setEditingRentalId: (id: string | null) => void; // Function to clear editing state
+  refreshCarsTrigger: number;
+  onRentalSubmitted: () => void;
+  editingRentalId: string | null;
+  setEditingRentalId: (id: string | null) => void;
 }
 
 const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId, setEditingRentalId }: CarRentalFormProps) => {
@@ -77,10 +87,9 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
     },
   });
 
-  // Effect to fetch cars for the select dropdown
   useEffect(() => {
     fetchCars();
-  }, [refreshCarsTrigger]); // Depend on refreshCarsTrigger
+  }, [refreshCarsTrigger]);
 
   const fetchCars = async () => {
     setLoadingCars(true);
@@ -98,41 +107,34 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
     setLoadingCars(false);
   };
 
-  // Effect to load rental data when editingRentalId changes
   useEffect(() => {
     if (editingRentalId) {
       const fetchRental = async () => {
         const { data, error } = await supabase
           .from("rentals")
-          .select("*") // Fetch all fields needed for the form
+          .select("*")
           .eq("id", editingRentalId)
           .single();
 
         if (error) {
           console.error("Error fetching rental for edit:", error);
           showError("Gagal memuat data peminjaman untuk diedit: " + error.message);
-          setEditingRentalId(null); // Clear editing state on error
+          setEditingRentalId(null);
         } else if (data) {
-          // Populate the form with fetched data
           form.reset({
             ...data,
-            // Convert date string to Date object for the date picker
             rent_date: data.rent_date ? parseISO(data.rent_date) : undefined,
-            // Ensure optional fields are handled correctly if null
             driver_name: data.driver_name || "",
-            // Format time strings to HH:MM for input type="time"
             start_time: data.start_time ? data.start_time.slice(0, 5) : "",
             end_time: data.end_time ? data.end_time.slice(0, 5) : "",
           });
         } else {
-           // Handle case where ID is not found
            showError("Data peminjaman tidak ditemukan.");
-           setEditingRentalId(null); // Clear editing state
+           setEditingRentalId(null);
         }
       };
       fetchRental();
     } else {
-      // Reset form when not editing (e.g., switching back to add mode or after submission)
       form.reset({
         car_id: "",
         borrower_name: "",
@@ -142,13 +144,10 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
         end_time: "",
       });
     }
-  }, [editingRentalId, form, setEditingRentalId]); // Depend on editingRentalId and form/setEditingRentalId
+  }, [editingRentalId, form, setEditingRentalId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Form submitted with values:", values, "Editing ID:", editingRentalId);
-
     const formattedRentDate = format(values.rent_date, "yyyy-MM-dd");
-    console.log("Formatted rent date:", formattedRentDate);
 
     // --- Validasi Overlap ---
     let query = supabase
@@ -156,38 +155,31 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
       .select("id")
       .eq("car_id", values.car_id)
       .eq("rent_date", formattedRentDate)
-      .lt("start_time", values.end_time) // Existing rental starts before new one ends
-      .gt("end_time", values.start_time); // Existing rental ends after new one starts
+      .lt("start_time", values.end_time)
+      .gt("end_time", values.start_time);
 
     if (editingRentalId) {
-      // If editing, exclude the current rental from the overlap check
       query = query.neq("id", editingRentalId);
-      console.log("Excluding current rental from overlap check:", editingRentalId);
     }
 
-    console.log("Executing overlap query...");
     const { data: existingRentals, error: overlapError } = await query;
-    console.log("Overlap query result - data:", existingRentals, "error:", overlapError);
 
     if (overlapError) {
       console.error("Error checking for overlapping rentals:", overlapError);
       showError("Gagal memeriksa peminjaman yang tumpang tindih: " + overlapError.message);
-      console.log("Overlap error, returning.");
       return;
     }
 
     if (existingRentals && existingRentals.length > 0) {
       showError("Mobil ini sudah dipinjam pada tanggal dan jam tersebut. Silakan pilih waktu atau mobil lain.");
-      console.log("Overlap detected, returning.");
       return;
     }
     // --- Akhir Validasi Overlap ---
 
-    console.log("No overlap detected, proceeding with insert/update.");
     const rentalData = {
       car_id: values.car_id,
       borrower_name: values.borrower_name,
-      driver_name: values.driver_name || null, // Save empty string as null
+      driver_name: values.driver_name || null,
       rent_date: formattedRentDate,
       start_time: values.start_time,
       end_time: values.end_time,
@@ -195,14 +187,12 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
 
     let result;
     if (editingRentalId) {
-      console.log("Updating existing rental:", editingRentalId, rentalData);
       result = await supabase
         .from("rentals")
         .update(rentalData)
         .eq("id", editingRentalId)
         .select();
     } else {
-      console.log("Inserting new rental:", rentalData);
       result = await supabase
         .from("rentals")
         .insert([rentalData])
@@ -210,23 +200,21 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
     }
 
     const { data, error } = result;
-    console.log("Supabase operation result - data:", data, "error:", error);
 
     if (error) {
       console.error(`Error ${editingRentalId ? 'updating' : 'inserting'} rental data:`, error);
       showError(`Gagal ${editingRentalId ? 'memperbarui' : 'menyimpan'} data peminjaman: ` + error.message);
     } else {
-      console.log(`Rental data ${editingRentalId ? 'updated' : 'inserted'} successfully:`, data);
       showSuccess(`Data peminjaman berhasil di${editingRentalId ? 'perbarui' : 'simpan'}!`);
-      form.reset(); // Reset form after successful submission
-      setEditingRentalId(null); // Clear editing state
-      onRentalSubmitted(); // Call the callback here
+      form.reset();
+      setEditingRentalId(null);
+      onRentalSubmitted();
     }
   }
 
   const handleCancelEdit = () => {
-    setEditingRentalId(null); // Clear editing state
-    form.reset({ // Reset form to default empty values
+    setEditingRentalId(null);
+    form.reset({
       car_id: "",
       borrower_name: "",
       driver_name: "",
@@ -236,20 +224,18 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
     });
   };
 
-
   return (
     <div className="w-full max-w-lg mx-auto">
       <h3 className="text-xl font-semibold mb-4">{editingRentalId ? "Edit Data Peminjaman Mobil" : "Input Peminjaman Mobil"}</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Nama Mobil (Top) */}
           <FormField
             control={form.control}
             name="car_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nama Mobil</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}> {/* Use value prop */}
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih nama mobil" />
@@ -274,7 +260,6 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
             )}
           />
 
-          {/* Nama Peminjam (Left) and Nama Sopir (Right) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -304,7 +289,6 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
             />
           </div>
 
-          {/* Tanggal Pinjam (Below names) */}
           <FormField
             control={form.control}
             name="rent_date"
@@ -344,7 +328,6 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
             )}
           />
 
-          {/* Jam Pinjam (Left) and Jam Kembali (Right) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
