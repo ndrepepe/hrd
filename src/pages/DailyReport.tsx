@@ -29,7 +29,7 @@ const DailyReport = () => {
           onReportSubmitted={handleReportSubmitted}
           editingReportId={editingReportId}
           setEditingReportId={setEditingReportId}
-          onCancelEdit={handleCancelEdit} {/* Added onCancelEdit prop */}
+          onCancelEdit={handleCancelEdit}
         />
         <DailyReportList
           refreshTrigger={refreshTrigger}

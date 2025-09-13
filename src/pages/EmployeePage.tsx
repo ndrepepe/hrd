@@ -9,12 +9,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const EmployeePage = () => {
   const [refreshEmployees, setRefreshEmployees] = useState(0);
   const [activeTab, setActiveTab] = useState("add-employee"); // Default active tab
+  const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>(null); // State to hold the ID of the employee being edited
 
   // Callback to trigger list refresh
   const handleEmployeeAdded = () => {
     setRefreshEmployees(prev => prev + 1);
     // Optionally switch to list view after adding
     // setActiveTab("list-employees");
+  };
+
+  const handleEditClick = (employeeId: string) => {
+    setEditingEmployeeId(employeeId); // Set the ID of the employee to be edited
+    setActiveTab("add-employee"); // Switch to the input form tab
+  };
+
+  const handleCancelEdit = () => {
+    setEditingEmployeeId(null); // Clear the editing state
+    setActiveTab("add-employee"); // Stay on the input tab, but clear the form
   };
 
   return (
@@ -39,7 +50,10 @@ const EmployeePage = () => {
         </TabsContent>
 
         <TabsContent value="list-employees" className="mt-0">
-          <EmployeeList refreshTrigger={refreshEmployees} />
+          <EmployeeList
+            refreshTrigger={refreshEmployees}
+            onEditClick={handleEditClick} // Pass the handleEditClick function
+          />
         </TabsContent>
       </Tabs>
     </div>
