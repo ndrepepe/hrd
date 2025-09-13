@@ -1,36 +1,43 @@
-"use client"; // Added "use client" directive
+"use client";
 
 import { useEffect } from 'react';
-// Removed useNavigate as we are removing the redirect logic
+import { useNavigate } from 'react-router-dom'; // Keep useNavigate for Auth component's redirect
 import { supabase } from '@/integrations/supabase/client';
-import { Auth } from '@supabase/auth-ui-react'; // Import Auth component
-import { ThemeSupa } from '@supabase/auth-ui-shared'; // Import ThemeSupa theme
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { useSession } from '@/components/SessionContextProvider'; // Import useSession
 
 const Login = () => {
-  // Removed useEffect for auth state change and initial session check
+  const { session } = useSession(); // Get session from context
+  const navigate = useNavigate();
+
+  // Redirect authenticated users from login page to home
+  useEffect(() => {
+    if (session) {
+      console.log("User already authenticated, redirecting from /login to /");
+      navigate('/');
+    }
+  }, [session, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 pt-16">
       <div className="w-full max-w-md">
-        {/* Render the Supabase Auth component */}
-        {/* The Auth component itself might still redirect on successful login based on its props,
-            but this page will no longer force redirects based on session state check here. */}
         <Auth
           supabaseClient={supabase}
-          providers={[]} // Empty array means only email/password is enabled
+          providers={[]}
           appearance={{
             theme: ThemeSupa,
             variables: {
               default: {
                 colors: {
-                  brand: 'hsl(var(--primary))', // Use primary color from Tailwind config
-                  brandAccent: 'hsl(var(--primary-foreground))', // Use primary-foreground
+                  brand: 'hsl(var(--primary))',
+                  brandAccent: 'hsl(var(--primary-foreground))',
                 },
               },
             },
           }}
-          theme="light" // Use light theme
-          redirectTo={window.location.origin + '/'} // Keep redirect to home after login via the Auth component itself
+          theme="light"
+          redirectTo={window.location.origin + '/'}
         />
       </div>
     </div>

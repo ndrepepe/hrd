@@ -1,63 +1,38 @@
-import { useEffect, useState, ElementType } from 'react'; // Import ElementType
+import { useEffect, useState, ElementType } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useSession } from '@/components/SessionContextProvider'; // Import useSession
 
 interface ProtectedRouteProps {
   component: ElementType; // Component to render if authenticated
-  path?: string; // Path is not strictly needed here but good practice
 }
 
-const ProtectedRoute = ({ component: Component, path }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ component: Component }: ProtectedRouteProps) => {
+  const { session } = useSession(); // Get session from context
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<any>(null); // Use 'any' for session type for simplicity
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setLoading(false);
-      if (!session) {
-        console.log("No session found, navigating to /login");
-        navigate('/login');
-      } else {
-        console.log("Session found:", session);
-      }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", _event, session);
-      setSession(session);
-      if (!session) {
-        console.log("Auth state change: No session, navigating to /login");
-        navigate('/login');
-      } else {
-         console.log("Auth state change: Session found");
-      }
-    });
-
-    return () => {
-      console.log("Unsubscribing from auth state changes");
-      subscription.unsubscribe();
-    };
-  }, [navigate]); // Depend on navigate
+    // Once session is loaded (from SessionContextProvider), check if user is authenticated
+    if (session === null) { // If session is explicitly null, user is not authenticated
+      console.log("ProtectedRoute: No session found, navigating to /login");
+      navigate('/login');
+    } else {
+      console.log("ProtectedRoute: Session found, user authenticated.");
+    }
+    setLoading(false); // Set loading to false once session status is determined
+  }, [session, navigate]); // Depend on session and navigate
 
   if (loading) {
-    // Optionally render a loading spinner or placeholder
     return <div className="min-h-screen flex items-center justify-center">Memuat...</div>;
   }
 
-  // If not loading and no session, navigate has already been called.
-  // We can return null or a simple message while navigation happens.
+  // If not loading and no session, navigation has already been triggered.
+  // We return null to prevent rendering the protected component.
   if (!session) {
-     console.log("ProtectedRoute: Not authenticated, rendering null.");
      return null;
   }
 
   // If authenticated, render the protected component
-  console.log("ProtectedRoute: Authenticated, rendering component.");
   return <Component />;
 };
 
