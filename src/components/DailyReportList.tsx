@@ -121,9 +121,12 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
                 <div className="text-sm text-gray-600">
                   Dibuat: {format(parseISO(report.created_at), "dd MMM yyyy HH:mm", { locale: id })}
                 </div>
-                <div className="text-sm text-gray-600">
-                  Diperbarui: {format(parseISO(report.updated_at), "dd MMM yyyy HH:mm", { locale: id })}
-                </div>
+                {/* Tampilkan informasi 'Diperbarui' hanya jika updated_at berbeda dari created_at */}
+                {report.updated_at !== report.created_at && (
+                  <div className="text-sm text-gray-600">
+                    Diperbarui: {format(parseISO(report.updated_at), "dd MMM yyyy HH:mm", { locale: id })}
+                  </div>
+                )}
               </TableCell> {/* New TableCell */}
               <TableCell className="flex space-x-2">
                 <Button variant="outline" size="icon" onClick={() => onEditClick(report.id)}>
