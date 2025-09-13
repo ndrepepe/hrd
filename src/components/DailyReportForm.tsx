@@ -185,7 +185,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-full md:w-3/4 mx-auto"> {/* Changed max-w-lg to w-3/4 */}
       <h3 className="text-xl font-semibold mb-4">{editingReportId ? "Edit Laporan Harian" : "Input Laporan Harian"}</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
