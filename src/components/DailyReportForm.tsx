@@ -27,8 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea"; // Keep Textarea for notes if needed
-import RichTextEditor from "@/components/RichTextEditor"; // Import the new RichTextEditor
+import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "@/components/RichTextEditor";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -39,14 +39,14 @@ const formSchema = z.object({
   report_date: z.date({
     required_error: "Tanggal laporan wajib diisi.",
   }),
-  activity: z.string().min(5, { // Activity now accepts rich text (HTML string)
+  activity: z.string().min(5, {
     message: "Aktivitas harus minimal 5 karakter.",
   }),
-  hours_worked: z.coerce.number().min(0.5, {
-    message: "Jam kerja minimal 0.5 jam.",
-  }).max(24, {
-    message: "Jam kerja maksimal 24 jam.",
-  }),
+  // hours_worked: z.coerce.number().min(0.5, { // Removed hours_worked from schema
+  //   message: "Jam kerja minimal 0.5 jam.",
+  // }).max(24, {
+  //   message: "Jam kerja maksimal 24 jam.",
+  // }),
   notes: z.string().optional(),
 });
 
@@ -72,7 +72,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
       employee_id: "",
       report_date: undefined,
       activity: "",
-      hours_worked: 0,
+      // hours_worked: 0, // Removed hours_worked from defaultValues
       notes: "",
     },
   });
@@ -115,9 +115,9 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
             ...data,
             employee_id: data.employee_id || "",
             report_date: data.report_date ? parseISO(data.report_date) : undefined,
-            hours_worked: data.hours_worked || 0,
+            // hours_worked: data.hours_worked || 0, // Removed hours_worked from reset
             notes: data.notes || "",
-            activity: data.activity || "", // Ensure activity is set
+            activity: data.activity || "",
           });
         } else {
           showError("Data laporan tidak ditemukan.");
@@ -130,7 +130,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
         employee_id: "",
         report_date: undefined,
         activity: "",
-        hours_worked: 0,
+        // hours_worked: 0, // Removed hours_worked from reset
         notes: "",
       });
     }
@@ -143,7 +143,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
       employee_id: values.employee_id,
       report_date: formattedReportDate,
       activity: values.activity,
-      hours_worked: values.hours_worked,
+      // hours_worked: values.hours_worked, // Removed hours_worked from reportData
       notes: values.notes || null,
     };
 
@@ -267,6 +267,8 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
             )}
           />
 
+          {/* Removed the hours_worked field */}
+          {/*
           <FormField
             control={form.control}
             name="hours_worked"
@@ -280,6 +282,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
               </FormItem>
             )}
           />
+          */}
 
           <FormField
             control={form.control}
