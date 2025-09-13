@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { CalendarIcon, XCircle } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -19,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
 import { Label } from "@/components/ui/label"; // Import Label component
+import { Button } from "@/components/ui/button";
 
 interface Rental {
   id: string;
@@ -183,7 +183,7 @@ const CarRentalList = ({ refreshTrigger, onEditClick }: CarRentalListProps) => {
               {rentals.map((rental) => (
                 <TableRow key={rental.id}>
                   <TableCell>{format(new Date(rental.rent_date), "dd-MM-yyyy")}</TableCell>
-                  <TableCell>{`${rental.start_time} - ${rental.end_time}`}</TableCell>
+                  <TableCell>{`${rental.start_time.slice(0, 5)} - ${rental.end_time.slice(0, 5)}`}</TableCell> {/* Memotong string waktu */}
                   <TableCell>{rental.cars?.name || rental.car_name || "-"}</TableCell>
                   <TableCell>{rental.borrower_name}</TableCell>
                   <TableCell>{rental.driver_name || "-"}</TableCell>
