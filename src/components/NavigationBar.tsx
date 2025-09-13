@@ -27,14 +27,14 @@ const NavigationBar = () => {
         <Link to="/" className="text-xl font-bold mr-4">
           HRD ANDI OFFSET
         </Link>
-        {session && ( // Hanya tampilkan menu jika ada sesi (pengguna login)
+        {session && (
           <div className="flex flex-wrap space-x-4">
             <Link to="/car-rental">
               <Button variant="ghost" className="text-white hover:bg-gray-700">Peminjaman Mobil</Button>
             </Link>
-            <Link to="/recruitment">
+            {/* <Link to="/recruitment">
               <Button variant="ghost" className="text-white hover:bg-gray-700">Rekrutmen Karyawan</Button>
-            </Link>
+            </Link> */}
             <Link to="/daily-report">
               <Button variant="ghost" className="text-white hover:bg-gray-700">Laporan Harian</Button>
             </Link>
