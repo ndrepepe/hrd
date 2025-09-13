@@ -148,6 +148,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
     console.log("Form submitted with values:", values, "Editing ID:", editingRentalId);
 
     const formattedRentDate = format(values.rent_date, "yyyy-MM-dd");
+    console.log("Formatted rent date:", formattedRentDate);
 
     // --- Validasi Overlap ---
     let query = supabase
@@ -161,22 +162,28 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
     if (editingRentalId) {
       // If editing, exclude the current rental from the overlap check
       query = query.neq("id", editingRentalId);
+      console.log("Excluding current rental from overlap check:", editingRentalId);
     }
 
+    console.log("Executing overlap query...");
     const { data: existingRentals, error: overlapError } = await query;
+    console.log("Overlap query result - data:", existingRentals, "error:", overlapError);
 
     if (overlapError) {
       console.error("Error checking for overlapping rentals:", overlapError);
       showError("Gagal memeriksa peminjaman yang tumpang tindih: " + overlapError.message);
+      console.log("Overlap error, returning.");
       return;
     }
 
     if (existingRentals && existingRentals.length > 0) {
       showError("Mobil ini sudah dipinjam pada tanggal dan jam tersebut. Silakan pilih waktu atau mobil lain.");
+      console.log("Overlap detected, returning.");
       return;
     }
     // --- Akhir Validasi Overlap ---
 
+    console.log("No overlap detected, proceeding with insert/update.");
     const rentalData = {
       car_id: values.car_id,
       borrower_name: values.borrower_name,
@@ -188,14 +195,14 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
 
     let result;
     if (editingRentalId) {
-      // Update existing rental
+      console.log("Updating existing rental:", editingRentalId, rentalData);
       result = await supabase
         .from("rentals")
         .update(rentalData)
         .eq("id", editingRentalId)
         .select();
     } else {
-      // Add new rental
+      console.log("Inserting new rental:", rentalData);
       result = await supabase
         .from("rentals")
         .insert([rentalData])
@@ -203,6 +210,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
     }
 
     const { data, error } = result;
+    console.log("Supabase operation result - data:", data, "error:", error);
 
     if (error) {
       console.error(`Error ${editingRentalId ? 'updating' : 'inserting'} rental data:`, error);
