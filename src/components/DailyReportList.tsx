@@ -158,7 +158,7 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full md:w-[90%] mx-auto"> {/* Changed max-w-4xl to md:w-[90%] */}
       <h3 className="text-xl font-semibold mb-4">Daftar Laporan Harian</h3>
 
       {/* Filter Section */}
@@ -257,7 +257,7 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
                 <TableRow key={report.id}>
                   <TableCell>{format(new Date(report.report_date), "dd-MM-yyyy")}</TableCell>
                   <TableCell>{report.employees?.name || "-"}</TableCell> {/* Display employee name from join */}
-                  <TableCell>{report.activity}</TableCell>
+                  <TableCell dangerouslySetInnerHTML={{ __html: report.activity }} /> {/* Render HTML content */}
                   <TableCell>{report.notes || "-"}</TableCell>
                   <TableCell>{new Date(report.created_at).toLocaleString()}</TableCell>
                   <TableCell className="flex space-x-2"> {/* New Action Cell */}
