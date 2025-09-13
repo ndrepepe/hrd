@@ -147,11 +147,41 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Form submitted with values:", values, "Editing ID:", editingRentalId);
 
+    const formattedRentDate = format(values.rent_date, "yyyy-MM-dd");
+
+    // --- Validasi Overlap ---
+    let query = supabase
+      .from("rentals")
+      .select("id")
+      .eq("car_id", values.car_id)
+      .eq("rent_date", formattedRentDate)
+      .lt("start_time", values.end_time) // Existing rental starts before new one ends
+      .gt("end_time", values.start_time); // Existing rental ends after new one starts
+
+    if (editingRentalId) {
+      // If editing, exclude the current rental from the overlap check
+      query = query.neq("id", editingRentalId);
+    }
+
+    const { data: existingRentals, error: overlapError } = await query;
+
+    if (overlapError) {
+      console.error("Error checking for overlapping rentals:", overlapError);
+      showError("Gagal memeriksa peminjaman yang tumpang tindih: " + overlapError.message);
+      return;
+    }
+
+    if (existingRentals && existingRentals.length > 0) {
+      showError("Mobil ini sudah dipinjam pada tanggal dan jam tersebut. Silakan pilih waktu atau mobil lain.");
+      return;
+    }
+    // --- Akhir Validasi Overlap ---
+
     const rentalData = {
       car_id: values.car_id,
       borrower_name: values.borrower_name,
       driver_name: values.driver_name || null, // Save empty string as null
-      rent_date: format(values.rent_date, "yyyy-MM-dd"),
+      rent_date: formattedRentDate,
       start_time: values.start_time,
       end_time: values.end_time,
     };
