@@ -23,8 +23,8 @@ interface DecisionWithCandidate {
   start_date: string | null;
   rejection_reason: string | null;
   end_date: string | null;
-  briefing_result: string | null;
-  candidates?: { // Joined candidate data
+  briefing_result: 'dikontrak' | 'dihentikan' | 'mengundurkan diri' | null; // Corrected type
+  candidates: { // Joined candidate data - made non-optional as it's filtered for non-null
     id: string;
     name: string;
     phone: string | null;
@@ -32,7 +32,7 @@ interface DecisionWithCandidate {
     last_education: string | null;
     major: string | null;
     skills: string | null;
-  } | null;
+  } | null; // Can still be null if the join fails for some reason, but filtered out
 }
 
 interface BriefingListProps {
@@ -83,7 +83,8 @@ const BriefingList = ({ refreshTrigger }: BriefingListProps) => {
       setAcceptedCandidates([]);
     } else {
       console.log("Fetched accepted candidates data:", data);
-      const validData = data?.filter(item => item.candidates !== null) as DecisionWithCandidate[] || [];
+      // Explicitly cast to unknown first, then to the desired type for safety
+      const validData = (data as unknown as DecisionWithCandidate[])?.filter(item => item.candidates !== null) || [];
       setAcceptedCandidates(validData);
     }
     setLoading(false);

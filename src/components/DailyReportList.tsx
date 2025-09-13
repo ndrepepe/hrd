@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { showError } from "@/utils/toast";
+import { showError, showSuccess } from "@/utils/toast"; // Added showSuccess
 import {
   Table,
   TableBody,

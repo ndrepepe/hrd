@@ -30,17 +30,11 @@ interface Employee {
   employee_id: string;
   name: string;
   position: string;
-  hire_date: string | null; // Keep in interface as it's in DB, but won't display
-  status: string; // Keep status
-  phone: string | null; // Keep phone
-  email: string | null; // Keep email
-  place_of_birth: string | null; // Keep in interface, won't display
-  date_of_birth: string | null; // Keep in interface, won't display
-  last_education: string | null; // Keep in interface, won't display
-  major: string | null; // Keep in interface, won't display
-  skills: string | null; // Keep in interface, won't display
-  notes: string | null; // Keep in interface, won't display
-  user_id: string | null; // Keep user_id
+  // Removed hire_date, place_of_birth, date_of_birth, last_education, major, skills, notes
+  status: string;
+  phone: string | null;
+  email: string | null;
+  user_id: string | null;
 }
 
 interface EmployeeListProps {
@@ -102,7 +96,7 @@ const EmployeeList = ({ refreshTrigger }: EmployeeListProps) => {
       setEmployees([]); // Clear employees on error
     } else {
       console.log("Fetched employees data:", data);
-      setEmployees(data || []);
+      setEmployees(data as Employee[] || []); // Cast to Employee[]
     }
     setLoading(false);
   };

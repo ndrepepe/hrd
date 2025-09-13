@@ -140,8 +140,7 @@ const RecruitmentPage = () => {
             <AddCandidateForm
               onCandidateAdded={handleCandidateAdded} // This callback is now used for both add and update success
               refreshPositionsTrigger={refreshPositions}
-              editingCandidateId={editingCandidateId} // Pass editing state
-              setEditingCandidateId={setEditingCandidateId} // Pass setter function
+              // Removed editingCandidateId and setEditingCandidateId props
             />
           </TabsContent>
 

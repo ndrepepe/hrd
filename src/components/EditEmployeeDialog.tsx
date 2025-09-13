@@ -70,21 +70,14 @@ const formSchema = z.object({
 // Define the type for the data passed to the dialog - REMOVING UNWANTED FIELDS
 interface EmployeeData {
   id: string;
-  created_at: string; // Keep for context if needed, though not displayed
+  created_at: string;
   employee_id: string;
   name: string;
   position: string;
-  hire_date: string | null; // Keep in interface as it's fetched, but not used in form
   status: string;
   phone: string | null;
   email: string | null;
-  place_of_birth: string | null; // Keep in interface, not used in form
-  date_of_birth: string | null; // Keep in interface, not used in form
-  last_education: string | null; // Keep in interface, not used in form
-  major: string | null; // Keep in interface, not used in form
-  skills: string | null; // Keep in interface, not used in form
-  notes: string | null; // Keep in interface, not used in form
-  user_id: string | null; // Keep user_id
+  user_id: string | null;
 }
 
 interface EditEmployeeDialogProps {
