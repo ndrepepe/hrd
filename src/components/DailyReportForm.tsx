@@ -27,7 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea"; // Keep Textarea for notes if needed
+import RichTextEditor from "@/components/RichTextEditor"; // Import the new RichTextEditor
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -38,7 +39,7 @@ const formSchema = z.object({
   report_date: z.date({
     required_error: "Tanggal laporan wajib diisi.",
   }),
-  activity: z.string().min(5, {
+  activity: z.string().min(5, { // Activity now accepts rich text (HTML string)
     message: "Aktivitas harus minimal 5 karakter.",
   }),
   hours_worked: z.coerce.number().min(0.5, {
@@ -58,7 +59,7 @@ interface DailyReportFormProps {
   onReportSubmitted: () => void;
   editingReportId: string | null;
   setEditingReportId: (id: string | null) => void;
-  onCancelEdit: () => void; // Added onCancelEdit prop
+  onCancelEdit: () => void;
 }
 
 const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportId, onCancelEdit }: DailyReportFormProps) => {
@@ -116,6 +117,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
             report_date: data.report_date ? parseISO(data.report_date) : undefined,
             hours_worked: data.hours_worked || 0,
             notes: data.notes || "",
+            activity: data.activity || "", // Ensure activity is set
           });
         } else {
           showError("Data laporan tidak ditemukan.");
@@ -254,7 +256,11 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
               <FormItem>
                 <FormLabel>Aktivitas</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Deskripsikan aktivitas harian..." {...field} />
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Deskripsikan aktivitas harian..."
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
