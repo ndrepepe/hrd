@@ -119,7 +119,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
         notes: "",
       });
     }
-  }, [editingReportId, form, setEditingRentalId]); // Depend on editingReportId and form/setEditingRentalId
+  }, [editingReportId, form, setEditingReportId]); // Depend on editingReportId and form/setEditingReportId
 
   const fetchEmployees = async () => {
     setLoadingEmployees(true);

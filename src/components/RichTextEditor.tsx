@@ -6,7 +6,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import Blockquote from '@tiptap/extension-blockquote';
-import ListItem from '@tiptap/extension-list-item';
+// import ListItem from '@tiptap/extension-list-item'; // Removed: ListItem is handled by StarterKit's list extensions
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import Bold from '@tiptap/extension-bold';
@@ -49,7 +49,7 @@ const RichTextEditor = ({ value, onChange, placeholder, disabled }: RichTextEdit
       StarterKit.configure({
         bulletList: { keepMarks: true, keepAttributes: false },
         orderedList: { keepMarks: true, keepAttributes: false },
-        listItem: { keepMarks: true, keepAttributes: false },
+        // listItem: { keepMarks: true, keepAttributes: false }, // Removed: Redundant, handled by StarterKit
         bold: false, // Disable default bold from StarterKit to use custom Bold extension
         italic: false, // Disable default italic from StarterKit to use custom Italic extension
       }),
