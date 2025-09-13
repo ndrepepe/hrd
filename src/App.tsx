@@ -7,9 +7,9 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import NavigationBar from "@/components/NavigationBar";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
-import CarRental from "@/pages/CarRental";
-import DailyReport from "@/pages/DailyReport";
-import Employees from "@/pages/Employees";
+import CarRentalPage from "@/pages/CarRentalPage"; // Mengubah import dari CarRental menjadi CarRentalPage
+import DailyReportPage from "@/pages/DailyReportPage"; // Mengubah import dari DailyReport menjadi DailyReportPage
+import EmployeePage from "@/pages/EmployeePage"; // Mengubah import dari Employees menjadi EmployeePage
 
 function App() {
   return (
@@ -20,9 +20,9 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<ProtectedRoute component={Index} />} />
-            <Route path="/car-rental" element={<ProtectedRoute component={CarRental} />} />
-            <Route path="/daily-report" element={<ProtectedRoute component={DailyReport} />} />
-            <Route path="/employees" element={<ProtectedRoute component={Employees} />} />
+            <Route path="/car-rental" element={<ProtectedRoute component={CarRentalPage} />} /> {/* Menggunakan CarRentalPage */}
+            <Route path="/daily-report" element={<ProtectedRoute component={DailyReportPage} />} /> {/* Menggunakan DailyReportPage */}
+            <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} /> {/* Menggunakan EmployeePage */}
           </Routes>
         </main>
         <Toaster />
