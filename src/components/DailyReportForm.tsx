@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
+import RichTextEditor from "./RichTextEditor"; // Import the new RichTextEditor
 
 const formSchema = z.object({
   report_date: z.date({
@@ -38,7 +39,7 @@ const formSchema = z.object({
   employee_id: z.string({
     required_error: "Nama pelapor wajib dipilih.",
   }),
-  activity: z.string().min(10, {
+  activity: z.string().min(10, { // Activity now expects HTML string
     message: "Deskripsi aktivitas harus minimal 10 karakter.",
   }),
   notes: z.string().optional().nullable(), // Make notes optional and nullable
@@ -66,7 +67,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
     defaultValues: {
       report_date: undefined,
       employee_id: "",
-      activity: "",
+      activity: "", // Default to empty string for RichTextEditor
       notes: "",
     },
   });
@@ -98,7 +99,9 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
             // Ensure optional fields are handled correctly if null
             notes: data.notes || "",
             // Ensure employee_id is a string, even if null from DB
-            employee_id: data.employee_id || "", 
+            employee_id: data.employee_id || "",
+            // Activity content for RichTextEditor
+            activity: data.activity || "",
           });
         } else {
            // Handle case where ID is not found
@@ -116,7 +119,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
         notes: "",
       });
     }
-  }, [editingReportId, form, setEditingReportId]); // Depend on editingReportId and form/setEditingReportId
+  }, [editingReportId, form, setEditingRentalId]); // Depend on editingReportId and form/setEditingRentalId
 
   const fetchEmployees = async () => {
     setLoadingEmployees(true);
@@ -145,7 +148,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
     const reportData = {
       report_date: format(values.report_date, "yyyy-MM-dd"),
       employee_id: values.employee_id,
-      activity: values.activity,
+      activity: values.activity, // activity now contains HTML string
       notes: values.notes || null, // Save empty string as null
     };
 
@@ -256,7 +259,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
               </FormItem>
             )}
           />
-          {/* Aktivitas Harian Field */}
+          {/* Aktivitas Harian Field (RichTextEditor) */}
           <FormField
             control={form.control}
             name="activity"
@@ -264,7 +267,12 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
               <FormItem>
                 <FormLabel>Aktivitas Harian</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Jelaskan aktivitas yang dilakukan hari ini..." {...field} />
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Jelaskan aktivitas yang dilakukan hari ini..."
+                    disabled={field.disabled}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
