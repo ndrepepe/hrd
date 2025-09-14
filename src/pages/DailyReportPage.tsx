@@ -31,7 +31,7 @@ const DailyReportPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 pt-16"> {/* Added pt-16 */}
+    <div className="container mx-auto p-4"> {/* Removed pt-16 */}
       <h1 className="text-3xl font-bold mb-2 text-center">Modul Laporan Harian Karyawan</h1> {/* Adjusted mb */}
       <p className="text-center text-gray-600 mb-8">
         Input dan lihat rekap laporan harian aktivitas karyawan.
@@ -41,7 +41,7 @@ const DailyReportPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* TabsList (Horizontal Tabs) */}
         {/* Use grid for responsive horizontal layout */}
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 mb-6"> {/* Adjusted grid-cols for responsiveness */}
+        <TabsList className="grid w-full grid-cols-2 mb-6"> {/* Use 2 columns on all screen sizes */}
           <TabsTrigger value="input-report">Input Laporan</TabsTrigger>
           <TabsTrigger value="list-reports">Daftar Laporan Harian</TabsTrigger>
         </TabsList>

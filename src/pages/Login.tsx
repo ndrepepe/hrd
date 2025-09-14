@@ -19,7 +19,7 @@ const Login = () => {
   }, [session, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 pt-16">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4"> {/* Removed pt-16 */}
       <div className="w-full max-w-md">
         <Auth
           supabaseClient={supabase}

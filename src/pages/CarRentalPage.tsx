@@ -30,41 +30,21 @@ const CarRentalPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-16 pb-8"> {/* Added pb-8 for bottom padding */}
+    <div className="container mx-auto p-4 pb-8"> {/* Removed pt-16 */}
       <h1 className="text-2xl md:text-3xl font-bold mb-2 text-center">Modul Peminjaman Mobil</h1>
-      <p className="text-center text-gray-600 mb-4 md:mb-8 text-sm md:text-base">
+      <p className="text-center text-gray-600 mb-8 text-sm md:text-base">
         Kelola daftar mobil dan catat peminjamannya di sini.
       </p>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6"> {/* Reduced gap and mb for mobile */}
-          <TabsTrigger 
-            value="add-car" 
-            className="text-xs sm:text-sm px-2 py-1 sm:px-4 sm:py-2" // Smaller padding/text on mobile
-          >
-            Tambah Mobil
-          </TabsTrigger>
-          <TabsTrigger 
-            value="list-cars" 
-            className="text-xs sm:text-sm px-2 py-1 sm:px-4 sm:py-2"
-          >
-            Daftar Mobil
-          </TabsTrigger>
-          <TabsTrigger 
-            value="add-rental" 
-            className="text-xs sm:text-sm px-2 py-1 sm:px-4 sm:py-2"
-          >
-            Input Peminjaman
-          </TabsTrigger>
-          <TabsTrigger 
-            value="list-rentals" 
-            className="text-xs sm:text-sm px-2 py-1 sm:px-4 sm:py-2"
-          >
-            Rekap Peminjaman
-          </TabsTrigger>
+        <TabsList className="flex flex-wrap h-auto justify-center gap-2 mb-6"> {/* Use flex-wrap for responsiveness */}
+          <TabsTrigger value="add-car">Tambah Mobil</TabsTrigger>
+          <TabsTrigger value="list-cars">Daftar Mobil</TabsTrigger>
+          <TabsTrigger value="add-rental">Input Peminjaman</TabsTrigger>
+          <TabsTrigger value="list-rentals">Rekap Peminjaman</TabsTrigger>
         </TabsList>
 
-        <div className="min-h-[calc(100vh-280px)]"> {/* Ensure minimum height for content area */}
+        <div> {/* Simple wrapper for content */}
           <TabsContent value="add-car" className="mt-0">
             <CarForm onCarAdded={handleCarAddedOrDeleted} />
           </TabsContent>

@@ -100,7 +100,7 @@ const RecruitmentPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 pt-16"> {/* Main page container, pt-16 for main nav */}
+    <div className="container mx-auto p-4"> {/* Removed pt-16 */}
       <h1 className="text-3xl font-bold mb-2 text-center">Modul Rekrutmen Karyawan</h1>
       <p className="text-center text-gray-600 mb-8">
         Kelola posisi yang dibutuhkan, data kandidat, proses wawancara, dan keputusan rekrutmen di sini.
@@ -110,7 +110,7 @@ const RecruitmentPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* TabsList (Horizontal Tabs) */}
         {/* Use grid for responsive horizontal layout */}
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6"> {/* Adjusted grid-cols for responsiveness */}
+        <TabsList className="flex flex-wrap h-auto justify-center gap-2 mb-6"> {/* Use flex-wrap for responsiveness */}
           <TabsTrigger value="add-position">Tambah Posisi</TabsTrigger>
           <TabsTrigger value="list-positions">Daftar Posisi</TabsTrigger>
           <TabsTrigger value="add-candidate">Tambah Kandidat</TabsTrigger>
