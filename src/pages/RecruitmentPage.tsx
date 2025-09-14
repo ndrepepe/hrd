@@ -110,7 +110,7 @@ const RecruitmentPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* TabsList (Horizontal Tabs) */}
         {/* Use grid for responsive horizontal layout */}
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-5 mb-6"> {/* Added mb-6 for spacing below tabs */}
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6"> {/* Adjusted grid-cols for responsiveness */}
           <TabsTrigger value="add-position">Tambah Posisi</TabsTrigger>
           <TabsTrigger value="list-positions">Daftar Posisi</TabsTrigger>
           <TabsTrigger value="add-candidate">Tambah Kandidat</TabsTrigger>

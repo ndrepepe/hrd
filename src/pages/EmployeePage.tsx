@@ -39,7 +39,7 @@ const EmployeePage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* TabsList (Horizontal Tabs) */}
         {/* Use grid for responsive horizontal layout */}
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 lg:grid-cols-2 mb-6"> {/* Added mb-6 for spacing below tabs */}
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 mb-6"> {/* Adjusted grid-cols for responsiveness */}
           <TabsTrigger value="add-employee">Tambah Karyawan</TabsTrigger>
           <TabsTrigger value="list-employees">Daftar Karyawan</TabsTrigger>
         </TabsList>
