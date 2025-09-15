@@ -27,6 +27,7 @@ interface Rental {
   car_name: string | null; // Keep this for backward compatibility if needed, but prefer cars.name
   borrower_name: string;
   driver_name: string | null;
+  purpose: string; // New: Purpose field
   rent_date: string;
   start_time: string;
   end_time: string;
@@ -176,6 +177,7 @@ const CarRentalList = ({ refreshTrigger, onEditClick }: CarRentalListProps) => {
                 <TableHead>Nama Mobil</TableHead>
                 <TableHead>Peminjam</TableHead>
                 <TableHead>Sopir</TableHead>
+                <TableHead>Tujuan</TableHead> {/* New TableHead for Purpose */}
                 <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -187,6 +189,7 @@ const CarRentalList = ({ refreshTrigger, onEditClick }: CarRentalListProps) => {
                   <TableCell>{rental.cars?.name || rental.car_name || "-"}</TableCell>
                   <TableCell>{rental.borrower_name}</TableCell>
                   <TableCell>{rental.driver_name || "-"}</TableCell>
+                  <TableCell>{rental.purpose}</TableCell> {/* New TableCell for Purpose */}
                   <TableCell className="flex space-x-2">
                     {/* Use rental.id for editing */}
                     <Button variant="outline" size="sm" onClick={() => handleEdit(rental)}>Edit</Button>

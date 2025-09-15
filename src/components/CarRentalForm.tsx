@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea"; // Import Textarea
 import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -37,24 +38,21 @@ const formSchema = z.object({
   borrower_name: z.string().min(2, {
     message: "Nama peminjam harus minimal 2 karakter.",
   }),
-  driver_name: z.string().optional(),
+  driver_name: z.string().optional().nullable(), // Made nullable
+  purpose: z.string().min(5, { // New: Purpose field, required
+    message: "Tujuan peminjaman harus minimal 5 karakter.",
+  }),
   rent_date: z.date({
     required_error: "Tanggal pinjam wajib diisi.",
   }),
   start_time: z.string()
-    .optional()
-    .refine(val => val !== undefined && val !== "", {
-      message: "Jam pinjam wajib diisi.",
-    })
-    .refine(val => val ? /^([01]\d|2[0-3]):([0-5]\d)$/.test(val) : true, {
+    .min(1, { message: "Jam pinjam wajib diisi." }) // Changed refine to min(1)
+    .refine(val => /^([01]\d|2[0-3]):([0-5]\d)$/.test(val), { // Removed optional check
       message: "Format jam pinjam tidak valid (HH:MM).",
     }),
   end_time: z.string()
-    .optional()
-    .refine(val => val !== undefined && val !== "", {
-      message: "Jam kembali wajib diisi.",
-    })
-    .refine(val => val ? /^([01]\d|2[0-3]):([0-5]\d)$/.test(val) : true, {
+    .min(1, { message: "Jam kembali wajib diisi." }) // Changed refine to min(1)
+    .refine(val => /^([01]\d|2[0-3]):([0-5]\d)$/.test(val), { // Removed optional check
       message: "Format jam kembali tidak valid (HH:MM).",
     }),
 });
@@ -81,6 +79,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
       car_id: "",
       borrower_name: "",
       driver_name: "",
+      purpose: "", // Default value for new field
       rent_date: undefined,
       start_time: "",
       end_time: "",
@@ -125,6 +124,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
             ...data,
             rent_date: data.rent_date ? parseISO(data.rent_date) : undefined,
             driver_name: data.driver_name || "",
+            purpose: data.purpose || "", // Populate new field
             start_time: data.start_time ? data.start_time.slice(0, 5) : "",
             end_time: data.end_time ? data.end_time.slice(0, 5) : "",
           });
@@ -139,6 +139,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
         car_id: "",
         borrower_name: "",
         driver_name: "",
+        purpose: "", // Reset new field
         rent_date: undefined,
         start_time: "",
         end_time: "",
@@ -180,6 +181,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
       car_id: values.car_id,
       borrower_name: values.borrower_name,
       driver_name: values.driver_name || null,
+      purpose: values.purpose, // Include new field
       rent_date: formattedRentDate,
       start_time: values.start_time,
       end_time: values.end_time,
@@ -218,6 +220,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
       car_id: "",
       borrower_name: "",
       driver_name: "",
+      purpose: "", // Reset new field
       rent_date: undefined,
       start_time: "",
       end_time: "",
@@ -281,13 +284,28 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
                 <FormItem>
                   <FormLabel>Nama Sopir (Opsional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Contoh: Agus" {...field} />
+                    <Input placeholder="Contoh: Agus" {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+
+          {/* New: Tujuan Field */}
+          <FormField
+            control={form.control}
+            name="purpose"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tujuan Peminjaman</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Contoh: Untuk keperluan dinas ke luar kota" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
