@@ -153,20 +153,38 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
       notes: currentValues.notes || null,
     };
 
-    if (editingReportId) {
-      // Update existing report
-      result = await supabase
+    // Validate required fields for new reports before auto-saving
+    if (!editingReportId && (!reportData.employee_id || !reportData.report_date)) {
+      // For auto-save, we might not want to show a strong error, just prevent saving incomplete new reports
+      console.warn("Auto-save skipped: Employee and Report Date are required for new reports.");
+      setIsAutoSaving(false);
+      return;
+    }
+
+    if (!editingReportId) {
+      // --- Validasi Duplikasi untuk Auto-save (Laporan Baru) ---
+      const { data: existingReports, error: checkError } = await supabase
         .from("daily_reports")
-        .update(reportData)
-        .eq("id", editingReportId)
-        .select();
-    } else {
-      // Insert new report (only if required fields are present)
-      if (!reportData.employee_id || !reportData.report_date) {
-        showError("Tidak dapat menyimpan otomatis laporan baru: Nama Karyawan dan Tanggal Laporan wajib diisi.");
+        .select("id")
+        .eq("employee_id", reportData.employee_id)
+        .eq("report_date", reportData.report_date);
+
+      if (checkError) {
+        console.error("Error checking for existing reports during auto-save:", checkError);
+        showError("Gagal memeriksa laporan yang sudah ada saat auto-save: " + checkError.message);
         setIsAutoSaving(false);
         return;
       }
+
+      if (existingReports && existingReports.length > 0) {
+        console.warn("Auto-save skipped: Laporan untuk karyawan dan tanggal ini sudah ada.");
+        // Optionally, you could update the existing report here if that's desired for auto-save
+        // For now, we'll just skip insertion to avoid duplicates.
+        setIsAutoSaving(false);
+        return;
+      }
+      // --- Akhir Validasi Duplikasi ---
+
       result = await supabase
         .from("daily_reports")
         .insert([reportData])
@@ -176,6 +194,13 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
         // If a new report was inserted, update editingReportId so subsequent auto-saves update it
         setEditingReportId(result.data[0].id);
       }
+    } else {
+      // Update existing report
+      result = await supabase
+        .from("daily_reports")
+        .update(reportData)
+        .eq("id", editingReportId)
+        .select();
     }
 
     const { data, error } = result;
@@ -223,12 +248,33 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
 
     let result;
     if (editingReportId) {
+      // Jika sedang mengedit laporan yang sudah ada, langsung update
       result = await supabase
         .from("daily_reports")
         .update(reportData)
         .eq("id", editingReportId)
         .select();
     } else {
+      // --- Validasi Duplikasi untuk Laporan Baru ---
+      const { data: existingReports, error: checkError } = await supabase
+        .from("daily_reports")
+        .select("id")
+        .eq("employee_id", values.employee_id)
+        .eq("report_date", formattedReportDate);
+
+      if (checkError) {
+        console.error("Error checking for existing reports:", checkError);
+        showError("Gagal memeriksa laporan yang sudah ada: " + checkError.message);
+        return;
+      }
+
+      if (existingReports && existingReports.length > 0) {
+        showError("Karyawan ini sudah memiliki laporan untuk tanggal yang sama. Silakan edit laporan yang sudah ada atau pilih tanggal lain.");
+        return;
+      }
+      // --- Akhir Validasi Duplikasi ---
+
+      // Jika tidak ada duplikasi, masukkan laporan baru
       result = await supabase
         .from("daily_reports")
         .insert([reportData])
