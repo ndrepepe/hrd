@@ -1,41 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DailyReportForm from "@/components/DailyReportForm";
 import DailyReportList from "@/components/DailyReportList";
 
 const DailyReport = () => {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refreshReportsTrigger, setRefreshReportsTrigger] = useState(0);
   const [editingReportId, setEditingReportId] = useState<string | null>(null);
 
   const handleReportSubmitted = () => {
-    setRefreshTrigger((prev) => prev + 1);
-    setEditingReportId(null); // Clear editing state after submission
+    setRefreshReportsTrigger(prev => prev + 1);
+    setEditingReportId(null); // Ensure form resets after submission
   };
 
   const handleEditClick = (reportId: string) => {
     setEditingReportId(reportId);
   };
 
-  const handleCancelEdit = () => {
-    setEditingReportId(null); // Clear editing state
-  };
-
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">Laporan Harian Karyawan</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <DailyReportForm
-          onReportSubmitted={handleReportSubmitted}
-          editingReportId={editingReportId}
-          setEditingReportId={setEditingReportId}
-          onCancelEdit={handleCancelEdit}
-        />
-        <DailyReportList
-          refreshTrigger={refreshTrigger}
-          onEditClick={handleEditClick}
-        />
-      </div>
+      <h2 className="text-2xl font-bold mb-6">Manajemen Laporan Harian</h2>
+      <Tabs defaultValue="add-report" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="add-report">Input Laporan</TabsTrigger>
+          <TabsTrigger value="report-list">Rekap Laporan</TabsTrigger>
+        </TabsList>
+        <TabsContent value="add-report" className="mt-4">
+          <DailyReportForm
+            refreshReportsTrigger={refreshReportsTrigger}
+            onReportSubmitted={handleReportSubmitted}
+            editingReportId={editingReportId}
+            setEditingReportId={setEditingReportId}
+          />
+        </TabsContent>
+        <TabsContent value="report-list" className="mt-4">
+          <DailyReportList
+            refreshTrigger={refreshReportsTrigger}
+            onEditClick={handleEditClick}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
