@@ -1,42 +1,64 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import DailyReportForm from "@/components/DailyReportForm";
-import DailyReportList from "@/components/DailyReportList";
+import DailyReportForm from '@/components/DailyReportForm';
+import DailyReportList from '@/components/DailyReportList';
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs components
 
 const DailyReportPage = () => {
-  const [refreshReportsTrigger, setRefreshReportsTrigger] = useState(0);
-  const [editingReportId, setEditingReportId] = useState<string | null>(null);
+  const [refreshList, setRefreshList] = useState(0);
+  const [activeTab, setActiveTab] = useState("input-report"); // State to manage active tab, default to input form
+  const [editingReportId, setEditingReportId] = useState<string | null>(null); // State to hold the ID of the report being edited
 
   const handleReportSubmitted = () => {
-    setRefreshReportsTrigger(prev => prev + 1);
-    setEditingReportId(null); // Ensure form resets after submission
+    // Increment state to trigger refresh in DailyReportList
+    setRefreshList(prev => prev + 1);
+    // Clear editing state after submission (add or edit)
+    setEditingReportId(null);
+    // Optionally switch to list view after submission
+    setActiveTab("list-reports");
   };
 
   const handleEditClick = (reportId: string) => {
-    setEditingReportId(reportId);
+    setEditingReportId(reportId); // Set the ID of the report to be edited
+    setActiveTab("input-report"); // Switch to the input form tab
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReportId(null); // Clear the editing state
+    setActiveTab("input-report"); // Stay on the input tab, but clear the form
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">Manajemen Laporan Harian</h2>
-      <Tabs defaultValue="add-report" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="add-report">Input Laporan</TabsTrigger>
-          <TabsTrigger value="report-list">Rekap Laporan</TabsTrigger>
+    <div className="container mx-auto p-4"> {/* Removed pt-16 */}
+      <h1 className="text-3xl font-bold mb-2 text-center">Modul Laporan Harian Karyawan</h1> {/* Adjusted mb */}
+      <p className="text-center text-gray-600 mb-8">
+        Input dan lihat rekap laporan harian aktivitas karyawan.
+      </p>
+
+      {/* Tabs component wraps the TabsList and TabsContent */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* TabsList (Horizontal Tabs) */}
+        {/* Use grid for responsive horizontal layout */}
+        <TabsList className="grid w-full grid-cols-2 mb-6"> {/* Use 2 columns on all screen sizes */}
+          <TabsTrigger value="input-report">Input Laporan</TabsTrigger>
+          <TabsTrigger value="list-reports">Daftar Laporan Harian</TabsTrigger>
         </TabsList>
-        <TabsContent value="add-report" className="mt-4">
+
+        {/* TabsContent area - Removed the extra div wrapper */}
+        <TabsContent value="input-report" className="mt-0"> {/* mt-0 to remove default TabsContent margin */}
           <DailyReportForm
-            refreshReportsTrigger={refreshReportsTrigger}
             onReportSubmitted={handleReportSubmitted}
             editingReportId={editingReportId}
             setEditingReportId={setEditingReportId}
+            onCancelEdit={handleCancelEdit}
           />
         </TabsContent>
-        <TabsContent value="report-list" className="mt-4">
+
+        <TabsContent value="list-reports" className="mt-0"> {/* mt-0 to remove default TabsContent margin */}
           <DailyReportList
-            refreshTrigger={refreshReportsTrigger}
+            refreshTrigger={refreshList}
             onEditClick={handleEditClick}
           />
         </TabsContent>
