@@ -25,7 +25,7 @@ function App() {
             <Route path="/employees" element={<ProtectedRoute component={EmployeePage} />} />
           </Routes>
         </main>
-        <Toaster /> {/* Menggunakan Toaster dari sonner */}
+        <Toaster richColors position="top-right" /> {/* Menggunakan Toaster dari sonner */}
       </SessionContextProvider>
     </BrowserRouter>
   );

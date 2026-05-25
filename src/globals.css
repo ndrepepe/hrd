@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 188 91% 27%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 44 95% 91%;
+    --secondary-foreground: 32 92% 21%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 28% 94%;
+    --muted-foreground: 215 16% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 164 72% 92%;
+    --accent-foreground: 170 79% 18%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214 32% 89%;
+    --input: 214 32% 89%;
+    --ring: 188 91% 27%;
 
     --radius: 0.5rem;
 
@@ -95,7 +95,85 @@
     @apply border-border;
   }
 
+  html {
+    @apply scroll-smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    background:
+      linear-gradient(135deg, rgba(241, 245, 249, 0.92), rgba(236, 253, 245, 0.64) 42%, rgba(255, 251, 235, 0.54)),
+      #f8fafc;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply min-h-[calc(100vh-4rem)] px-4 py-6 sm:px-6 lg:px-8;
+  }
+
+  .app-container {
+    @apply mx-auto w-full max-w-6xl;
+  }
+
+  .page-header {
+    @apply mb-6 flex flex-col gap-2 rounded-lg border border-white/70 bg-white/80 p-5 text-left shadow-sm shadow-slate-200/70 backdrop-blur md:p-6;
+  }
+
+  .page-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.16em] text-primary;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold text-slate-950 sm:text-3xl;
+  }
+
+  .page-description {
+    @apply max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base;
+  }
+
+  .surface-panel {
+    @apply rounded-lg border border-white/70 bg-white/90 p-4 shadow-sm shadow-slate-200/80 backdrop-blur sm:p-6;
+  }
+
+  .section-title {
+    @apply mb-4 text-lg font-semibold text-slate-950 sm:text-xl;
+  }
+
+  .table-card {
+    @apply overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/70;
+  }
+
+  .empty-state {
+    @apply rounded-lg border border-dashed border-slate-300 bg-slate-50/80 px-4 py-8 text-center text-sm text-muted-foreground;
+  }
+
+  .loading-state {
+    @apply rounded-lg border border-slate-200 bg-white/80 px-4 py-8 text-center text-sm text-muted-foreground shadow-sm;
+  }
+
+  .module-card {
+    @apply rounded-lg border border-white/70 bg-white/90 p-5 shadow-sm shadow-slate-200/80 transition duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md;
+  }
+
+  .ql-toolbar.ql-snow {
+    @apply rounded-t-md border-slate-200 bg-slate-50/90;
+  }
+
+  .ql-container.ql-snow {
+    @apply min-h-56 rounded-b-md border-slate-200 bg-white text-sm shadow-sm shadow-slate-100;
+  }
+
+  .ql-editor {
+    @apply min-h-56 leading-7;
+  }
+
+  .auth-container {
+    @apply space-y-4;
   }
 }

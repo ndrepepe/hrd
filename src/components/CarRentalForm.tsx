@@ -228,8 +228,8 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto">
-      <h3 className="text-xl font-semibold mb-4">{editingRentalId ? "Edit Data Peminjaman Mobil" : "Input Peminjaman Mobil"}</h3>
+    <div className="surface-panel mx-auto w-full max-w-3xl">
+      <h3 className="section-title">{editingRentalId ? "Edit Data Peminjaman Mobil" : "Input Peminjaman Mobil"}</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -375,7 +375,7 @@ const CarRentalForm = ({ refreshCarsTrigger, onRentalSubmitted, editingRentalId,
             )}
           />
 
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Button type="submit">{editingRentalId ? "Simpan Perubahan" : "Simpan Peminjaman"}</Button>
             {editingRentalId && (
               <Button type="button" variant="outline" onClick={handleCancelEdit}>

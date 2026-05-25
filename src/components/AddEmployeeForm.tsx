@@ -103,8 +103,8 @@ const AddEmployeeForm = ({ onEmployeeAdded }: AddEmployeeFormProps) => {
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Tambah Data Karyawan Baru</h3>
+    <div className="surface-panel mx-auto w-full max-w-3xl">
+      <h3 className="section-title">Tambah Data Karyawan Baru</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Employee ID Field */}

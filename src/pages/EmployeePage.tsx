@@ -5,6 +5,7 @@ import AddEmployeeForm from '@/components/AddEmployeeForm';
 import EmployeeList from '@/components/EmployeeList';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users } from "lucide-react";
 
 const EmployeePage = () => {
   const [refreshEmployees, setRefreshEmployees] = useState(0);
@@ -29,17 +30,28 @@ const EmployeePage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4"> {/* Removed pt-16 */}
-      <h1 className="text-3xl font-bold mb-2 text-center">Modul Data Karyawan</h1>
-      <p className="text-center text-gray-600 mb-8">
-        Kelola data lengkap karyawan di sini.
-      </p>
+    <div className="app-shell">
+      <div className="app-container">
+        <div className="page-header">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-md bg-amber-50 text-amber-700">
+              <Users className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="page-kicker">Database SDM</p>
+              <h1 className="page-title">Modul Data Karyawan</h1>
+            </div>
+          </div>
+          <p className="page-description">
+            Kelola data lengkap karyawan di sini.
+          </p>
+        </div>
 
       {/* Tabs component wraps the TabsList and TabsContent */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* TabsList (Horizontal Tabs) */}
         {/* Use grid for responsive horizontal layout */}
-        <TabsList className="grid w-full grid-cols-2 mb-6"> {/* Use 2 columns on all screen sizes */}
+        <TabsList className="mb-6 grid h-auto w-full grid-cols-2 gap-2"> {/* Use 2 columns on all screen sizes */}
           <TabsTrigger value="add-employee">Tambah Karyawan</TabsTrigger>
           <TabsTrigger value="list-employees">Daftar Karyawan</TabsTrigger>
         </TabsList>
@@ -56,6 +68,7 @@ const EmployeePage = () => {
           />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
   };

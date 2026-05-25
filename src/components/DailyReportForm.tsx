@@ -296,8 +296,11 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
   }
 
   return (
-    <div className="w-[90%] mx-auto">
-      <h3 className="text-xl font-semibold mb-4">{editingReportId ? "Edit Laporan Harian" : "Input Laporan Harian"}</h3>
+    <div className="surface-panel mx-auto w-full">
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="section-title mb-0">{editingReportId ? "Edit Laporan Harian" : "Input Laporan Harian"}</h3>
+        <span className="text-xs font-medium text-muted-foreground">Auto-save setiap 5 menit</span>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
@@ -404,7 +407,7 @@ const DailyReportForm = ({ onReportSubmitted, editingReportId, setEditingReportI
             )}
           />
 
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={isAutoSaving}>
                {isAutoSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                {editingReportId ? "Simpan Perubahan" : "Simpan Laporan"}

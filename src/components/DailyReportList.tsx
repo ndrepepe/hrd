@@ -89,16 +89,17 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
   };
 
   if (loading) {
-    return <div className="text-center py-8">Memuat laporan harian...</div>;
+    return <div className="loading-state">Memuat laporan harian...</div>;
   }
 
   if (reports.length === 0) {
-    return <div className="text-center py-8">Belum ada laporan harian.</div>;
+    return <div className="empty-state">Belum ada laporan harian.</div>;
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <h3 className="text-xl font-semibold mb-4">Daftar Laporan Harian</h3>
+    <div className="surface-panel w-full">
+      <h3 className="section-title">Daftar Laporan Harian</h3>
+      <div className="table-card overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -140,6 +141,7 @@ const DailyReportList = ({ refreshTrigger, onEditClick }: DailyReportListProps) 
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 };

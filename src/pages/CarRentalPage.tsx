@@ -7,6 +7,7 @@ import CarForm from "@/components/CarForm";
 import CarList from "@/components/CarList";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Car } from "lucide-react";
 
 const CarRentalPage = () => {
   const [refreshCars, setRefreshCars] = useState(0);
@@ -30,19 +31,32 @@ const CarRentalPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 pb-8"> {/* Removed pt-16 */}
-      <h1 className="text-2xl md:text-3xl font-bold mb-2 text-center">Modul Peminjaman Mobil</h1>
-      <p className="text-center text-gray-600 mb-8 text-sm md:text-base">
-        Kelola daftar mobil dan catat peminjamannya di sini.
-      </p>
+    <div className="app-shell">
+      <div className="app-container">
+        <div className="page-header">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-md bg-cyan-50 text-cyan-700">
+              <Car className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="page-kicker">Operasional Kendaraan</p>
+              <h1 className="page-title">Modul Peminjaman Mobil</h1>
+            </div>
+          </div>
+          <p className="page-description">
+            Kelola daftar mobil dan catat peminjamannya di sini.
+          </p>
+        </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="flex flex-wrap h-auto justify-center gap-2 mb-6"> {/* Use flex-wrap for responsiveness */}
-          <TabsTrigger value="add-car">Tambah Mobil</TabsTrigger>
-          <TabsTrigger value="list-cars">Daftar Mobil</TabsTrigger>
-          <TabsTrigger value="add-rental">Input Peminjaman</TabsTrigger>
-          <TabsTrigger value="list-rentals">Rekap Peminjaman</TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="mb-6 flex justify-center">
+          <TabsList className="grid h-auto w-full max-w-4xl grid-cols-2 gap-2 p-1.5 sm:grid-cols-4"> {/* Use responsive grid for tidy submenu alignment */}
+            <TabsTrigger value="add-car" className="w-full">Tambah Mobil</TabsTrigger>
+            <TabsTrigger value="list-cars" className="w-full">Daftar Mobil</TabsTrigger>
+            <TabsTrigger value="add-rental" className="w-full">Input Peminjaman</TabsTrigger>
+            <TabsTrigger value="list-rentals" className="w-full">Rekap Peminjaman</TabsTrigger>
+          </TabsList>
+        </div>
 
         <div> {/* Simple wrapper for content */}
           <TabsContent value="add-car" className="mt-0">
@@ -73,6 +87,7 @@ const CarRentalPage = () => {
           </TabsContent>
         </div>
       </Tabs>
+      </div>
     </div>
   );
 };

@@ -84,16 +84,16 @@ const EmployeeList = ({ refreshTrigger, onEditClick }: EmployeeListProps) => {
   };
 
   if (loading) {
-    return <div className="container mx-auto p-4">Memuat data karyawan...</div>;
+    return <div className="loading-state">Memuat data karyawan...</div>;
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Daftar Karyawan</h3>
+    <div className="surface-panel mx-auto w-full">
+      <h3 className="section-title">Daftar Karyawan</h3>
       {employees.length === 0 ? (
-        <p>Belum ada data karyawan.</p>
+        <p className="empty-state">Belum ada data karyawan.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="table-card overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

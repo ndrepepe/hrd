@@ -61,8 +61,8 @@ const CarForm = ({ onCarAdded }: CarFormProps) => {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Tambah Nama Mobil</h3>
+    <div className="surface-panel mx-auto w-full max-w-xl">
+      <h3 className="section-title">Tambah Nama Mobil</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

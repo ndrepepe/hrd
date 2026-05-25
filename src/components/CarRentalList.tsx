@@ -105,23 +105,23 @@ const CarRentalList = ({ refreshTrigger, onEditClick }: CarRentalListProps) => {
   };
 
   if (loading) {
-    return <div className="container mx-auto p-4">Memuat rekap peminjaman...</div>;
+    return <div className="loading-state">Memuat rekap peminjaman...</div>;
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Rekap Peminjaman Mobil</h3>
+    <div className="surface-panel mx-auto w-full">
+      <h3 className="section-title">Rekap Peminjaman Mobil</h3>
 
       {/* Date Filter Section */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Label className="mr-2">Filter Tanggal:</Label>
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3">
+        <Label className="mr-2 text-sm font-semibold text-slate-700">Filter Tanggal:</Label>
         <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
           <PopoverTrigger asChild>
             <Button
               id="date"
               variant={"outline"}
               className={cn(
-                "w-[300px] justify-start text-left font-normal",
+                "w-full justify-start text-left font-normal sm:w-[300px]",
                 !dateRange && "text-muted-foreground"
               )}
             >
@@ -166,9 +166,9 @@ const CarRentalList = ({ refreshTrigger, onEditClick }: CarRentalListProps) => {
 
       {/* Rental List Table */}
       {rentals.length === 0 ? (
-        <p>Belum ada data peminjaman untuk tanggal yang dipilih.</p>
+        <p className="empty-state">Belum ada data peminjaman untuk tanggal yang dipilih.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="table-card overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

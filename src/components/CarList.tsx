@@ -86,16 +86,16 @@ const CarList = ({ refreshTrigger, onCarDeleted }: CarListProps) => {
   };
 
   if (loading) {
-    return <p>Memuat daftar mobil...</p>;
+    return <div className="loading-state">Memuat daftar mobil...</div>;
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Daftar Nama Mobil</h3>
+    <div className="surface-panel mx-auto w-full max-w-3xl">
+      <h3 className="section-title">Daftar Nama Mobil</h3>
       {cars.length === 0 ? (
-        <p>Belum ada nama mobil yang ditambahkan.</p>
+        <p className="empty-state">Belum ada nama mobil yang ditambahkan.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="table-card overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
